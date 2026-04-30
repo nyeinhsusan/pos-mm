@@ -1,0 +1,48 @@
+{
+  "forecast": {
+    "enabled": true,
+    "auto_promote": true,
+    "improvement_threshold": 1.0,
+    "metric": "MAPE",
+    "metric_direction": "lower",
+    "description": "Auto-promote if MAPE improves by 1% or more"
+  },
+  "inventory": {
+    "enabled": true,
+    "auto_promote": true,
+    "improvement_threshold": 0.5,
+    "metric": "R2",
+    "metric_direction": "higher",
+    "description": "Auto-promote if R² improves by 0.5% or more"
+  },
+  "recommendations": {
+    "enabled": true,
+    "auto_promote": true,
+    "improvement_threshold": 2.0,
+    "metric": "average_confidence",
+    "metric_direction": "higher",
+    "description": "Auto-promote if avg confidence improves by 2% or more"
+  },
+  "data": {
+    "min_days": 90,
+    "train_test_split": 0.8,
+    "description": "Require minimum 90 days of data for retraining"
+  },
+  "cleanup": {
+    "enabled": true,
+    "keep_last_n_versions": 5,
+    "description": "Keep only the 5 most recent model versions"
+  },
+  "schedule": {
+    "forecast": "weekly",
+    "inventory": "weekly",
+    "recommendations": "daily",
+    "description": "Retraining frequency for each model type"
+  },
+  "notifications": {
+    "enabled": false,
+    "email": null,
+    "slack_webhook": null,
+    "description": "Notification settings (not implemented yet)"
+  }
+}

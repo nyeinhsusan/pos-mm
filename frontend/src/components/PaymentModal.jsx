@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import NumericKeypad from './NumericKeypad';
+import { calculateDenominationBreakdown } from '../utils/currencyUtils';
 
 const PAYMENT_METHODS = [
   {
@@ -193,6 +195,20 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
     setCashTendered((current + add).toString());
   };
 
+  // Numeric keypad handlers
+  const handleNumericInput = (value) => {
+    const newValue = cashTendered + value;
+    setCashTendered(newValue);
+  };
+
+  const handleClearInput = () => {
+    setCashTendered('');
+  };
+
+  const handleBackspace = () => {
+    setCashTendered(cashTendered.slice(0, -1));
+  };
+
   if (showSummary) {
     const finalPayments = splitPayment ? addedPayments : [{
       payment_method: selectedMethod.id,
@@ -330,54 +346,84 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
 
         {/* Cash Payment Input */}
         {selectedMethod?.id === 'cash' && !splitPayment && (
-          <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-500 dark:border-green-600">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Amount Tendered:
-            </label>
-            <input
-              type="number"
-              value={cashTendered}
-              onChange={(e) => setCashTendered(e.target.value)}
-              placeholder="Enter amount"
-              className="w-full px-4 py-3 text-2xl font-bold border-2 border-green-300 dark:border-green-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
+          <div className="mb-6 p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-500 dark:border-green-600">
+            {/* Amount Display - Large */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                💵 Amount Tendered:
+              </label>
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-green-300 dark:border-green-700">
+                <div className="text-5xl font-bold text-center text-gray-900 dark:text-gray-100 font-mono">
+                  {cashTendered || '0'} <span className="text-2xl text-gray-500">MMK</span>
+                </div>
+              </div>
+            </div>
 
             {/* Quick Amount Buttons */}
-            <div className="grid grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-4 gap-2 mb-4">
               <button
                 onClick={() => setCashTendered(cartTotal.toString())}
-                className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-semibold"
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
               >
                 Exact
               </button>
               <button
                 onClick={() => handleQuickAmount(1000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-semibold"
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
               >
                 +1,000
               </button>
               <button
                 onClick={() => handleQuickAmount(5000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-semibold"
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
               >
                 +5,000
               </button>
               <button
                 onClick={() => handleQuickAmount(10000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-semibold"
+                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
               >
                 +10,000
               </button>
             </div>
 
+            {/* Numeric Keypad */}
+            <NumericKeypad
+              onNumberClick={handleNumericInput}
+              onClear={handleClearInput}
+              onBackspace={handleBackspace}
+            />
+
             {/* Change Display */}
-            {cashTendered && parseFloat(cashTendered) > cartTotal && (
-              <div className="mt-4 p-3 bg-white dark:bg-gray-700 rounded-lg border-2 border-green-500 dark:border-green-600">
-                <div className="flex justify-between items-center">
+            {cashTendered && parseFloat(cashTendered) >= cartTotal && (
+              <div className="mt-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 border-green-500 dark:border-green-600">
+                <div className="flex justify-between items-center mb-3">
                   <span className="text-lg font-medium text-green-700 dark:text-green-300">Change:</span>
-                  <span className="text-3xl font-bold text-green-600 dark:text-green-400">
+                  <span className="text-4xl font-bold text-green-600 dark:text-green-400">
                     {calculateChange().toLocaleString()} MMK
                   </span>
+                </div>
+
+                {/* Denomination Breakdown */}
+                {calculateChange() > 0 && (
+                  <div className="pt-3 border-t border-green-200 dark:border-green-800">
+                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                      💰 Denomination Breakdown:
+                    </div>
+                    <div className="text-sm font-mono text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                      {calculateDenominationBreakdown(calculateChange()).displayText}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Warning for insufficient amount */}
+            {cashTendered && parseFloat(cashTendered) < cartTotal && (
+              <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 rounded-lg border-2 border-red-500 dark:border-red-600">
+                <div className="flex items-center text-red-700 dark:text-red-300">
+                  <span className="text-2xl mr-2">⚠️</span>
+                  <span className="font-semibold">Insufficient amount! Need {(cartTotal - parseFloat(cashTendered)).toLocaleString()} MMK more</span>
                 </div>
               </div>
             )}

@@ -54,9 +54,13 @@ CREATE TABLE sales (
     profit DECIMAL(10, 2) GENERATED ALWAYS AS (total_amount - total_cost) STORED,
     sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     notes TEXT,
+    receipt_number VARCHAR(50) UNIQUE,
+    receipt_printed_count INT DEFAULT 0,
+    receipt_printed_at TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     INDEX idx_sale_date (sale_date),
     INDEX idx_user_id (user_id),
+    INDEX idx_receipt_number (receipt_number),
     CONSTRAINT chk_total_amount_positive CHECK (total_amount >= 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -91,4 +95,20 @@ CREATE TABLE payments (
     INDEX idx_payment_method (payment_method),
     INDEX idx_created_at (created_at),
     CONSTRAINT chk_payment_amount_positive CHECK (amount > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Store Configuration Table (Business Info for Receipts)
+CREATE TABLE store_config (
+    config_id INT AUTO_INCREMENT PRIMARY KEY,
+    store_name VARCHAR(200) NOT NULL DEFAULT 'POS Store',
+    address TEXT,
+    phone VARCHAR(50),
+    email VARCHAR(100),
+    tax_rate DECIMAL(5, 2) DEFAULT 0.00,
+    currency VARCHAR(10) DEFAULT 'MMK',
+    receipt_header TEXT,
+    receipt_footer TEXT DEFAULT 'Thank you for your purchase!',
+    logo_url VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

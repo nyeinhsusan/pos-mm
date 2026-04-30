@@ -11,6 +11,7 @@ import KeyboardShortcutsHelp from '../components/KeyboardShortcutsHelp';
 import ShoppingCart from '../components/ShoppingCart';
 import SaleSuccessModal from '../components/SaleSuccessModal';
 import PaymentModal from '../components/PaymentModal';
+import ReceiptModal from '../components/ReceiptModal';
 import LowStockBadge from '../components/LowStockBadge';
 
 const POSPage = () => {
@@ -27,7 +28,9 @@ const POSPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [saleData, setSaleData] = useState(null);
+  const [receiptSaleId, setReceiptSaleId] = useState(null);
   const [topProducts, setTopProducts] = useState([]);
 
   // Keyboard shortcuts handlers
@@ -139,6 +142,11 @@ const POSPage = () => {
     } finally {
       setSaleLoading(false);
     }
+  };
+
+  const handleViewReceipt = (saleId) => {
+    setReceiptSaleId(saleId);
+    setShowReceiptModal(true);
   };
 
   const handleLogout = () => {
@@ -396,6 +404,14 @@ const POSPage = () => {
         isOpen={showSuccessModal}
         onClose={() => setShowSuccessModal(false)}
         saleData={saleData}
+        onViewReceipt={handleViewReceipt}
+      />
+
+      {/* Receipt Modal */}
+      <ReceiptModal
+        isOpen={showReceiptModal}
+        onClose={() => setShowReceiptModal(false)}
+        saleId={receiptSaleId}
       />
 
       {/* Command Palette */}

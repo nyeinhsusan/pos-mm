@@ -1,8 +1,37 @@
 const { pool } = require('../config/database');
 const Product = require('./Product');
 const Payment = require('./Payment');
+const StoreConfig = require('./StoreConfig');
 
 class Sale {
+  /**
+   * Generate unique receipt number
+   * Format: RCP-YYYYMMDD-XXXX
+   * @returns {Promise<string>} Receipt number
+   */
+  static async generateReceiptNumber() {
+    try {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const dateStr = `${year}${month}${day}`;
+
+      // Get count of receipts today
+      const [rows] = await pool.query(
+        `SELECT COUNT(*) as count FROM sales
+         WHERE DATE(sale_date) = CURDATE()`
+      );
+
+      const dailyCount = rows[0].count + 1;
+      const sequenceNumber = String(dailyCount).padStart(4, '0');
+
+      return `RCP-${dateStr}-${sequenceNumber}`;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   /**
    * Create a new sale with transaction support
    * @param {Object} saleData - {user_id, items: [{product_id, quantity}], notes, payments: [{payment_method, amount, transaction_id}]}
@@ -79,10 +108,12 @@ class Sale {
         });
       }
 
-      // Step 2: Insert sale record
+      // Step 2: Generate receipt number and insert sale record
+      const receipt_number = await this.generateReceiptNumber();
+
       const [saleResult] = await connection.query(
-        'INSERT INTO sales (user_id, total_amount, total_cost, notes) VALUES (?, ?, ?, ?)',
-        [user_id, total_amount, total_cost, notes || null]
+        'INSERT INTO sales (user_id, total_amount, total_cost, notes, receipt_number) VALUES (?, ?, ?, ?, ?)',
+        [user_id, total_amount, total_cost, notes || null, receipt_number]
       );
 
       const sale_id = saleResult.insertId;
@@ -130,6 +161,7 @@ class Sale {
       // Return sale details
       return {
         sale_id,
+        receipt_number,
         user_id,
         total_amount: parseFloat(total_amount).toFixed(2),
         total_cost: parseFloat(total_cost).toFixed(2),
@@ -293,6 +325,103 @@ class Sale {
       sale.payments = payments;
 
       return sale;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Get receipt data for a sale
+   * @param {number} saleId
+   * @returns {Promise<Object|null>} Receipt data with store config
+   */
+  static async getReceiptData(saleId) {
+    try {
+      // Get sale with items and payments
+      const sale = await this.findById(saleId);
+
+      if (!sale) {
+        return null;
+      }
+
+      // Get store configuration
+      const storeConfig = await StoreConfig.get();
+
+      // Get receipt number
+      const [receiptRows] = await pool.query(
+        'SELECT receipt_number, receipt_printed_count FROM sales WHERE sale_id = ?',
+        [saleId]
+      );
+
+      const receipt_number = receiptRows[0]?.receipt_number || `RCP-${saleId}`;
+      const receipt_printed_count = receiptRows[0]?.receipt_printed_count || 0;
+
+      // Calculate cash tendered and change (for cash payments)
+      let cash_tendered = null;
+      let change = null;
+
+      const cashPayment = sale.payments?.find(p => p.payment_method === 'cash');
+      if (cashPayment) {
+        // For simplicity, if exact amount, tendered = amount
+        // In real scenario, this should be stored separately
+        cash_tendered = parseFloat(cashPayment.amount);
+        change = 0;
+      }
+
+      // Build receipt data
+      return {
+        receipt_number,
+        receipt_printed_count,
+        sale_id: sale.sale_id,
+        sale_date: sale.sale_date,
+        store: {
+          name: storeConfig?.store_name || 'POS Store',
+          address: storeConfig?.address || '',
+          phone: storeConfig?.phone || '',
+          email: storeConfig?.email || '',
+          receipt_header: storeConfig?.receipt_header || '',
+          receipt_footer: storeConfig?.receipt_footer || 'Thank you for your purchase!',
+          logo_url: storeConfig?.logo_url || '',
+          currency: storeConfig?.currency || 'MMK'
+        },
+        items: sale.items.map(item => ({
+          product_name: item.product_name,
+          quantity: item.quantity,
+          unit_price: parseFloat(item.unit_price),
+          total: parseFloat(item.subtotal)
+        })),
+        subtotal: parseFloat(sale.total_amount),
+        tax: 0, // Can be calculated from store config tax_rate if needed
+        total: parseFloat(sale.total_amount),
+        payments: sale.payments?.map(p => ({
+          method: p.payment_method,
+          amount: parseFloat(p.amount)
+        })) || [],
+        cash_tendered,
+        change,
+        cashier: sale.user_name || 'Unknown',
+        notes: sale.notes || ''
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Increment receipt print count
+   * @param {number} saleId
+   * @returns {Promise<boolean>} Success status
+   */
+  static async incrementPrintCount(saleId) {
+    try {
+      await pool.query(
+        `UPDATE sales
+         SET receipt_printed_count = receipt_printed_count + 1,
+             receipt_printed_at = CURRENT_TIMESTAMP
+         WHERE sale_id = ?`,
+        [saleId]
+      );
+      return true;
     } catch (error) {
       throw error;
     }

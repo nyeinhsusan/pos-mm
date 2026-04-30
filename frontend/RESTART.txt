@@ -1,0 +1,7 @@
+RESTART YOUR VITE DEV SERVER:
+
+1. Stop the current dev server (Ctrl+C)
+2. Clear node cache: rm -rf node_modules/.vite
+3. Restart: npm run dev
+
+Then test dark mode again!

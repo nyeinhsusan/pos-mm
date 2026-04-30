@@ -45,3 +45,9 @@ env/
 # Temporary files
 *.tmp
 *.temp
+
+#folder
+docs/
+Documentation/
+Report/
+EPIC-STATUS/

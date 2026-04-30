@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Theme Debug</title>
+</head>
+<body>
+  <h1>Theme Debugger</h1>
+  <script>
+    console.log('=== THEME DEBUG ===');
+    console.log('localStorage theme:', localStorage.getItem('pos-myanmar-theme'));
+    console.log('HTML classes:', document.documentElement.className);
+    console.log('Clear localStorage and reload?');
+
+    // Clear localStorage
+    if (confirm('Clear theme from localStorage?')) {
+      localStorage.removeItem('pos-myanmar-theme');
+      console.log('Cleared! Reload the app now.');
+    }
+  </script>
+  <button onclick="localStorage.removeItem('pos-myanmar-theme'); alert('Cleared! Reload your POS app.')">Clear Theme</button>
+</body>
+</html>

@@ -1,0 +1,5 @@
+product_id,product_name,current_stock,daily_velocity,days_until_stockout,predicted_stockout_date,recommended_reorder_qty,status
+1,Coca-Cola 500ml,92,25.285714285714285,4.0,2026-04-27,253,REORDER_SOON
+2,Pepsi 500ml,7,25.285714285714285,0.4,2026-04-24,253,LOW_STOCK
+3,White Rice 5kg,50,17.285714285714285,2.9,2026-04-26,173,REORDER_SOON
+4,Notebook A4,30,28.285714285714285,1.1,2026-04-25,283,REORDER_SOON

@@ -216,3 +216,43 @@ exports.getSaleById = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get receipt data for a sale
+ * GET /api/sales/:id/receipt
+ */
+exports.getReceipt = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const receiptData = await Sale.getReceiptData(id);
+
+    if (!receiptData) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Sale not found'
+        }
+      });
+    }
+
+    // Increment print count
+    await Sale.incrementPrintCount(id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        receipt: receiptData
+      }
+    });
+  } catch (error) {
+    console.error('Get receipt error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to retrieve receipt',
+        details: error.message
+      }
+    });
+  }
+};
