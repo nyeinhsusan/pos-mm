@@ -8,6 +8,8 @@ const productRoutes = require('./routes/products');
 const saleRoutes = require('./routes/sales');
 const reportRoutes = require('./routes/reports');
 const aiRoutes = require('./routes/aiRoutes');
+const discountRoutes = require('./routes/discounts');
+const promotionRoutes = require('./routes/promotions');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -54,6 +56,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/discounts', discountRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 // 404 handler
 app.use((req, res) => {

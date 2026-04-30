@@ -23,15 +23,13 @@ CREATE TABLE IF NOT EXISTS sale_discounts (
   INDEX idx_discount_type (discount_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add discount columns to sales table
-ALTER TABLE sales
-  ADD COLUMN IF NOT EXISTS total_discount DECIMAL(10, 2) DEFAULT 0 AFTER total_amount,
-  ADD COLUMN IF NOT EXISTS subtotal_before_discount DECIMAL(10, 2) NULL AFTER total_discount;
+-- Add discount columns to sales table (ignore errors if columns already exist)
+ALTER TABLE sales ADD COLUMN total_discount DECIMAL(10, 2) DEFAULT 0 AFTER total_amount;
+ALTER TABLE sales ADD COLUMN subtotal_before_discount DECIMAL(10, 2) NULL AFTER total_discount;
 
--- Add discount column to sale_items table (for item-level discounts)
-ALTER TABLE sale_items
-  ADD COLUMN IF NOT EXISTS discount_amount DECIMAL(10, 2) DEFAULT 0 AFTER subtotal,
-  ADD COLUMN IF NOT EXISTS price_before_discount DECIMAL(10, 2) NULL AFTER discount_amount;
+-- Add discount columns to sale_items table (for item-level discounts)
+ALTER TABLE sale_items ADD COLUMN discount_amount DECIMAL(10, 2) DEFAULT 0 AFTER subtotal;
+ALTER TABLE sale_items ADD COLUMN price_before_discount DECIMAL(10, 2) NULL AFTER discount_amount;
 
 -- Create discount_settings table for system-wide discount rules
 CREATE TABLE IF NOT EXISTS discount_settings (

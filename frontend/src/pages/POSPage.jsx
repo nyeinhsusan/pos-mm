@@ -17,7 +17,7 @@ import LowStockBadge from '../components/LowStockBadge';
 const POSPage = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const { cart, clearCart, addToCart, removeFromCart, updateQuantity } = useCart();
+  const { cart, clearCart, addToCart, removeFromCart, updateQuantity, cartDiscount, itemDiscounts, getCartTotal } = useCart();
   const searchInputRef = useRef(null);
 
   const [products, setProducts] = useState([]);
@@ -101,10 +101,24 @@ const POSPage = () => {
         quantity: item.quantity
       }));
 
+      // Format discounts for API
+      const discounts = {};
+
+      // Add cart discount if exists
+      if (cartDiscount) {
+        discounts.cart = cartDiscount;
+      }
+
+      // Add item discounts if exist
+      if (itemDiscounts && Object.keys(itemDiscounts).length > 0) {
+        discounts.items = itemDiscounts;
+      }
+
       const response = await api.post('/sales', {
         items,
         payments,
-        notes: `POS sale by ${user.full_name}`
+        notes: `POS sale by ${user.full_name}`,
+        discounts: Object.keys(discounts).length > 0 ? discounts : undefined
       });
 
       if (response.data.success) {
@@ -395,7 +409,7 @@ const POSPage = () => {
       <PaymentModal
         isOpen={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        cartTotal={cart.reduce((sum, item) => sum + item.price * item.quantity, 0)}
+        cartTotal={getCartTotal()}
         onPaymentComplete={handlePaymentComplete}
       />
 

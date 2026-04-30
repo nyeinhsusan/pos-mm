@@ -1,17 +1,49 @@
 import { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import aiService from '../services/aiService';
+import DiscountModal from './DiscountModal';
 
 const ShoppingCart = ({ onCompleteSale, loading }) => {
-  const { cart, addToCart, updateQuantity, removeFromCart, getCartTotal, getItemCount, clearCart } = useCart();
+  const {
+    cart,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    getCartTotal,
+    getItemCount,
+    clearCart,
+    cartDiscount,
+    itemDiscounts,
+    applyCartDiscount,
+    applyItemDiscount,
+    removeCartDiscount,
+    removeItemDiscount,
+    getSubtotal,
+    getTotalDiscount
+  } = useCart();
   const [recommendations, setRecommendations] = useState([]);
   const [loadingRecs, setLoadingRecs] = useState(false);
+  const [showDiscountModal, setShowDiscountModal] = useState(false);
 
   const handleQuantityChange = (product_id, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity > 0) {
       updateQuantity(product_id, newQuantity);
     }
+  };
+
+  const handleApplyDiscount = (discountData) => {
+    if (discountData.sale_item_id) {
+      // Item-level discount
+      const item = cart.find(i => i.product_id === discountData.sale_item_id);
+      if (item) {
+        applyItemDiscount(item.product_id, discountData);
+      }
+    } else {
+      // Cart-level discount
+      applyCartDiscount(discountData);
+    }
+    setShowDiscountModal(false);
   };
 
   // Fetch AI recommendations based on cart items
@@ -197,6 +229,70 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
       {/* Cart Footer */}
       <div className="border-t border-gray-200 dark:border-gray-700 pt-4 space-y-4">
+        {/* Discount Display */}
+        {(cartDiscount || Object.keys(itemDiscounts).length > 0) && (
+          <div className="space-y-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+            {/* Item Discounts */}
+            {Object.entries(itemDiscounts).map(([productId, discount]) => {
+              const item = cart.find(i => i.product_id === parseInt(productId));
+              return (
+                <div key={productId} className="flex justify-between items-center text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-600 dark:text-gray-400">
+                      Discount on {item?.name}
+                    </span>
+                    <button
+                      onClick={() => removeItemDiscount(parseInt(productId))}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <span className="text-red-600 dark:text-red-400 font-medium">
+                    -{discount.amount.toLocaleString()} MMK
+                  </span>
+                </div>
+              );
+            })}
+
+            {/* Cart Discount */}
+            {cartDiscount && (
+              <div className="flex justify-between items-center text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Cart Discount ({cartDiscount.type === 'percentage' ? `${cartDiscount.value}%` : 'Fixed'})
+                  </span>
+                  <button
+                    onClick={removeCartDiscount}
+                    className="text-red-500 hover:text-red-700 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <span className="text-red-600 dark:text-red-400 font-medium">
+                  -{cartDiscount.amount.toLocaleString()} MMK
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Subtotal (if discount applied) */}
+        {getTotalDiscount() > 0 && (
+          <div className="flex justify-between items-center text-gray-600 dark:text-gray-400">
+            <span>Subtotal:</span>
+            <span className="line-through">{getSubtotal().toLocaleString()} MMK</span>
+          </div>
+        )}
+
+        {/* Total Discount */}
+        {getTotalDiscount() > 0 && (
+          <div className="flex justify-between items-center text-red-600 dark:text-red-400 font-semibold">
+            <span>Total Discount:</span>
+            <span>-{getTotalDiscount().toLocaleString()} MMK</span>
+          </div>
+        )}
+
         {/* Total */}
         <div className="flex justify-between items-center text-xl font-bold">
           <span className="text-gray-800 dark:text-gray-100">Total:</span>
@@ -207,6 +303,16 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
         {/* Action Buttons */}
         <div className="space-y-2">
+          {/* Apply Discount Button */}
+          <button
+            onClick={() => setShowDiscountModal(true)}
+            disabled={cart.length === 0 || loading}
+            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-medium transition disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            <span>🎁</span>
+            Apply Discount
+          </button>
+
           <button
             onClick={onCompleteSale}
             disabled={cart.length === 0 || loading}
@@ -223,6 +329,15 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
           </button>
         </div>
       </div>
+
+      {/* Discount Modal */}
+      <DiscountModal
+        isOpen={showDiscountModal}
+        onClose={() => setShowDiscountModal(false)}
+        onApplyDiscount={handleApplyDiscount}
+        cartItems={cart}
+        cartTotal={getSubtotal()}
+      />
     </div>
   );
 };

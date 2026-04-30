@@ -34,7 +34,7 @@ class Sale {
 
   /**
    * Create a new sale with transaction support
-   * @param {Object} saleData - {user_id, items: [{product_id, quantity}], notes, payments: [{payment_method, amount, transaction_id}]}
+   * @param {Object} saleData - {user_id, items: [{product_id, quantity}], notes, payments: [{payment_method, amount, transaction_id}], discounts: {cart: {...}, items: {...}}}
    * @returns {Promise<Object>} Sale details with updated stock levels and payment information
    */
   static async create(saleData) {
@@ -44,7 +44,7 @@ class Sale {
       // Start transaction
       await connection.beginTransaction();
 
-      const { user_id, items, notes, payments } = saleData;
+      const { user_id, items, notes, payments, discounts } = saleData;
 
       // Validate items array
       if (!items || items.length === 0) {
@@ -108,24 +108,76 @@ class Sale {
         });
       }
 
-      // Step 2: Generate receipt number and insert sale record
+      // Step 2: Calculate discounts
+      let total_discount = 0;
+      const subtotal_before_discount = total_amount;
+
+      // Calculate cart-level discount
+      if (discounts && discounts.cart) {
+        const cartDiscount = discounts.cart;
+        if (cartDiscount.type === 'percentage') {
+          total_discount += total_amount * (cartDiscount.value / 100);
+        } else if (cartDiscount.type === 'fixed') {
+          total_discount += Math.min(cartDiscount.value, total_amount);
+        }
+      }
+
+      // Apply discount to total
+      total_amount = Math.max(0, total_amount - total_discount);
+
+      // Step 3: Generate receipt number and insert sale record
       const receipt_number = await this.generateReceiptNumber();
 
       const [saleResult] = await connection.query(
-        'INSERT INTO sales (user_id, total_amount, total_cost, notes, receipt_number) VALUES (?, ?, ?, ?, ?)',
-        [user_id, total_amount, total_cost, notes || null, receipt_number]
+        'INSERT INTO sales (user_id, total_amount, total_cost, notes, receipt_number, total_discount, subtotal_before_discount) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [user_id, total_amount, total_cost, notes || null, receipt_number, total_discount, subtotal_before_discount]
       );
 
       const sale_id = saleResult.insertId;
 
-      // Step 3: Insert sale items and update stock
+      // Step 4: Insert sale items, apply item discounts, and update stock
+      const saleItemIds = {};
       for (const item of validatedItems) {
         // Insert sale item
-        await connection.query(
+        const [itemResult] = await connection.query(
           `INSERT INTO sale_items (sale_id, product_id, quantity, unit_price, unit_cost)
            VALUES (?, ?, ?, ?, ?)`,
           [sale_id, item.product_id, item.quantity, item.unit_price, item.unit_cost]
         );
+
+        saleItemIds[item.product_id] = itemResult.insertId;
+
+        // Apply item-level discount if exists
+        if (discounts && discounts.items && discounts.items[item.product_id]) {
+          const itemDiscount = discounts.items[item.product_id];
+          let discountAmount = 0;
+
+          if (itemDiscount.type === 'percentage') {
+            discountAmount = item.subtotal * (itemDiscount.value / 100);
+          } else if (itemDiscount.type === 'fixed') {
+            discountAmount = Math.min(itemDiscount.value, item.subtotal);
+          }
+
+          // Update sale_items with discount
+          await connection.query(
+            `UPDATE sale_items
+             SET discount_amount = ?,
+                 price_before_discount = ?
+             WHERE sale_item_id = ?`,
+            [discountAmount, item.subtotal, itemResult.insertId]
+          );
+
+          // Create discount record
+          await connection.query(
+            `INSERT INTO sale_discounts
+             (sale_id, sale_item_id, discount_type, discount_value, discount_amount, reason, applied_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [sale_id, itemResult.insertId, itemDiscount.type, itemDiscount.value, discountAmount, itemDiscount.reason || 'Item discount', user_id]
+          );
+
+          // Add to total discount
+          total_discount += discountAmount;
+        }
 
         // Decrement stock quantity
         await connection.query(
@@ -134,10 +186,34 @@ class Sale {
         );
       }
 
-      // Step 4: Handle payments (if provided)
+      // Step 5: Create cart-level discount record (if exists)
+      if (discounts && discounts.cart && discounts.cart.amount > 0) {
+        await connection.query(
+          `INSERT INTO sale_discounts
+           (sale_id, sale_item_id, discount_type, discount_value, discount_amount, reason, applied_by)
+           VALUES (?, NULL, ?, ?, ?, ?, ?)`,
+          [sale_id, discounts.cart.type, discounts.cart.value, discounts.cart.amount, discounts.cart.reason || 'Cart discount', user_id]
+        );
+      }
+
+      // Recalculate final total_amount including all discounts (cart + items)
+      if (total_discount > 0) {
+        total_amount = Math.max(0, subtotal_before_discount - total_discount);
+
+        // Update sale record with final totals
+        await connection.query(
+          `UPDATE sales
+           SET total_discount = ?,
+               total_amount = ?
+           WHERE sale_id = ?`,
+          [total_discount, total_amount, sale_id]
+        );
+      }
+
+      // Step 6: Handle payments (if provided)
       let paymentRecords = [];
       if (payments && payments.length > 0) {
-        // Validate payment total matches sale total
+        // Validate payment total matches sale total (after all discounts applied)
         Payment.validatePaymentTotal(payments, total_amount);
 
         // Create payment records
@@ -147,7 +223,7 @@ class Sale {
       // Commit transaction
       await connection.commit();
 
-      // Step 5: Fetch updated product stock levels
+      // Step 7: Fetch updated product stock levels
       const [updatedProducts] = await connection.query(
         `SELECT product_id, stock_quantity FROM products WHERE product_id IN (${placeholders})`,
         productIds
@@ -166,11 +242,14 @@ class Sale {
         total_amount: parseFloat(total_amount).toFixed(2),
         total_cost: parseFloat(total_cost).toFixed(2),
         profit: (total_amount - total_cost).toFixed(2),
+        total_discount: parseFloat(total_discount).toFixed(2),
+        subtotal_before_discount: parseFloat(subtotal_before_discount).toFixed(2),
         items: validatedItems.map((item) => ({
           ...item,
           updated_stock: updatedStockMap[item.product_id]
         })),
         payments: paymentRecords,
+        discounts_applied: discounts || null,
         sale_date: new Date()
       };
     } catch (error) {
@@ -356,6 +435,25 @@ class Sale {
       const receipt_number = receiptRows[0]?.receipt_number || `RCP-${saleId}`;
       const receipt_printed_count = receiptRows[0]?.receipt_printed_count || 0;
 
+      // Get discounts for the sale
+      const [discountRows] = await pool.query(
+        `SELECT
+          discount_id,
+          sale_item_id,
+          discount_type,
+          discount_value,
+          discount_amount,
+          reason
+         FROM sale_discounts
+         WHERE sale_id = ?
+         ORDER BY created_at`,
+        [saleId]
+      );
+
+      // Calculate total discount and subtotal before discount
+      const total_discount = sale.total_discount || 0;
+      const subtotal_before_discount = sale.subtotal_before_discount || sale.total_amount;
+
       // Calculate cash tendered and change (for cash payments)
       let cash_tendered = null;
       let change = null;
@@ -390,6 +488,16 @@ class Sale {
           unit_price: parseFloat(item.unit_price),
           total: parseFloat(item.subtotal)
         })),
+        discounts: discountRows.map(d => ({
+          discount_id: d.discount_id,
+          sale_item_id: d.sale_item_id,
+          discount_type: d.discount_type,
+          discount_value: parseFloat(d.discount_value),
+          discount_amount: parseFloat(d.discount_amount),
+          reason: d.reason
+        })),
+        total_discount: parseFloat(total_discount),
+        subtotal_before_discount: parseFloat(subtotal_before_discount),
         subtotal: parseFloat(sale.total_amount),
         tax: 0, // Can be calculated from store config tax_rate if needed
         total: parseFloat(sale.total_amount),

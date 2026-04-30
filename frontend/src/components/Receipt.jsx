@@ -20,7 +20,10 @@ const Receipt = ({ receiptData }) => {
     payments,
     cash_tendered,
     change,
-    cashier
+    cashier,
+    discounts,
+    total_discount,
+    subtotal_before_discount
   } = receiptData;
 
   // Format currency
@@ -108,8 +111,39 @@ const Receipt = ({ receiptData }) => {
         </div>
       </div>
 
+      {/* Discounts */}
+      {discounts && discounts.length > 0 && (
+        <div className="mb-4 border-t border-dashed border-gray-300 pt-3">
+          <h2 className="font-bold mb-2 text-xs text-gray-900">DISCOUNTS</h2>
+          {discounts.map((discount, index) => (
+            <div key={index} className="flex justify-between text-xs mb-1">
+              <span className="text-gray-600">
+                {discount.sale_item_id ? `Item Discount` : 'Cart Discount'}
+                {discount.discount_type === 'percentage' ? ` (${discount.discount_value}%)` : ' (Fixed)'}
+                {discount.reason && ` - ${discount.reason}`}
+              </span>
+              <span className="font-semibold text-red-600">
+                -{formatCurrency(discount.discount_amount)} {store.currency}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Totals */}
       <div className="mb-4 text-xs">
+        {total_discount > 0 && subtotal_before_discount && (
+          <div className="flex justify-between mb-1">
+            <span className="text-gray-600">Subtotal Before Discount:</span>
+            <span className="text-gray-900 line-through">{formatCurrency(subtotal_before_discount)} {store.currency}</span>
+          </div>
+        )}
+        {total_discount > 0 && (
+          <div className="flex justify-between mb-1">
+            <span className="text-gray-600">Total Discount:</span>
+            <span className="font-semibold text-red-600">-{formatCurrency(total_discount)} {store.currency}</span>
+          </div>
+        )}
         <div className="flex justify-between mb-1">
           <span className="text-gray-600">Subtotal:</span>
           <span className="font-semibold text-gray-900">{formatCurrency(subtotal)} {store.currency}</span>

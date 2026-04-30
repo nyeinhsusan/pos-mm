@@ -7,7 +7,7 @@ const Sale = require('../models/Sale');
  */
 exports.recordSale = async (req, res) => {
   try {
-    const { items, payments, notes } = req.body;
+    const { items, payments, notes, discounts } = req.body;
     const user_id = req.user.user_id; // From authenticate middleware
 
     // Validation
@@ -80,7 +80,7 @@ exports.recordSale = async (req, res) => {
       }
     }
 
-    const saleData = { user_id, items, payments, notes };
+    const saleData = { user_id, items, payments, notes, discounts };
     const sale = await Sale.create(saleData);
 
     res.status(201).json({

@@ -12,6 +12,8 @@ export const useCart = () => {
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [cartDiscount, setCartDiscount] = useState(null); // {type, value, amount, reason}
+  const [itemDiscounts, setItemDiscounts] = useState({}); // {product_id: {type, value, amount, reason}}
 
   const addToCart = (product) => {
     setCart((prevCart) => {
@@ -63,10 +65,87 @@ export const CartProvider = ({ children }) => {
 
   const clearCart = () => {
     setCart([]);
+    setCartDiscount(null);
+    setItemDiscounts({});
+  };
+
+  const applyCartDiscount = (discountData) => {
+    // discountData: {type: 'percentage'|'fixed', value: number, reason: string}
+    const subtotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    let discountAmount = 0;
+
+    if (discountData.type === 'percentage') {
+      discountAmount = subtotal * (discountData.value / 100);
+    } else if (discountData.type === 'fixed') {
+      discountAmount = Math.min(discountData.value, subtotal);
+    }
+
+    setCartDiscount({
+      ...discountData,
+      amount: Math.round(discountAmount * 100) / 100
+    });
+  };
+
+  const applyItemDiscount = (productId, discountData) => {
+    // discountData: {type: 'percentage'|'fixed', value: number, reason: string}
+    const item = cart.find(i => i.product_id === productId);
+    if (!item) return;
+
+    const itemSubtotal = item.price * item.quantity;
+    let discountAmount = 0;
+
+    if (discountData.type === 'percentage') {
+      discountAmount = itemSubtotal * (discountData.value / 100);
+    } else if (discountData.type === 'fixed') {
+      discountAmount = Math.min(discountData.value, itemSubtotal);
+    }
+
+    setItemDiscounts(prev => ({
+      ...prev,
+      [productId]: {
+        ...discountData,
+        amount: Math.round(discountAmount * 100) / 100
+      }
+    }));
+  };
+
+  const removeCartDiscount = () => {
+    setCartDiscount(null);
+  };
+
+  const removeItemDiscount = (productId) => {
+    setItemDiscounts(prev => {
+      const newDiscounts = { ...prev };
+      delete newDiscounts[productId];
+      return newDiscounts;
+    });
+  };
+
+  const getSubtotal = () => {
+    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  };
+
+  const getTotalDiscount = () => {
+    // Calculate total discount from both cart and item discounts
+    let total = 0;
+
+    // Add item discounts
+    Object.values(itemDiscounts).forEach(discount => {
+      total += discount.amount;
+    });
+
+    // Add cart discount
+    if (cartDiscount) {
+      total += cartDiscount.amount;
+    }
+
+    return total;
   };
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    const subtotal = getSubtotal();
+    const discount = getTotalDiscount();
+    return Math.max(0, subtotal - discount);
   };
 
   const getItemCount = () => {
@@ -80,7 +159,16 @@ export const CartProvider = ({ children }) => {
     updateQuantity,
     clearCart,
     getCartTotal,
-    getItemCount
+    getItemCount,
+    // Discount functions
+    cartDiscount,
+    itemDiscounts,
+    applyCartDiscount,
+    applyItemDiscount,
+    removeCartDiscount,
+    removeItemDiscount,
+    getSubtotal,
+    getTotalDiscount
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
