@@ -7,24 +7,42 @@ class Promotion {
    * @returns {boolean} True if promotion is active now
    */
   static isPromotionActive(promotion) {
-    if (!promotion.is_active) return false;
+    console.log(`\n🔍 Checking promotion: ${promotion.name} (ID: ${promotion.promotion_id})`);
+
+    if (!promotion.is_active) {
+      console.log(`❌ Promotion is_active = false`);
+      return false;
+    }
 
     const now = new Date();
     const today = now.toISOString().split('T')[0];
     const currentTime = now.toTimeString().split(' ')[0].substring(0, 5); // HH:MM format
 
+    console.log(`📅 Today: ${today}, Current Time: ${currentTime}`);
+    console.log(`📅 Promotion dates: ${promotion.start_date} to ${promotion.end_date}`);
+    console.log(`⏰ Promotion times: ${promotion.start_time} to ${promotion.end_time}`);
+
     // Check date range
     if (today < promotion.start_date || today > promotion.end_date) {
+      console.log(`❌ Date out of range: ${today} < ${promotion.start_date} || ${today} > ${promotion.end_date}`);
       return false;
     }
 
     // Check time range (if specified)
     if (promotion.start_time && promotion.end_time) {
-      if (currentTime < promotion.start_time || currentTime > promotion.end_time) {
+      // Convert times to HH:MM format for comparison
+      const startTime = promotion.start_time.substring(0, 5);
+      const endTime = promotion.end_time.substring(0, 5);
+
+      console.log(`⏰ Comparing: ${currentTime} vs ${startTime} - ${endTime}`);
+
+      if (currentTime < startTime || currentTime > endTime) {
+        console.log(`❌ Time out of range`);
         return false;
       }
     }
 
+    console.log(`✅ Promotion is ACTIVE!`);
     return true;
   }
 
@@ -58,6 +76,10 @@ class Promotion {
         priority
       } = promotionData;
 
+      // Format dates from ISO to YYYY-MM-DD if provided
+      const formattedStartDate = start_date ? start_date.split('T')[0] : start_date;
+      const formattedEndDate = end_date ? end_date.split('T')[0] : end_date;
+
       // Insert promotion
       const [result] = await connection.query(
         `INSERT INTO promotions
@@ -70,8 +92,8 @@ class Promotion {
           description || null,
           discount_type,
           discount_value,
-          start_date,
-          end_date,
+          formattedStartDate,
+          formattedEndDate,
           start_time || '00:00:00',
           end_time || '23:59:59',
           applies_to,
@@ -163,6 +185,14 @@ class Promotion {
 
       // Fetch related products and categories for each promotion
       for (const promotion of promotions) {
+        // Format dates to YYYY-MM-DD for frontend
+        if (promotion.start_date) {
+          promotion.start_date = promotion.start_date.toISOString().split('T')[0];
+        }
+        if (promotion.end_date) {
+          promotion.end_date = promotion.end_date.toISOString().split('T')[0];
+        }
+
         if (promotion.applies_to === 'products') {
           const [products] = await pool.query(
             `SELECT pp.product_id, pr.name as product_name
@@ -223,6 +253,14 @@ class Promotion {
 
       const promotion = rows[0];
 
+      // Format dates to YYYY-MM-DD for frontend
+      if (promotion.start_date) {
+        promotion.start_date = promotion.start_date.toISOString().split('T')[0];
+      }
+      if (promotion.end_date) {
+        promotion.end_date = promotion.end_date.toISOString().split('T')[0];
+      }
+
       // Fetch related products if applies_to is 'products'
       if (promotion.applies_to === 'products') {
         const [products] = await pool.query(
@@ -280,6 +318,10 @@ class Promotion {
         priority
       } = updateData;
 
+      // Format dates from ISO to YYYY-MM-DD if provided
+      const formattedStartDate = start_date ? start_date.split('T')[0] : undefined;
+      const formattedEndDate = end_date ? end_date.split('T')[0] : undefined;
+
       // Update promotion base fields
       await connection.query(
         `UPDATE promotions SET
@@ -303,8 +345,8 @@ class Promotion {
           description,
           discount_type,
           discount_value,
-          start_date,
-          end_date,
+          formattedStartDate,
+          formattedEndDate,
           start_time,
           end_time,
           applies_to,
@@ -316,29 +358,53 @@ class Promotion {
         ]
       );
 
-      // Update product links if provided
-      if (product_ids !== undefined) {
+      // Handle applies_to changes - clean up old links when applies_to changes
+      if (applies_to !== undefined) {
+        // Clean up all existing links when applies_to is being updated
         await connection.query('DELETE FROM promotion_products WHERE promotion_id = ?', [promotionId]);
+        await connection.query('DELETE FROM promotion_categories WHERE promotion_id = ?', [promotionId]);
 
-        if (product_ids && product_ids.length > 0) {
+        // Add new links based on the new applies_to value
+        if (applies_to === 'products' && product_ids && product_ids.length > 0) {
           const productValues = product_ids.map(pid => [promotionId, pid]);
           await connection.query(
             'INSERT INTO promotion_products (promotion_id, product_id) VALUES ?',
             [productValues]
           );
-        }
-      }
-
-      // Update category links if provided
-      if (categories !== undefined) {
-        await connection.query('DELETE FROM promotion_categories WHERE promotion_id = ?', [promotionId]);
-
-        if (categories && categories.length > 0) {
+        } else if (applies_to === 'categories' && categories && categories.length > 0) {
           const categoryValues = categories.map(cat => [promotionId, cat]);
           await connection.query(
             'INSERT INTO promotion_categories (promotion_id, category) VALUES ?',
             [categoryValues]
           );
+        }
+        // If applies_to === 'all', no links needed
+      } else {
+        // If applies_to is not being changed, handle product_ids and categories separately
+        // Update product links if provided
+        if (product_ids !== undefined) {
+          await connection.query('DELETE FROM promotion_products WHERE promotion_id = ?', [promotionId]);
+
+          if (product_ids && product_ids.length > 0) {
+            const productValues = product_ids.map(pid => [promotionId, pid]);
+            await connection.query(
+              'INSERT INTO promotion_products (promotion_id, product_id) VALUES ?',
+              [productValues]
+            );
+          }
+        }
+
+        // Update category links if provided
+        if (categories !== undefined) {
+          await connection.query('DELETE FROM promotion_categories WHERE promotion_id = ?', [promotionId]);
+
+          if (categories && categories.length > 0) {
+            const categoryValues = categories.map(cat => [promotionId, cat]);
+            await connection.query(
+              'INSERT INTO promotion_categories (promotion_id, category) VALUES ?',
+              [categoryValues]
+            );
+          }
         }
       }
 

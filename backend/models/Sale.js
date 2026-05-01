@@ -52,11 +52,14 @@ class Sale {
       }
 
       // Step 1: Validate all products exist and have sufficient stock
+      // First, get products with promotions applied
+      const productsWithPromotions = await Product.findAllWithPromotions();
+
       // Lock product rows for update to prevent race conditions
       const productIds = items.map((item) => item.product_id);
       const placeholders = productIds.map(() => '?').join(',');
 
-      const [products] = await connection.query(
+      const [productsForStock] = await connection.query(
         `SELECT product_id, name, price, cost_price, stock_quantity
          FROM products
          WHERE product_id IN (${placeholders})
@@ -64,15 +67,34 @@ class Sale {
         productIds
       );
 
-      // Create a map for quick lookup
+      // Create a map for quick lookup - use promotional prices
       const productMap = {};
-      products.forEach((product) => {
-        productMap[product.product_id] = product;
+      productsWithPromotions.forEach((product) => {
+        if (productIds.includes(product.product_id)) {
+          // Use promotional price if available, otherwise use regular price
+          const effectivePrice = product.has_promotion ? product.promotional_price : product.price;
+          productMap[product.product_id] = {
+            ...product,
+            price: effectivePrice, // Override with promotional price
+            has_promotion: product.has_promotion,
+            promotion: product.promotion
+          };
+        }
       });
 
-      // Validate each item
-      let total_amount = 0;
+      // Add stock info from locked query
+      productsForStock.forEach((product) => {
+        if (productMap[product.product_id]) {
+          productMap[product.product_id].stock_quantity = product.stock_quantity;
+          productMap[product.product_id].cost_price = product.cost_price;
+        }
+      });
+
+      // Validate each item and calculate totals
+      let total_amount = 0; // This will be the promotional price total
       let total_cost = 0;
+      let promotion_discount_total = 0; // Track promotion discounts separately
+      let original_total = 0; // Total before any promotions
       const validatedItems = [];
 
       for (const item of items) {
@@ -92,8 +114,19 @@ class Sale {
           throw new Error('Item quantity must be greater than 0');
         }
 
-        const subtotal = product.price * item.quantity;
+        // Calculate subtotals
+        const subtotal = product.price * item.quantity; // Promotional price
         const item_cost = product.cost_price * item.quantity;
+
+        // Track promotion discounts
+        if (product.has_promotion && product.promotion) {
+          const itemOriginalPrice = product.original_price || product.price;
+          const originalSubtotal = itemOriginalPrice * item.quantity;
+          original_total += originalSubtotal;
+          promotion_discount_total += product.promotion.discount_amount * item.quantity;
+        } else {
+          original_total += subtotal;
+        }
 
         total_amount += parseFloat(subtotal);
         total_cost += parseFloat(item_cost);
@@ -104,26 +137,32 @@ class Sale {
           quantity: item.quantity,
           unit_price: product.price,
           unit_cost: product.cost_price,
-          subtotal: subtotal
+          subtotal: subtotal,
+          has_promotion: product.has_promotion,
+          promotion: product.promotion,
+          original_price: product.original_price || product.price
         });
       }
 
-      // Step 2: Calculate discounts
-      let total_discount = 0;
-      const subtotal_before_discount = total_amount;
+      // Step 2: Calculate additional discounts (beyond promotions)
+      let manual_discount = 0;
+      const subtotal_before_discount = original_total; // Use original total before promotions
 
-      // Calculate cart-level discount
+      // Calculate cart-level manual discount (applied on top of promotions)
       if (discounts && discounts.cart) {
         const cartDiscount = discounts.cart;
         if (cartDiscount.type === 'percentage') {
-          total_discount += total_amount * (cartDiscount.value / 100);
+          manual_discount += total_amount * (cartDiscount.value / 100);
         } else if (cartDiscount.type === 'fixed') {
-          total_discount += Math.min(cartDiscount.value, total_amount);
+          manual_discount += Math.min(cartDiscount.value, total_amount);
         }
       }
 
-      // Apply discount to total
-      total_amount = Math.max(0, total_amount - total_discount);
+      // Calculate total discount (promotions + manual)
+      const total_discount = promotion_discount_total + manual_discount;
+
+      // Apply manual discount to get final total
+      total_amount = Math.max(0, total_amount - manual_discount);
 
       // Step 3: Generate receipt number and insert sale record
       const receipt_number = await this.generateReceiptNumber();
@@ -147,7 +186,39 @@ class Sale {
 
         saleItemIds[item.product_id] = itemResult.insertId;
 
-        // Apply item-level discount if exists
+        // Record promotion discount if product has active promotion
+        if (item.has_promotion && item.promotion) {
+          const promotionDiscountAmount = item.promotion.discount_amount * item.quantity;
+          const originalSubtotal = item.original_price * item.quantity;
+
+          // Update sale_items with promotion discount
+          await connection.query(
+            `UPDATE sale_items
+             SET discount_amount = ?,
+                 price_before_discount = ?
+             WHERE sale_item_id = ?`,
+            [promotionDiscountAmount, originalSubtotal, itemResult.insertId]
+          );
+
+          // Create promotion discount record
+          await connection.query(
+            `INSERT INTO sale_discounts
+             (sale_id, sale_item_id, discount_type, discount_value, discount_amount, reason, promotion_id, applied_by)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+              sale_id,
+              itemResult.insertId,
+              'promotion',
+              item.promotion.discount_value,
+              promotionDiscountAmount,
+              `Promotion: ${item.promotion.name}`,
+              item.promotion.promotion_id,
+              user_id
+            ]
+          );
+        }
+
+        // Apply item-level discount if exists (manual discounts)
         if (discounts && discounts.items && discounts.items[item.product_id]) {
           const itemDiscount = discounts.items[item.product_id];
           let discountAmount = 0;
@@ -175,8 +246,8 @@ class Sale {
             [sale_id, itemResult.insertId, itemDiscount.type, itemDiscount.value, discountAmount, itemDiscount.reason || 'Item discount', user_id]
           );
 
-          // Add to total discount
-          total_discount += discountAmount;
+          // Add to manual discount total
+          manual_discount += discountAmount;
         }
 
         // Decrement stock quantity
@@ -196,19 +267,18 @@ class Sale {
         );
       }
 
-      // Recalculate final total_amount including all discounts (cart + items)
-      if (total_discount > 0) {
-        total_amount = Math.max(0, subtotal_before_discount - total_discount);
+      // Recalculate final totals with all discounts (promotions + manual)
+      const final_total_discount = promotion_discount_total + manual_discount;
+      const final_total_amount = Math.max(0, subtotal_before_discount - final_total_discount);
 
-        // Update sale record with final totals
-        await connection.query(
-          `UPDATE sales
-           SET total_discount = ?,
-               total_amount = ?
-           WHERE sale_id = ?`,
-          [total_discount, total_amount, sale_id]
-        );
-      }
+      // Update sale record with final totals
+      await connection.query(
+        `UPDATE sales
+         SET total_discount = ?,
+             total_amount = ?
+         WHERE sale_id = ?`,
+        [final_total_discount, final_total_amount, sale_id]
+      );
 
       // Step 6: Handle payments (if provided)
       let paymentRecords = [];

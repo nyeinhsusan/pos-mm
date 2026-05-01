@@ -2,14 +2,20 @@ const Product = require('../models/Product');
 
 /**
  * Get all products with optional filters
- * GET /api/products?category=Beverage&low_stock=true&search=coca
+ * GET /api/products?category=Beverage&low_stock=true&search=coca&include_promotions=true
  */
 exports.getAllProducts = async (req, res) => {
   try {
-    const { category, low_stock, search } = req.query;
+    const { category, low_stock, search, include_promotions } = req.query;
     const filters = { category, low_stock, search };
 
-    const products = await Product.findAll(filters);
+    // If include_promotions is true, fetch products with active promotions applied
+    let products;
+    if (include_promotions === 'true' || include_promotions === true) {
+      products = await Product.findAllWithPromotions(filters);
+    } else {
+      products = await Product.findAll(filters);
+    }
 
     res.status(200).json({
       success: true,

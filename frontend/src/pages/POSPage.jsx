@@ -174,7 +174,7 @@ const POSPage = () => {
       setLoading(true);
       setError('');
 
-      const params = {};
+      const params = { include_promotions: true }; // Include promotions
       if (selectedCategory) params.category = selectedCategory;
 
       const response = await api.get('/products', { params });
@@ -255,6 +255,12 @@ const POSPage = () => {
                 </button>
                 {user?.role === 'owner' && (
                   <>
+                    <button
+                      onClick={() => navigate('/promotions')}
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
+                    >
+                      🚀 Promotions
+                    </button>
                     <button
                       onClick={() => navigate('/reports')}
                       className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
@@ -456,21 +462,44 @@ const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
 
   const isOutOfStock = product.stock_quantity === 0;
+  const hasPromotion = product.has_promotion;
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
       addToCart(product);
-      notify.success(`${product.name} added to cart!`);
+      if (hasPromotion) {
+        notify.success(`${product.name} added with ${product.promotion.discount_value}${product.promotion.discount_type === 'percentage' ? '%' : ' MMK'} discount! 🎉`);
+      } else {
+        notify.success(`${product.name} added to cart!`);
+      }
+    }
+  };
+
+  const formatDiscount = () => {
+    if (!hasPromotion) return '';
+    if (product.promotion.discount_type === 'percentage') {
+      return `${product.promotion.discount_value}% OFF`;
+    } else {
+      return `${parseInt(product.promotion.discount_value)} MMK OFF`;
     }
   };
 
   return (
     <div
       onClick={handleAddToCart}
-      className={`bg-white dark:bg-gray-700 rounded-lg shadow-md p-4 cursor-pointer transition-all card-hover btn-press ${
+      className={`bg-white dark:bg-gray-700 rounded-lg shadow-md p-4 cursor-pointer transition-all card-hover btn-press relative ${
         isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''
-      }`}
+      } ${hasPromotion ? 'ring-2 ring-green-400 dark:ring-green-500' : ''}`}
     >
+      {/* Promotion Badge */}
+      {hasPromotion && (
+        <div className="absolute -top-2 -right-2 z-10">
+          <span className="inline-flex items-center px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg animate-pulse">
+            🎁 {formatDiscount()}
+          </span>
+        </div>
+      )}
+
       {/* Product Name */}
       <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2 truncate">
         🛒 {product.name}
@@ -482,9 +511,26 @@ const ProductCard = ({ product }) => {
       </span>
 
       {/* Price */}
-      <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-2">
-        {parseInt(product.price).toLocaleString()} MMK
-      </p>
+      {hasPromotion ? (
+        <div className="mb-2">
+          {/* Original Price (Strikethrough) */}
+          <p className="text-sm text-gray-500 dark:text-gray-400 line-through">
+            {parseInt(product.original_price).toLocaleString()} MMK
+          </p>
+          {/* Promotional Price */}
+          <p className="text-lg font-bold text-green-600 dark:text-green-400">
+            {parseInt(product.promotional_price).toLocaleString()} MMK
+          </p>
+          {/* Savings */}
+          <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+            Save {parseInt(product.promotion.discount_amount).toLocaleString()} MMK!
+          </p>
+        </div>
+      ) : (
+        <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mb-2">
+          {parseInt(product.price).toLocaleString()} MMK
+        </p>
+      )}
 
       {/* Stock Info */}
       <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-2">
@@ -498,10 +544,12 @@ const ProductCard = ({ product }) => {
         className={`w-full py-2 rounded-lg font-medium transition ${
           isOutOfStock
             ? 'bg-gray-200 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            : hasPromotion
+            ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg'
             : 'bg-green-600 hover:bg-green-700 text-white'
         }`}
       >
-        {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
+        {isOutOfStock ? 'Out of Stock' : hasPromotion ? '🎉 Add with Discount' : 'Add to Cart'}
       </button>
     </div>
   );

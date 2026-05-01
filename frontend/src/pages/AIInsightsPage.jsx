@@ -316,6 +316,12 @@ function AIInsightsPage() {
                 {user?.role === 'owner' && (
                   <>
                     <button
+                      onClick={() => navigate('/promotions')}
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
+                    >
+                      🚀 Promotions
+                    </button>
+                    <button
                       onClick={() => navigate('/reports')}
                       className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
                     >
@@ -323,7 +329,7 @@ function AIInsightsPage() {
                     </button>
                     <button
                       onClick={() => navigate('/ai-insights')}
-                      className="text-blue-600 font-medium px-3 py-2 rounded-md bg-blue-50 shadow-md"
+                      className="text-blue-600 dark:text-blue-400 font-medium px-3 py-2 rounded-md bg-blue-50 dark:bg-blue-900/50 shadow-md"
                     >
                       ✨ AI Insights
                     </button>

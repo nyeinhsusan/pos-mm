@@ -1,4 +1,5 @@
 const { pool } = require('../config/database');
+const Promotion = require('./Promotion');
 
 class Product {
   /**
@@ -254,6 +255,93 @@ class Product {
         'SELECT DISTINCT category FROM products WHERE category IS NOT NULL ORDER BY category ASC'
       );
       return rows.map((row) => row.category);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  /**
+   * Find all products with active promotions applied
+   * @param {Object} filters - {category, low_stock, search}
+   * @returns {Promise<Array>} Array of products with promotion info
+   */
+  static async findAllWithPromotions(filters = {}) {
+    try {
+      // Get all products
+      const products = await this.findAll(filters);
+
+      // Get all active promotions
+      const activePromotions = await Promotion.getActivePromotions();
+      console.log('🎁 Active promotions found:', activePromotions.length);
+      if (activePromotions.length > 0) {
+        console.log('📋 Promotions:', activePromotions.map(p => ({
+          id: p.promotion_id,
+          name: p.name,
+          applies_to: p.applies_to,
+          is_active: p.is_active,
+          dates: `${p.start_date} to ${p.end_date}`,
+          times: `${p.start_time} to ${p.end_time}`
+        })));
+      }
+
+      // Apply promotions to products
+      const productsWithPromotions = products.map((product) => {
+        // Find applicable promotions for this product
+        const applicablePromotions = activePromotions.filter((promo) => {
+          // Check if promotion applies to this product
+          if (promo.applies_to === 'all') {
+            return true;
+          } else if (promo.applies_to === 'products') {
+            // Check if product is in promotion's product list
+            return promo.products && promo.products.some(p => p.product_id === product.product_id);
+          } else if (promo.applies_to === 'categories') {
+            // Check if product's category is in promotion's category list
+            return promo.categories && promo.categories.includes(product.category);
+          }
+          return false;
+        });
+
+        // If there are applicable promotions, apply the best one (highest priority, then highest discount)
+        if (applicablePromotions.length > 0) {
+          // Sort by priority (desc) then by discount amount (desc)
+          applicablePromotions.sort((a, b) => {
+            if (b.priority !== a.priority) {
+              return b.priority - a.priority;
+            }
+            // Calculate discount amounts for comparison
+            const discountA = Promotion.calculatePromotionDiscount(a, product.price);
+            const discountB = Promotion.calculatePromotionDiscount(b, product.price);
+            return discountB - discountA;
+          });
+
+          const bestPromotion = applicablePromotions[0];
+          const discountAmount = Promotion.calculatePromotionDiscount(bestPromotion, product.price);
+          const promotionalPrice = product.price - discountAmount;
+
+          return {
+            ...product,
+            has_promotion: true,
+            promotion: {
+              promotion_id: bestPromotion.promotion_id,
+              name: bestPromotion.name,
+              discount_type: bestPromotion.discount_type,
+              discount_value: bestPromotion.discount_value,
+              discount_amount: discountAmount
+            },
+            original_price: product.price,
+            promotional_price: promotionalPrice,
+            price: promotionalPrice // Override price with promotional price
+          };
+        }
+
+        // No promotion applies
+        return {
+          ...product,
+          has_promotion: false
+        };
+      });
+
+      return productsWithPromotions;
     } catch (error) {
       throw error;
     }
