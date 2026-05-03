@@ -3,7 +3,9 @@ import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import WelcomePage from './pages/WelcomePage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import POSPage from './pages/POSPage';
 import ProductsPage from './pages/ProductsPage';
 import ReportsPage from './pages/ReportsPage';
@@ -38,11 +40,17 @@ function App() {
             />
 
             <Routes>
-              {/* Redirect root to login */}
-              <Route path="/" element={<Navigate to="/login" replace />} />
+              {/* Redirect root to welcome */}
+              <Route path="/" element={<Navigate to="/welcome" replace />} />
+
+              {/* Public route - Welcome */}
+              <Route path="/welcome" element={<WelcomePage />} />
 
               {/* Public route - Login */}
               <Route path="/login" element={<LoginPage />} />
+
+              {/* Public route - Register */}
+              <Route path="/register" element={<RegisterPage />} />
 
               {/* Protected routes */}
               <Route element={<ProtectedRoute />}>

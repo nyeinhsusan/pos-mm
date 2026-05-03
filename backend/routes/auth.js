@@ -14,8 +14,8 @@ router.post('/login', authController.login);
 /**
  * @route   POST /api/auth/register
  * @desc    Register new user
- * @access  Private (Owner only)
+ * @access  Public
  */
-router.post('/register', authenticate, authorize(['owner']), authController.register);
+router.post('/register', authController.register);
 
 module.exports = router;

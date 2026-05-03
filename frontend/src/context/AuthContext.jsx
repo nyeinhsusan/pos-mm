@@ -76,11 +76,26 @@ export const AuthProvider = ({ children }) => {
     return user?.role === role;
   };
 
+  /**
+   * Register function
+   * @param {Object} userData - {full_name, email, password, role}
+   * @returns {Promise<Object>} Response data
+   */
+  const register = async (userData) => {
+    try {
+      const data = await authService.register(userData);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const value = {
     user,
     token,
     loading,
     login,
+    register,
     logout,
     isAuthenticated,
     hasRole
