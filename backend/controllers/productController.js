@@ -85,7 +85,8 @@ exports.createProduct = async (req, res) => {
       sku,
       description,
       last_restock_date,
-      restock_frequency
+      restock_frequency,
+      image
     } = req.body;
 
     // Validation
@@ -129,7 +130,8 @@ exports.createProduct = async (req, res) => {
       sku,
       description,
       last_restock_date,
-      restock_frequency
+      restock_frequency,
+      image
     };
 
     const productId = await Product.create(productData);
@@ -341,6 +343,51 @@ exports.getCategories = async (req, res) => {
       success: false,
       error: {
         message: 'Failed to retrieve categories',
+        details: error.message
+      }
+    });
+  }
+};
+
+/**
+ * Upload product image
+ * POST /api/products/upload
+ * Uses multer middleware - this function handles the uploaded file
+ */
+exports.uploadProductImage = async (req, res) => {
+  try {
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'No file uploaded',
+          details: 'Please upload an image file'
+        }
+      });
+    }
+
+    // Construct the image URL path
+    // The file is saved at /uploads/products/filename.ext
+    const imageUrl = `/uploads/products/${req.file.filename}`;
+
+    res.status(200).json({
+      success: true,
+      message: 'Image uploaded successfully',
+      data: {
+        imageUrl: imageUrl,
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype
+      }
+    });
+  } catch (error) {
+    console.error('Upload image error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to upload image',
         details: error.message
       }
     });

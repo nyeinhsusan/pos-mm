@@ -33,6 +33,9 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded product images statically
+app.use('/uploads/products', express.static('uploads/products'));
+
 // Request logging middleware (development)
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {

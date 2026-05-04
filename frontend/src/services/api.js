@@ -36,4 +36,22 @@ api.interceptors.response.use(
   }
 );
 
+/**
+ * Upload a product image
+ * @param {File} file - The image file to upload
+ * @returns {Promise<Object>} - The response with image URL
+ */
+export const uploadProductImage = async (file) => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await api.post('/products/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+
+  return response.data;
+};
+
 export default api;

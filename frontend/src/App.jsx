@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ThemeProvider } from './context/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import WelcomePage from './pages/WelcomePage';
 import LoginPage from './pages/LoginPage';
@@ -14,8 +15,9 @@ import PromotionsPage from './pages/PromotionsPage';
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
           <Router>
             {/* Toast Notification System */}
             <Toaster
@@ -67,6 +69,7 @@ function App() {
           </Router>
         </CartProvider>
       </AuthProvider>
+    </ThemeProvider>
   );
 }
 

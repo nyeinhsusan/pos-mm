@@ -20,6 +20,7 @@ class Product {
           low_stock_threshold,
           sku,
           description,
+          image,
           last_restock_date,
           restock_frequency,
           created_at,
@@ -75,6 +76,7 @@ class Product {
           low_stock_threshold,
           sku,
           description,
+          image,
           last_restock_date,
           restock_frequency,
           created_at,
@@ -106,14 +108,15 @@ class Product {
         low_stock_threshold,
         sku,
         description,
+        image,
         last_restock_date,
         restock_frequency
       } = productData;
 
       const [result] = await pool.query(
         `INSERT INTO products
-        (name, category, price, cost_price, stock_quantity, low_stock_threshold, sku, description, last_restock_date, restock_frequency)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        (name, category, price, cost_price, stock_quantity, low_stock_threshold, sku, description, image, last_restock_date, restock_frequency)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           name,
           category || null,
@@ -123,6 +126,7 @@ class Product {
           low_stock_threshold || 10,
           sku || null,
           description || null,
+          image || null,
           last_restock_date || null,
           restock_frequency || 30
         ]
@@ -160,6 +164,7 @@ class Product {
         'low_stock_threshold',
         'sku',
         'description',
+        'image',
         'last_restock_date',
         'restock_frequency'
       ];

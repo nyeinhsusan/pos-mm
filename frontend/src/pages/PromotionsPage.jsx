@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
 import notify from '../services/notificationService';
+import Sidebar from '../components/Sidebar';
 import CreatePromotionModal from '../components/CreatePromotionModal';
-import ThemeToggle from '../components/ThemeToggle';
 
 const PromotionsPage = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,12 +54,6 @@ const PromotionsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    notify.info('Logged out successfully');
-    navigate('/login');
   };
 
   const handleDelete = async (promotionId, promotionName) => {
@@ -217,10 +213,13 @@ const PromotionsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-gray-600 dark:text-gray-400">Loading promotions...</p>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+        <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
+        <div className="ml-0 md:ml-20 lg:ml-28 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading promotions...</p>
+          </div>
         </div>
       </div>
     );
@@ -228,63 +227,10 @@ const PromotionsPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">POS Myanmar</h1>
-              <div className="hidden md:flex space-x-4">
-                <button
-                  onClick={() => navigate('/pos')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  🛒 POS
-                </button>
-                <button
-                  onClick={() => navigate('/products')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  📦 Products
-                </button>
-                <button
-                  onClick={() => navigate('/promotions')}
-                  className="text-blue-600 dark:text-blue-400 font-medium px-3 py-2 rounded-md bg-blue-50 dark:bg-blue-900/50 shadow-md"
-                >
-                  🚀 Promotions
-                </button>
-                <button
-                  onClick={() => navigate('/reports')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  📊 Reports
-                </button>
-                <button
-                  onClick={() => navigate('/ai-insights')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  ✨ AI Insights
-                </button>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <span className="text-gray-700 dark:text-gray-300">
-                <strong>{user?.full_name}</strong> ({user?.role})
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm font-medium text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content - shifted right by sidebar width */}
+      <main className="ml-0 md:ml-20 lg:ml-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Action Bar */}
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-4">

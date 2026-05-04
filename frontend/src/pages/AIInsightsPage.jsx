@@ -10,7 +10,6 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -23,9 +22,9 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import aiService from '../services/aiService';
-import ThemeToggle from '../components/ThemeToggle';
+import Sidebar from '../components/Sidebar';
 
 // Register Chart.js components
 ChartJS.register(
@@ -40,8 +39,7 @@ ChartJS.register(
 );
 
 function AIInsightsPage() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
 
   // State for sales forecast
   const [forecastDays, setForecastDays] = useState(7);
@@ -150,14 +148,6 @@ function AIInsightsPage() {
     } finally {
       setRecommendationsLoading(false);
     }
-  };
-
-  /**
-   * Handle logout
-   */
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
   };
 
   /**
@@ -292,69 +282,10 @@ function AIInsightsPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Navigation Bar */}
-      <nav className="bg-white dark:bg-gray-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center space-x-8">
-              <h1 className="text-2xl font-bold text-blue-600">
-                POS Myanmar
-              </h1>
-              <div className="hidden md:flex space-x-4">
-                <button
-                  onClick={() => navigate('/pos')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  🛒 POS
-                </button>
-                <button
-                  onClick={() => navigate('/products')}
-                  className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                >
-                  📦 Products
-                </button>
-                {user?.role === 'owner' && (
-                  <>
-                    <button
-                      onClick={() => navigate('/promotions')}
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                    >
-                      🚀 Promotions
-                    </button>
-                    <button
-                      onClick={() => navigate('/reports')}
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 px-3 py-2 rounded-md transition-all hover-lift"
-                    >
-                      📊 Reports
-                    </button>
-                    <button
-                      onClick={() => navigate('/ai-insights')}
-                      className="text-blue-600 dark:text-blue-400 font-medium px-3 py-2 rounded-md bg-blue-50 dark:bg-blue-900/50 shadow-md"
-                    >
-                      ✨ AI Insights
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <span className="text-gray-700 dark:text-gray-300">
-                <strong>{user?.full_name}</strong> ({user?.role})
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all btn-press hover:shadow-lg"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="ml-0 md:ml-20 lg:ml-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-6 fade-in">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">AI Insights Dashboard</h1>

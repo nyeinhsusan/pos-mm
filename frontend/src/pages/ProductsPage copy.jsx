@@ -181,7 +181,6 @@ const ProductsPage = () => {
               )}
             </div>
           </div>
-        </div>
 
           {/* Category Tabs */}
           <div className="flex gap-4 mb-10 overflow-x-auto pb-2 custom-scrollbar fade-in-delay-1">

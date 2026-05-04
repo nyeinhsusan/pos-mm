@@ -37,7 +37,8 @@ export const CartProvider = ({ children }) => {
             name: product.name,
             price: parseFloat(product.price),
             stock_quantity: product.stock_quantity,
-            quantity: 1
+            quantity: 1,
+            image: product.image || null
           }
         ];
       }

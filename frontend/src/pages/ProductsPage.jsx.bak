@@ -123,7 +123,7 @@ const ProductsPage = () => {
       <div className="ml-0 md:ml-20 lg:ml-28 transition-all duration-300">
         {/* Main Content - Full Width */}
         <div className="w-full px-10 py-10">
-          <div className="bg-[#0a0e17] border border-[#1a2332] rounded-2xl p-10">
+        <div className="bg-[#0a0e17] border border-[#1a2332] rounded-2xl p-10">
           {/* Header */}
           <div className="flex justify-between items-center mb-8 fade-in">
             <div>
@@ -181,7 +181,6 @@ const ProductsPage = () => {
               )}
             </div>
           </div>
-        </div>
 
           {/* Category Tabs */}
           <div className="flex gap-4 mb-10 overflow-x-auto pb-2 custom-scrollbar fade-in-delay-1">
