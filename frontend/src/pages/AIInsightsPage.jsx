@@ -9,7 +9,7 @@
  * @module pages/AIInsightsPage
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -234,62 +234,82 @@ function AIInsightsPage() {
     };
   };
 
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: false
-      },
-      tooltip: {
-        mode: 'index',
-        intersect: false,
-        callbacks: {
-          label: function(context) {
-            let label = context.dataset.label || '';
-            if (label) {
-              label += ': ';
+  // Read tokens at render time so Chart.js axis/legend/grid colors follow the active theme.
+  // useMemo + isDark dep triggers recomputation on theme toggle, when the CSS vars hold new values.
+  const chartOptions = useMemo(() => {
+    const cssVar = (name) =>
+      typeof window !== 'undefined'
+        ? getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+        : '';
+    const textColor = cssVar('--color-primary');
+    const mutedColor = cssVar('--color-muted');
+    const gridColor = cssVar('--color-default');
+
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { color: textColor }
+        },
+        title: {
+          display: false
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          callbacks: {
+            label: function(context) {
+              let label = context.dataset.label || '';
+              if (label) {
+                label += ': ';
+              }
+              if (context.parsed.y !== null) {
+                label += formatCurrency(context.parsed.y);
+              }
+              return label;
             }
-            if (context.parsed.y !== null) {
-              label += formatCurrency(context.parsed.y);
-            }
-            return label;
           }
         }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function(value) {
-            return (value / 1000).toFixed(0) + 'K';
-          }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            color: mutedColor,
+            callback: function(value) {
+              return (value / 1000).toFixed(0) + 'K';
+            }
+          },
+          grid: { color: gridColor }
+        },
+        x: {
+          ticks: { color: mutedColor },
+          grid: { color: gridColor }
         }
+      },
+      interaction: {
+        mode: 'nearest',
+        axis: 'x',
+        intersect: false
       }
-    },
-    interaction: {
-      mode: 'nearest',
-      axis: 'x',
-      intersect: false
-    }
-  };
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDark]);
 
   const chartData = prepareChartData();
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen bg-page">
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content */}
       <div className="ml-0 md:ml-20 lg:ml-28 px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-6 fade-in">
-        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">AI Insights Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
+        <h1 className="text-3xl font-bold text-primary">AI Insights Dashboard</h1>
+        <p className="text-muted mt-2">
           Machine learning-powered predictions for sales, inventory, and recommendations
         </p>
 
@@ -321,9 +341,9 @@ function AIInsightsPage() {
       </div>
 
       {/* Sales Forecast Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 slide-in-left hover-lift">
+      <div className="bg-surface border border-default rounded-lg shadow-md p-6 mb-6 slide-in-left hover-lift">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">📈 Sales Forecast</h2>
+          <h2 className="text-2xl font-semibold text-primary">📈 Sales Forecast</h2>
 
           {/* Forecast period selector */}
           <div className="flex gap-2">
@@ -331,10 +351,10 @@ function AIInsightsPage() {
               <button
                 key={days}
                 onClick={() => setForecastDays(days)}
-                className={`px-4 py-2 rounded-lg font-medium transition-all btn-press ${
+                className={`px-4 py-2 rounded-full font-medium transition-all btn-press focus:outline-none focus:ring-2 focus:ring-accent ${
                   forecastDays === days
-                    ? 'bg-blue-600 text-white shadow-lg'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 hover:shadow-md'
+                    ? 'bg-btn-primary-bg text-btn-primary-text shadow-lg'
+                    : 'bg-surface border border-default text-muted hover:bg-elevated hover:text-primary'
                 }`}
               >
                 {days} Days
@@ -345,8 +365,8 @@ function AIInsightsPage() {
 
         {forecastLoading && (
           <div className="flex flex-col justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600 dark:text-gray-400 mt-4 flex items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            <p className="text-muted mt-4 flex items-center">
               Loading forecast
               <span className="loading-dot ml-1">.</span>
               <span className="loading-dot">.</span>
@@ -396,12 +416,12 @@ function AIInsightsPage() {
       </div>
 
       {/* Inventory Predictions Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-6 slide-in-right hover-lift">
+      <div className="bg-surface border border-default rounded-lg shadow-md p-6 mb-6 slide-in-right hover-lift">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">📦 Inventory Stockout Predictions</h2>
+          <h2 className="text-2xl font-semibold text-primary">📦 Inventory Stockout Predictions</h2>
           <button
             onClick={fetchInventoryPredictions}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all btn-press shadow-md hover:shadow-lg"
+            className="px-4 py-2 bg-btn-primary-bg text-btn-primary-text rounded-full hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent transition-all btn-press shadow-md hover:shadow-lg"
           >
             🔄 Refresh
           </button>
@@ -409,8 +429,8 @@ function AIInsightsPage() {
 
         {inventoryLoading && (
           <div className="flex flex-col justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600 dark:text-gray-400 mt-4 flex items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            <p className="text-muted mt-4 flex items-center">
               Loading inventory
               <span className="loading-dot ml-1">.</span>
               <span className="loading-dot">.</span>
@@ -443,46 +463,46 @@ function AIInsightsPage() {
 
             {/* Inventory Table */}
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead className="bg-gray-50 dark:bg-gray-700">
+              <table className="min-w-full divide-y divide-[var(--color-default)]">
+                <thead className="bg-section">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Product
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Current Stock
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Days Until Stockout
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Stockout Date
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Recommended Reorder
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                       Status
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 stagger-children">
+                <tbody className="bg-surface divide-y divide-[var(--color-default)] stagger-children">
                   {inventoryData.predictions && inventoryData.predictions.map((prediction) => (
-                    <tr key={prediction.product_id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-all hover:shadow-md cursor-pointer">
+                    <tr key={prediction.product_id} className="hover:bg-section transition-all hover:shadow-md cursor-pointer">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">📦 {prediction.product_name}</div>
+                        <div className="text-sm font-medium text-primary">📦 {prediction.product_name}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">{prediction.current_stock} units</div>
+                        <div className="text-sm text-primary">{prediction.current_stock} units</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">{prediction.days_until_stockout.toFixed(1)} days</div>
+                        <div className="text-sm text-primary">{prediction.days_until_stockout.toFixed(1)} days</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 dark:text-gray-100">{formatDate(prediction.predicted_stockout_date)}</div>
+                        <div className="text-sm text-primary">{formatDate(prediction.predicted_stockout_date)}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-semibold text-blue-600 dark:text-blue-400">{prediction.recommended_reorder_qty} units</div>
+                        <div className="text-sm font-semibold text-blue-700 dark:text-blue-400">{prediction.recommended_reorder_qty} units</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(prediction.status)}`}>
@@ -499,15 +519,15 @@ function AIInsightsPage() {
       </div>
 
       {/* Product Recommendations Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 fade-in-up hover-lift">
+      <div className="bg-surface border border-default rounded-lg shadow-md p-6 fade-in-up hover-lift">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100">🛍️ Product Recommendations</h2>
+          <h2 className="text-2xl font-semibold text-primary">🛍️ Product Recommendations</h2>
 
           {/* Product selector */}
           <select
             value={selectedProductId}
             onChange={(e) => setSelectedProductId(Number(e.target.value))}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all hover:border-blue-400 dark:hover:border-blue-500"
+            className="px-4 py-2 border border-default bg-surface text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
           >
             <option value={1}>🥤 Coca-Cola 500ml</option>
             <option value={2}>🥤 Pepsi 500ml</option>
@@ -518,8 +538,8 @@ function AIInsightsPage() {
 
         {recommendationsLoading && (
           <div className="flex flex-col justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            <p className="text-gray-600 dark:text-gray-400 mt-4 flex items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            <p className="text-muted mt-4 flex items-center">
               Loading recommendations
               <span className="loading-dot ml-1">.</span>
               <span className="loading-dot">.</span>
@@ -545,28 +565,28 @@ function AIInsightsPage() {
             {recommendationsData.recommendations && recommendationsData.recommendations.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 stagger-children">
                 {recommendationsData.recommendations.map((rec, index) => (
-                  <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-lg transition-all card-hover bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-700">
+                  <div key={index} className="border border-default rounded-lg p-4 hover:shadow-lg transition-all card-hover bg-gradient-to-br from-surface to-section">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">🎯 {rec.product_name}</h3>
-                      <span className="text-2xl font-bold text-blue-500 dark:text-blue-400">#{index + 1}</span>
+                      <h3 className="text-lg font-semibold text-primary">🎯 {rec.product_name}</h3>
+                      <span className="text-2xl font-bold text-blue-700 dark:text-blue-400">#{index + 1}</span>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">📊 Confidence:</span>
-                        <span className="font-semibold text-blue-600 dark:text-blue-400">{(rec.confidence * 100).toFixed(1)}%</span>
+                        <span className="text-sm text-muted">📊 Confidence:</span>
+                        <span className="font-semibold text-blue-700 dark:text-blue-400">{(rec.confidence * 100).toFixed(1)}%</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">📈 Lift:</span>
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">{rec.lift.toFixed(2)}</span>
+                        <span className="text-sm text-muted">📈 Lift:</span>
+                        <span className="font-semibold text-primary">{rec.lift.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">🤝 Support:</span>
-                        <span className="font-semibold text-gray-700 dark:text-gray-300">{(rec.support * 100).toFixed(1)}%</span>
+                        <span className="text-sm text-muted">🤝 Support:</span>
+                        <span className="font-semibold text-primary">{(rec.support * 100).toFixed(1)}%</span>
                       </div>
                     </div>
                     {/* Confidence bar */}
                     <div className="mt-3">
-                      <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-elevated rounded-full h-2 overflow-hidden">
                         <div
                           className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full progress-animate shadow-sm"
                           style={{ width: `${rec.confidence * 100}%` }}
@@ -577,7 +597,7 @@ function AIInsightsPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+              <div className="text-center py-8 text-muted">
                 No recommendations available for this product.
               </div>
             )}

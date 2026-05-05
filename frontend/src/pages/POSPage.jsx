@@ -247,7 +247,7 @@ const POSPage = () => {
   ].sort();
 
   return (
-    <div className="min-h-screen bg-[#02040a]">
+    <div className="min-h-screen bg-page">
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content - shifted right by sidebar width */}
@@ -260,12 +260,12 @@ const POSPage = () => {
                 {/* Header */}
                 <div className="mb-8 fade-in">
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-2xl font-bold text-primary">
                       Select Products
                     </h2>
                   <button
                     onClick={() => setShowHelp(true)}
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1"
+                    className="text-sm text-muted hover:text-primary hover:underline flex items-center space-x-1"
                     title="View keyboard shortcuts"
                   >
                     <span>⌨️</span>
@@ -275,38 +275,38 @@ const POSPage = () => {
 
                 {/* Search Bar - Top */}
                 <div className="relative w-full max-w-2xl mb-6 group">
-                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-indigo-400 transition-colors" size={22} />
+                  <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-accent transition-colors" size={22} />
                   <input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search products... (Ctrl+F)"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full bg-white/[0.03] border border-white/5 rounded-[1.5rem] py-4 pl-14 pr-6 outline-none focus:border-indigo-500/50 focus:bg-white/5 transition-all text-sm font-medium placeholder:text-slate-600 text-white"
+                    className="w-full bg-surface border border-default rounded-[1.5rem] py-4 pl-14 pr-6 outline-none focus:border-accent focus:ring-2 focus:ring-accent transition-all text-sm font-medium placeholder:text-muted text-primary"
                     title="Press Ctrl+F to focus search"
                   />
                 </div>
 
                 {/* Quick Tip */}
                 {topProducts.length > 0 && (
-                  <div className="mb-4 p-3 bg-indigo-900/20 border border-indigo-800 rounded-lg">
-                    <p className="text-sm text-indigo-300">
-                      <strong>Quick Add:</strong> Press <kbd className="px-1.5 py-0.5 bg-indigo-900 border border-indigo-700 rounded text-xs font-mono">F1</kbd>-<kbd className="px-1.5 py-0.5 bg-indigo-900 border border-indigo-700 rounded text-xs font-mono">F9</kbd> to add top products instantly | <kbd className="px-1.5 py-0.5 bg-indigo-900 border border-indigo-700 rounded text-xs font-mono">Ctrl+K</kbd> for command palette
+                  <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                    <p className="text-sm text-indigo-700 dark:text-indigo-300">
+                      <strong>Quick Add:</strong> Press <kbd className="px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 border border-indigo-200 dark:border-indigo-700 rounded text-xs font-mono text-primary">F1</kbd>-<kbd className="px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 border border-indigo-200 dark:border-indigo-700 rounded text-xs font-mono text-primary">F9</kbd> to add top products instantly | <kbd className="px-1.5 py-0.5 bg-indigo-100 dark:bg-indigo-900 border border-indigo-200 dark:border-indigo-700 rounded text-xs font-mono text-primary">Ctrl+K</kbd> for command palette
                     </p>
                   </div>
                 )}
 
                 {/* Promotion Banner - Reduced by 40% */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-indigo-900/60 via-purple-900/60 to-indigo-900/60 border border-indigo-500/30 rounded-xl">
+                <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 dark:from-indigo-900/60 via-purple-50 dark:via-purple-900/60 to-indigo-50 dark:to-indigo-900/60 border border-indigo-200 dark:border-indigo-500/30 rounded-xl">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                       <span className="text-2xl">🎉</span>
                       <div>
-                        <p className="text-sm font-bold text-white">Flash Sale!</p>
-                        <p className="text-xs text-indigo-300">Get 20% off on all Electronics until midnight</p>
+                        <p className="text-sm font-bold text-primary">Flash Sale!</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-300">Get 20% off on all Electronics until midnight</p>
                       </div>
                     </div>
-                    <button className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-full transition-colors">
+                    <button className="px-4 py-1.5 bg-btn-primary-bg text-btn-primary-text text-xs font-bold rounded-full transition-colors hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent">
                       Shop Now
                     </button>
                   </div>
@@ -318,8 +318,8 @@ const POSPage = () => {
                     onClick={() => setSelectedCategory('')}
                     className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
                       selectedCategory === ''
-                        ? 'bg-white text-black border-white shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
-                        : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                        ? 'bg-btn-primary-bg text-btn-primary-text border-btn-primary-bg shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
+                        : 'bg-surface border-default text-muted hover:bg-section hover:text-primary'
                     }`}
                   >
                     All
@@ -330,8 +330,8 @@ const POSPage = () => {
                       onClick={() => setSelectedCategory(category)}
                       className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
                         selectedCategory === category
-                          ? 'bg-white text-black border-white shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
-                          : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                          ? 'bg-btn-primary-bg text-btn-primary-text border-btn-primary-bg shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
+                          : 'bg-surface border-default text-muted hover:bg-section hover:text-primary'
                       }`}
                     >
                       {category}
@@ -350,8 +350,8 @@ const POSPage = () => {
               {/* Loading State */}
               {loading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto"></div>
-                  <p className="mt-4 text-gray-400 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+                  <p className="mt-4 text-muted flex items-center justify-center">
                     Loading products
                     <span className="loading-dot ml-1">.</span>
                     <span className="loading-dot">.</span>
@@ -363,8 +363,8 @@ const POSPage = () => {
                   {/* Product Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8 stagger-children">
                     {filteredProducts.length === 0 ? (
-                      <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">
-                        <span className="text-gray-500">No products found</span>
+                      <div className="col-span-full text-center py-12 text-muted">
+                        <span className="text-muted">No products found</span>
                       </div>
                     ) : (
                       filteredProducts.map((product, index) => (
@@ -383,7 +383,7 @@ const POSPage = () => {
                   </div>
 
                   {/* Summary */}
-                  <div className="mt-6 text-sm text-gray-400">
+                  <div className="mt-6 text-sm text-muted">
                     Showing {filteredProducts.length} of {products.length}{' '}
                     products
                   </div>
@@ -471,7 +471,7 @@ const ProductCard = ({ product }) => {
   return (
     <div
       onClick={handleAddToCart}
-      className={`group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden cursor-pointer backdrop-blur-xl transition-all hover:border-indigo-500/40 hover:bg-white/[0.05] ${
+      className={`group bg-surface border border-default rounded-2xl overflow-hidden cursor-pointer backdrop-blur-xl transition-all hover:border-accent hover:bg-section ${
         isOutOfStock ? 'opacity-50 cursor-not-allowed' : ''
       }`}
     >
@@ -485,8 +485,8 @@ const ProductCard = ({ product }) => {
             referrerPolicy="no-referrer"
           />
         ) : (
-          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-            <span className="text-gray-500 text-xs">No Image</span>
+          <div className="w-full h-full bg-elevated flex items-center justify-center">
+            <span className="text-muted text-xs">No Image</span>
           </div>
         )}
         {/* Gradient Overlay */}
@@ -503,35 +503,35 @@ const ProductCard = ({ product }) => {
       {/* Card Content */}
       <div className="p-5">
         {/* Category */}
-        <p className="text-[8px] text-indigo-400 uppercase tracking-[0.25em] font-black mb-1">
+        <p className="text-[8px] text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.25em] font-black mb-1">
           {product.category || 'N/A'}
         </p>
 
         {/* Product Name */}
-        <h3 className="text-xs font-black text-white leading-tight uppercase truncate">
+        <h3 className="text-xs font-black text-primary leading-tight uppercase truncate">
           {product.name}
         </h3>
 
         {/* Price and Add Button */}
-        <div className="mt-4 pt-4 border-t border-white/5 flex items-end justify-between">
+        <div className="mt-4 pt-4 border-t border-default flex items-end justify-between">
           <div>
             {hasPromotion && originalPrice !== displayPrice && (
-              <p className="text-[8px] text-gray-500 line-through">
+              <p className="text-[8px] text-muted line-through">
                 {parseInt(originalPrice).toLocaleString()}
               </p>
             )}
-            <p className="text-sm font-[1000] tracking-tighter text-white whitespace-nowrap">
+            <p className="text-sm font-[1000] tracking-tighter text-primary whitespace-nowrap">
               {parseInt(displayPrice).toLocaleString()}{' '}
               <span className="text-[8px] font-bold opacity-30 ml-0.5">MMK</span>
             </p>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+          <div className="w-8 h-8 rounded-lg bg-elevated flex items-center justify-center text-muted group-hover:bg-btn-primary-bg group-hover:text-btn-primary-text transition-all">
             <Plus size={14} strokeWidth={3} />
           </div>
         </div>
 
         {/* Stock Info */}
-        <div className="flex items-center justify-between text-[10px] text-gray-500 mt-3">
+        <div className="flex items-center justify-between text-[10px] text-muted mt-3">
           <span>Stock: {product.stock_quantity}</span>
           <LowStockBadge product={product} />
         </div>

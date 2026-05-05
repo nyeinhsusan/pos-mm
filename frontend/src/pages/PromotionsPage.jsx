@@ -176,11 +176,11 @@ const PromotionsPage = () => {
     const status = getPromotionStatus(promotion);
 
     const badges = {
-      active: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-      inactive: 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
-      upcoming: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-      expired: 'bg-red-500/20 text-red-400 border border-red-500/30',
-      'inactive-time': 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+      active: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30',
+      inactive: 'bg-slate-500/20 text-slate-700 dark:text-slate-400 border border-slate-500/30',
+      upcoming: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border border-blue-500/30',
+      expired: 'bg-red-500/20 text-red-700 dark:text-red-400 border border-red-500/30',
+      'inactive-time': 'bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30'
     };
 
     const labels = {
@@ -214,12 +214,12 @@ const PromotionsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+      <div className="min-h-screen bg-page transition-colors">
         <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
         <div className="ml-0 md:ml-20 lg:ml-28 flex items-center justify-center min-h-screen">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 dark:text-gray-400">Loading promotions...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto mb-4"></div>
+            <p className="text-muted">Loading promotions...</p>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@ const PromotionsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-page transition-colors">
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content - full width */}
@@ -241,7 +241,7 @@ const PromotionsPage = () => {
                 setIsEditMode(false);
                 setShowCreateModal(true);
               }}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium shadow-sm transition-colors"
+              className="px-4 py-2 bg-btn-primary-bg text-btn-primary-text hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent rounded-full font-medium shadow-sm transition-all"
             >
               + Create Promotion
             </button>
@@ -251,30 +251,30 @@ const PromotionsPage = () => {
           <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
             <button
               onClick={() => setFilterStatus('all')}
-              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+              className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
                 filterStatus === 'all'
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
-                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  ? 'bg-btn-primary-bg text-btn-primary-text border-transparent'
+                  : 'bg-surface border-default text-muted hover:bg-elevated hover:text-primary'
               }`}
             >
               All
             </button>
             <button
               onClick={() => setFilterStatus('active')}
-              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+              className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
                 filterStatus === 'active'
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
-                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  ? 'bg-btn-primary-bg text-btn-primary-text border-transparent'
+                  : 'bg-surface border-default text-muted hover:bg-elevated hover:text-primary'
               }`}
             >
               Active
             </button>
             <button
               onClick={() => setFilterStatus('inactive')}
-              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+              className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
                 filterStatus === 'inactive'
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
-                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  ? 'bg-btn-primary-bg text-btn-primary-text border-transparent'
+                  : 'bg-surface border-default text-muted hover:bg-elevated hover:text-primary'
               }`}
             >
               Inactive
@@ -289,7 +289,7 @@ const PromotionsPage = () => {
             placeholder="Search promotions..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            className="w-full px-4 py-3 border border-default rounded-lg bg-surface text-primary placeholder-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-colors"
           />
         </div>
 
@@ -302,24 +302,24 @@ const PromotionsPage = () => {
 
         {/* Promotions Table */}
         {filteredPromotions.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 text-center transition-colors">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <div className="bg-surface border border-default rounded-lg shadow-sm p-12 text-center transition-colors">
+            <p className="text-muted text-lg">
               {searchTerm ? 'No promotions found matching your search' : 'No promotions yet'}
             </p>
             {!searchTerm && (
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="mt-4 px-6 py-2 bg-btn-primary-bg text-btn-primary-text hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent rounded-full font-medium transition-all"
               >
                 Create Your First Promotion
               </button>
             )}
           </div>
         ) : (
-          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-[2rem] overflow-x-auto backdrop-blur-3xl shadow-2xl">
+          <div className="bg-surface border border-default rounded-[2rem] overflow-x-auto shadow-2xl">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-white/5 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">
+                <tr className="border-b border-default text-[9px] font-black uppercase tracking-[0.3em] text-muted">
                   <th className="px-8 py-6 text-left min-w-[200px]">Promotion Identity</th>
                   <th className="px-8 py-6 text-left">Discount</th>
                   <th className="px-8 py-6 text-left">Date Range</th>
@@ -328,7 +328,7 @@ const PromotionsPage = () => {
                   <th className="px-8 py-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-[var(--color-default)]">
                 <AnimatePresence mode="popLayout">
                   {filteredPromotions.map((promotion) => (
                     <motion.tr
@@ -338,45 +338,45 @@ const PromotionsPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -20 }}
                       transition={{ duration: 0.2 }}
-                      className="group hover:bg-white/[0.02] transition-colors"
+                      className="group hover:bg-section transition-colors"
                     >
                     <td className="px-8 py-6">
                       <div>
-                        <div className="text-sm font-bold text-white">
+                        <div className="text-sm font-bold text-primary">
                           {promotion.name}
                         </div>
                         {promotion.description && (
-                          <div className="text-xs text-slate-400">
+                          <div className="text-xs text-muted">
                             {promotion.description}
                           </div>
                         )}
                       </div>
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <span className="text-sm font-bold text-white">
+                      <span className="text-sm font-bold text-primary">
                         {formatDiscount(promotion)}
                       </span>
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-muted">
                         {formatDateRange(promotion)}
                       </div>
                       {promotion.start_time && promotion.end_time && (
-                        <div className="text-xs text-slate-400">
+                        <div className="text-xs text-muted">
                           {promotion.start_time} - {promotion.end_time}
                         </div>
                       )}
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap">
-                      <span className="text-sm text-white capitalize">
+                      <span className="text-sm text-primary capitalize">
                         {promotion.applies_to}
                         {promotion.applies_to === 'products' && promotion.products && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-muted">
                             {' '}({promotion.products.length})
                           </span>
                         )}
                         {promotion.applies_to === 'categories' && promotion.categories && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-muted">
                             {' '}({promotion.categories.length})
                           </span>
                         )}
@@ -389,10 +389,10 @@ const PromotionsPage = () => {
                       <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => handleToggleActive(promotion)}
-                          className={`px-3 py-1.5 rounded-lg transition-all ${
+                          className={`px-3 py-1.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent transition-all ${
                             promotion.is_active
-                              ? 'bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-400'
-                              : 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400'
+                              ? 'bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-700 dark:text-amber-400'
+                              : 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
                           }`}
                           title={promotion.is_active ? 'Deactivate' : 'Activate'}
                         >
@@ -400,20 +400,20 @@ const PromotionsPage = () => {
                         </button>
                         <button
                           onClick={() => handleEdit(promotion)}
-                          className="px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg text-white text-xs font-bold transition-all"
+                          className="px-3 py-1.5 bg-elevated hover:bg-section border border-default rounded-lg text-primary text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleClone(promotion)}
-                          className="px-3 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-400 text-xs font-bold transition-all"
+                          className="px-3 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-700 dark:text-violet-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                           title="Clone promotion"
                         >
                           Clone
                         </button>
                         <button
                           onClick={() => handleDelete(promotion.promotion_id, promotion.name)}
-                          className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 text-xs font-bold transition-all"
+                          className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-700 dark:text-red-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-accent transition-all"
                         >
                           Delete
                         </button>
@@ -429,25 +429,25 @@ const PromotionsPage = () => {
 
         {/* Summary Stats */}
         <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
-            <div className="text-xs text-slate-400 uppercase tracking-wider">Total Promotions</div>
-            <div className="text-2xl font-bold text-white">{promotions.length}</div>
+          <div className="bg-surface border border-default rounded-2xl p-4">
+            <div className="text-xs text-muted uppercase tracking-wider">Total Promotions</div>
+            <div className="text-2xl font-bold text-primary">{promotions.length}</div>
           </div>
-          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
-            <div className="text-xs text-slate-400 uppercase tracking-wider">Active</div>
-            <div className="text-2xl font-bold text-emerald-400">
+          <div className="bg-surface border border-default rounded-2xl p-4">
+            <div className="text-xs text-muted uppercase tracking-wider">Active</div>
+            <div className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'active').length}
             </div>
           </div>
-          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
-            <div className="text-xs text-slate-400 uppercase tracking-wider">Upcoming</div>
-            <div className="text-2xl font-bold text-blue-400">
+          <div className="bg-surface border border-default rounded-2xl p-4">
+            <div className="text-xs text-muted uppercase tracking-wider">Upcoming</div>
+            <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'upcoming').length}
             </div>
           </div>
-          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
-            <div className="text-xs text-slate-400 uppercase tracking-wider">Expired</div>
-            <div className="text-2xl font-bold text-red-400">
+          <div className="bg-surface border border-default rounded-2xl p-4">
+            <div className="text-xs text-muted uppercase tracking-wider">Expired</div>
+            <div className="text-2xl font-bold text-red-500 dark:text-red-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'expired').length}
             </div>
           </div>

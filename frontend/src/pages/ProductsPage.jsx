@@ -115,21 +115,21 @@ const ProductsPage = () => {
   ].sort();
 
   return (
-    <div className="min-h-screen bg-[#02040a]">
+    <div className="min-h-screen bg-page">
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content - shifted right by sidebar width */}
       <div className="ml-0 md:ml-20 lg:ml-28 transition-all duration-300">
         {/* Main Content - Full Width */}
         <div className="w-full px-10 py-10">
-          <div className="bg-[#0a0e17] border border-[#1a2332] rounded-2xl p-10">
+          <div className="bg-surface border border-default rounded-2xl p-10">
           {/* Header */}
           <div className="flex justify-between items-center mb-8 fade-in">
             <div>
-              <h2 className="text-4xl font-black tracking-tighter text-white uppercase">
+              <h2 className="text-4xl font-black tracking-tighter text-primary uppercase">
                 Stock Matrix
               </h2>
-              <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">
+              <p className="text-sm text-muted font-bold uppercase tracking-widest mt-1">
                 Asset management and supply optimization
               </p>
             </div>
@@ -140,18 +140,18 @@ const ProductsPage = () => {
                 placeholder="Search items..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-5 py-3 border border-white/5 bg-white/[0.03] text-white rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all hover:border-indigo-500/50 placeholder:text-slate-500"
+                className="w-full px-5 py-3 border border-default bg-surface text-primary rounded-xl focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all placeholder:text-muted"
               />
             </div>
             <div className="flex items-center space-x-3">
               {/* View Toggle */}
-              <div className="flex bg-[#1a2332] rounded-lg p-1">
+              <div className="flex bg-section rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('grid')}
-                  className={`p-2 rounded-md transition-all ${
+                  className={`p-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-accent ${
                     viewMode === 'grid'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-btn-primary-bg text-btn-primary-text'
+                      : 'text-muted hover:text-primary'
                   }`}
                   title="Grid View"
                 >
@@ -159,10 +159,10 @@ const ProductsPage = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`p-2 rounded-md transition-all ${
+                  className={`p-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-accent ${
                     viewMode === 'list'
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-btn-primary-bg text-btn-primary-text'
+                      : 'text-muted hover:text-primary'
                   }`}
                   title="List View"
                 >
@@ -172,7 +172,7 @@ const ProductsPage = () => {
               {user?.role === 'owner' && (
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-all flex items-center shadow-md hover:shadow-lg"
+                  className="bg-btn-primary-bg hover:opacity-90 text-btn-primary-text px-4 py-2 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-accent flex items-center shadow-md hover:shadow-lg"
                 >
                   <span className="text-xl mr-2">+</span>
                   Add Product
@@ -186,10 +186,10 @@ const ProductsPage = () => {
           <div className="flex gap-4 mb-10 overflow-x-auto pb-2 custom-scrollbar fade-in-delay-1">
             <button
               onClick={() => setSelectedCategory('')}
-              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+              className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
                 selectedCategory === ''
-                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
-                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5'
+                  ? 'bg-btn-primary-bg text-btn-primary-text border-transparent'
+                  : 'bg-surface border-default text-muted hover:bg-elevated hover:text-primary'
               }`}
             >
               All
@@ -198,10 +198,10 @@ const ProductsPage = () => {
               <button
                 key={category}
                 onClick={() => setSelectedCategory(category)}
-                className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
                   selectedCategory === category
-                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
-                    : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5'
+                    ? 'bg-btn-primary-bg text-btn-primary-text border-transparent'
+                    : 'bg-surface border-default text-muted hover:bg-elevated hover:text-primary'
                 }`}
               >
                 {category}
@@ -215,14 +215,14 @@ const ProductsPage = () => {
               type="checkbox"
               checked={showLowStockOnly}
               onChange={(e) => setShowLowStockOnly(e.target.checked)}
-              className="w-5 h-5 text-indigo-600 rounded"
+              className="w-5 h-5 accent-[var(--color-btn-primary-bg)] rounded focus:outline-none focus:ring-2 focus:ring-accent"
             />
-            <span className="text-gray-300">Show Low Stock Only</span>
+            <span className="text-primary">Show Low Stock Only</span>
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-900/20 border border-red-800 text-red-300 px-4 py-3 rounded-lg mb-4 shake">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-4 shake">
               {error}
             </div>
           )}
@@ -230,8 +230,8 @@ const ProductsPage = () => {
           {/* Loading State */}
           {loading ? (
             <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500 mx-auto"></div>
-              <p className="mt-4 text-gray-400 flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+              <p className="mt-4 text-muted flex items-center justify-center">
                 Loading products
                 <span className="loading-dot ml-1">.</span>
                 <span className="loading-dot">.</span>
@@ -244,7 +244,7 @@ const ProductsPage = () => {
               {viewMode === 'grid' && (
                 <div className="fade-in-delay-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
                   {filteredProducts.length === 0 ? (
-                    <div className="col-span-full text-center py-12 text-gray-500">
+                    <div className="col-span-full text-center py-12 text-muted">
                       No products found
                     </div>
                   ) : (
@@ -254,7 +254,7 @@ const ProductsPage = () => {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden backdrop-blur-xl transition-all hover:border-indigo-500/40 hover:bg-white/[0.05]"
+                        className="group bg-elevated border border-default rounded-2xl overflow-hidden transition-all hover:border-accent hover:bg-section"
                       >
                         {/* Image Container */}
                         <div className="relative aspect-square overflow-hidden">
@@ -266,8 +266,8 @@ const ProductsPage = () => {
                               referrerPolicy="no-referrer"
                             />
                           ) : (
-                            <div className="w-full h-full bg-[#1a2332] flex items-center justify-center">
-                              <span className="text-gray-500 text-xs">No Image</span>
+                            <div className="w-full h-full bg-elevated flex items-center justify-center">
+                              <span className="text-muted text-xs">No Image</span>
                             </div>
                           )}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -276,34 +276,34 @@ const ProductsPage = () => {
                         {/* Card Content */}
                         <div className="p-4">
                           {/* Category */}
-                          <p className="text-[8px] text-indigo-400 uppercase tracking-[0.2em] font-black mb-1">
+                          <p className="text-[8px] text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.2em] font-black mb-1">
                             {product.category || 'N/A'}
                           </p>
 
                           {/* Product Name */}
-                          <h3 className="text-sm font-bold text-white truncate">
+                          <h3 className="text-sm font-bold text-primary truncate">
                             {product.name}
                           </h3>
-                          <p className="text-[10px] text-gray-500 mb-3">
+                          <p className="text-[10px] text-muted mb-3">
                             {product.sku}
                           </p>
 
                           {/* Price & Stock */}
                           <div className="flex items-end justify-between mb-3">
                             <div>
-                              <p className="text-lg font-bold text-white">
+                              <p className="text-lg font-bold text-primary">
                                 {parseInt(product.price).toLocaleString()}
                                 <span className="text-[8px] font-normal opacity-50 ml-1">MMK</span>
                               </p>
-                              <p className="text-[10px] text-gray-500">
+                              <p className="text-[10px] text-muted">
                                 Cost: {parseInt(product.cost_price).toLocaleString()} MMK
                               </p>
                             </div>
                             {/* Glassmorphism Stock Badge */}
                             <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${
                               product.stock_quantity < 10
-                                ? 'bg-rose-500/10 text-rose-400'
-                                : 'bg-emerald-500/10 text-emerald-400'
+                                ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400'
+                                : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
                             }`}>
                               {product.stock_quantity}
                             </div>
@@ -317,7 +317,7 @@ const ProductsPage = () => {
                                   setSelectedProduct(product);
                                   setShowEditModal(true);
                                 }}
-                                className="flex-1 text-xs px-2 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-md text-white transition-colors flex items-center justify-center gap-1"
+                                className="flex-1 text-xs px-2 py-1.5 bg-btn-primary-bg hover:opacity-90 rounded-md text-btn-primary-text focus:outline-none focus:ring-2 focus:ring-accent transition-all flex items-center justify-center gap-1"
                               >
                                 <Edit2 size={12} />
                                 Edit
@@ -327,14 +327,14 @@ const ProductsPage = () => {
                                   setSelectedProduct(product);
                                   setShowRecommendationsModal(true);
                                 }}
-                                className="text-xs px-2 py-1.5 bg-[#1a2332] hover:bg-[#2a3342] rounded-md text-gray-300 transition-colors"
+                                className="text-xs px-2 py-1.5 bg-section hover:bg-elevated border border-default rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                                 title="AI Recommendations"
                               >
                                 <Sparkles size={12} />
                               </button>
                               <button
                                 onClick={() => handleDelete(product.product_id, product.name)}
-                                className="text-xs px-2 py-1.5 bg-rose-900/30 hover:bg-rose-900/50 rounded-md text-rose-400 transition-colors"
+                                className="text-xs px-2 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-md text-rose-700 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                               >
                                 <Trash2 size={12} />
                               </button>
@@ -349,10 +349,10 @@ const ProductsPage = () => {
 
                 {/* List View - Full Width Table */}
                 {viewMode === 'list' && (
-                  <div className="fade-in-delay-2 bg-[#0a0f1e]/40 border border-white/5 rounded-[3rem] overflow-hidden backdrop-blur-3xl shadow-2xl">
+                  <div className="fade-in-delay-2 bg-surface border border-default rounded-[3rem] overflow-x-auto shadow-2xl">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-white/5 text-[10px] font-black uppercase tracking-[0.35em] text-slate-600">
+                        <tr className="border-b border-default text-[10px] font-black uppercase tracking-[0.35em] text-muted">
                           <th className="px-10 py-8">Asset Profile</th>
                           <th className="px-10 py-8">Category</th>
                           <th className="px-10 py-8">Valuation</th>
@@ -360,36 +360,36 @@ const ProductsPage = () => {
                           <th className="px-10 py-8 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-white/5">
+                      <tbody className="divide-y divide-[var(--color-default)]">
                         {filteredProducts.map((product) => (
-                          <tr key={product.product_id} className="group hover:bg-indigo-600/[0.02] transition-colors leading-relaxed">
+                          <tr key={product.product_id} className="group hover:bg-section transition-colors leading-relaxed">
                             <td className="px-10 py-6">
                               <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden bg-slate-900 border border-white/5 shadow-2xl group/img relative">
+                                <div className="w-16 h-16 rounded-[1.5rem] overflow-hidden bg-elevated border border-default shadow-2xl group/img relative">
                                   {product.image ? (
                                     <img src={getImageUrl(product.image)} className="w-full h-full object-cover transition-transform group-hover/img:scale-125" alt={product.name} referrerPolicy="no-referrer" />
                                   ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-gray-500 text-xs">N/A</div>
+                                    <div className="w-full h-full flex items-center justify-center text-muted text-xs">N/A</div>
                                   )}
                                 </div>
                                 <div>
-                                  <p className="font-black text-lg tracking-tighter group-hover:text-indigo-400 transition-colors uppercase">{product.name}</p>
-                                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mt-1">Ref: {product.sku}</p>
+                                  <p className="font-black text-lg tracking-tighter text-primary group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors uppercase">{product.name}</p>
+                                  <p className="text-[10px] text-muted font-black uppercase tracking-widest mt-1">Ref: {product.sku}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-slate-500 italic">
+                            <td className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted italic">
                               {product.category || 'N/A'}
                             </td>
                             <td className="px-10 py-6">
-                              <p className="font-black text-xl text-white tracking-tighter">{parseInt(product.price).toLocaleString()} <span className="text-[10px] opacity-30 font-bold ml-1">MMK</span></p>
+                              <p className="font-black text-xl text-primary tracking-tighter">{parseInt(product.price).toLocaleString()} <span className="text-[10px] opacity-30 font-bold ml-1">MMK</span></p>
                             </td>
                             <td className="px-10 py-6">
                               <div className="flex flex-col items-center gap-2">
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${product.stock_quantity < 10 ? 'text-rose-400' : 'text-emerald-400'}`}>
+                                <span className={`text-[10px] font-black uppercase tracking-widest ${product.stock_quantity < 10 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                                   {product.stock_quantity} Units
                                 </span>
-                                <div className="w-20 h-1 bg-white/5 rounded-full overflow-hidden">
+                                <div className="w-20 h-1 bg-elevated rounded-full overflow-hidden">
                                   <div className={`h-full ${product.stock_quantity < 10 ? 'bg-rose-500 w-1/4' : 'bg-emerald-500 w-full'}`} />
                                 </div>
                               </div>
@@ -398,8 +398,8 @@ const ProductsPage = () => {
                               <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all scale-95 group-hover:scale-100">
                                 {user?.role === 'owner' && (
                                   <>
-                                    <button onClick={() => { setSelectedProduct(product); setShowEditModal(true); }} className="p-3 bg-white/5 rounded-xl hover:bg-indigo-600/10 hover:text-indigo-400 transition-all border border-transparent hover:border-indigo-500/20"><Edit2 size={18} /></button>
-                                    <button onClick={() => handleDelete(product.product_id, product.name)} className="p-3 bg-white/5 rounded-xl hover:bg-rose-600/10 hover:text-rose-400 transition-all border border-transparent hover:border-rose-500/20"><Trash2 size={18} /></button>
+                                    <button onClick={() => { setSelectedProduct(product); setShowEditModal(true); }} className="p-3 bg-elevated rounded-xl hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-400 transition-all border border-transparent hover:border-indigo-500/20 focus:outline-none focus:ring-2 focus:ring-accent"><Edit2 size={18} /></button>
+                                    <button onClick={() => handleDelete(product.product_id, product.name)} className="p-3 bg-elevated rounded-xl hover:bg-rose-500/10 hover:text-rose-700 dark:hover:text-rose-400 transition-all border border-transparent hover:border-rose-500/20 focus:outline-none focus:ring-2 focus:ring-accent"><Trash2 size={18} /></button>
                                   </>
                                 )}
                               </div>
@@ -412,7 +412,7 @@ const ProductsPage = () => {
                 )}
 
               {/* Summary */}
-              <div className="mt-6 text-sm text-gray-400">
+              <div className="mt-6 text-sm text-muted">
                 Showing {filteredProducts.length} of {products.length} products
               </div>
             </>

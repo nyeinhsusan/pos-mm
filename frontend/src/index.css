@@ -3,6 +3,40 @@
 /* Tailwind v4 Dark Mode Configuration */
 @variant dark (&:is(.dark *));
 
+/* =================================
+   Design Tokens (EPIC-02 / Story 11)
+   Shopify-inspired palette, paired light & dark modes.
+   See: pos-mm/docs/DESIGN-shopify.md
+   ================================= */
+@theme {
+  /* Light-mode defaults. Dark-mode overrides applied via .dark below. */
+  --color-page: #FFFFFF;
+  --color-surface: #F4F9F6;
+  --color-section: #F8FAF9;
+  --color-elevated: #F0FAF4;
+  --color-default: #E4E4E7;
+  --color-primary: #102620;
+  --color-muted: #71717A;
+  --color-disabled: #52525B;
+  --color-accent: #36F4A4;
+  --color-btn-primary-bg: #102620;
+  --color-btn-primary-text: #FFFFFF;
+}
+
+.dark {
+  --color-page: #000000;
+  --color-surface: #02090A;
+  --color-section: #061A1C;
+  --color-elevated: #102620;
+  --color-default: #1E2C31;
+  --color-primary: #FFFFFF;
+  --color-muted: #A1A1AA;
+  --color-disabled: #52525B;
+  --color-accent: #36F4A4;
+  --color-btn-primary-bg: #FFFFFF;
+  --color-btn-primary-text: #000000;
+}
+
 /* Custom styles for POS Myanmar */
 body {
   margin: 0;

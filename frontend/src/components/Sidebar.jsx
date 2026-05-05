@@ -45,7 +45,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
       {/* Mobile toggle button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="fixed top-4 left-4 z-50 md:hidden bg-gray-800 dark:bg-gray-700 p-2 rounded-lg text-white"
+        className="fixed top-4 left-4 z-50 md:hidden bg-elevated p-2 rounded-lg text-primary"
       >
         {isCollapsed ? <Menu size={24} /> : <X size={24} />}
       </button>
@@ -54,8 +54,8 @@ const Sidebar = ({ isDark, toggleTheme }) => {
       <aside
         className={`
           fixed left-0 top-0 h-screen
-          bg-[#02040a]/40 backdrop-blur-3xl
-          border-r border-white/5
+          bg-surface/80 backdrop-blur-3xl
+          border-r border-default
           flex flex-col
           transition-all duration-300 ease-in-out
           z-40
@@ -82,8 +82,8 @@ const Sidebar = ({ isDark, toggleTheme }) => {
                   group relative p-2 rounded-[1.5rem] transition-all
                   hover:scale-110 flex items-center justify-center
                   ${isActive
-                    ? 'bg-indigo-600/10 text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/5'
+                    ? 'bg-elevated text-primary'
+                    : 'text-muted hover:text-primary hover:bg-section'
                   }
                 `}
               >
@@ -102,7 +102,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 text-slate-500 hover:text-amber-400 transition-colors relative group flex items-center justify-center"
+            className="p-2 text-muted hover:text-amber-500 dark:hover:text-amber-400 transition-colors relative group flex items-center justify-center"
             title={isDark ? 'Light Mode' : 'Dark Mode'}
           >
             {isDark ? <Sun size={36} /> : <Moon size={36} />}
@@ -114,7 +114,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="p-2 text-slate-500 hover:text-red-400 transition-colors relative group flex items-center justify-center"
+            className="p-2 text-muted hover:text-red-600 dark:hover:text-red-400 transition-colors relative group flex items-center justify-center"
             title="Logout"
           >
             <LogOut size={36} />

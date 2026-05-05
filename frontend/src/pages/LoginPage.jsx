@@ -43,18 +43,18 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 gradient-animate">
+    <div className="min-h-screen bg-gradient-to-br from-page to-section flex items-center justify-center p-4 gradient-animate">
       <div className="max-w-md w-full">
         {/* Header */}
         <div className="text-center mb-8 fade-in">
-          <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 mb-2">
+          <h1 className="text-4xl font-bold text-primary mb-2">
             🏪 POS Myanmar
           </h1>
-          <p className="text-gray-600 dark:text-gray-300">Sign in to your account</p>
+          <p className="text-muted">Sign in to your account</p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8 fade-in-up hover-lift">
+        <div className="bg-surface border border-default rounded-lg shadow-xl p-8 fade-in-up hover-lift">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Error Message */}
             {error && (
@@ -67,7 +67,7 @@ const LoginPage = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-primary mb-2"
               >
                 Email Address
               </label>
@@ -78,7 +78,7 @@ const LoginPage = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 dark:hover:border-blue-500 focus-ring"
+                className="w-full px-4 py-3 border border-default bg-surface text-primary placeholder-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                 placeholder="📧 owner@pos.com"
                 autoComplete="email"
               />
@@ -88,7 +88,7 @@ const LoginPage = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                className="block text-sm font-medium text-primary mb-2"
               >
                 Password
               </label>
@@ -99,7 +99,7 @@ const LoginPage = () => {
                 value={formData.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 dark:hover:border-blue-500 focus-ring"
+                className="w-full px-4 py-3 border border-default bg-surface text-primary placeholder-muted rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all"
                 placeholder="🔒 Enter your password"
                 autoComplete="current-password"
               />
@@ -109,16 +109,14 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all btn-press shadow-md hover:shadow-lg ${
-                loading
-                  ? 'bg-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700'
+              className={`w-full py-3 px-4 rounded-full bg-btn-primary-bg text-btn-primary-text font-medium transition-all btn-press shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent ${
+                loading ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'
               }`}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
                   <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    className="animate-spin -ml-1 mr-3 h-5 w-5"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
@@ -146,11 +144,11 @@ const LoginPage = () => {
           </form>
 
           {/* Demo Accounts Info */}
-          <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <p className="text-xs text-gray-600 dark:text-gray-300 font-medium mb-2">
+          <div className="mt-6 p-4 bg-section border border-default rounded-lg">
+            <p className="text-xs text-primary font-medium mb-2">
               Demo Accounts:
             </p>
-            <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+            <div className="text-xs text-muted space-y-1">
               <p>
                 <strong>Owner:</strong> owner@pos.com / owner123
               </p>
@@ -162,7 +160,7 @@ const LoginPage = () => {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-600 dark:text-gray-400 text-sm mt-6">
+        <p className="text-center text-muted text-sm mt-6">
           &copy; 2026 POS Myanmar. University of Roehampton Final Year Project.
         </p>
       </div>
