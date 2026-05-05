@@ -285,7 +285,7 @@ function AIInsightsPage() {
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content */}
-      <div className="ml-0 md:ml-20 lg:ml-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="ml-0 md:ml-20 lg:ml-28 px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="mb-6 fade-in">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">AI Insights Dashboard</h1>

@@ -182,7 +182,7 @@ const ReportsPage = () => {
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
       {/* Main Content */}
-      <div className="ml-0 md:ml-20 lg:ml-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="ml-0 md:ml-20 lg:ml-28 px-4 sm:px-6 lg:px-8 py-8">
         <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 fade-in">
           📊 Business Reports & Analytics
         </h2>

@@ -78,7 +78,6 @@ const POSPage = () => {
     if (topProducts[index]) {
       const product = topProducts[index];
       addToCart(product);
-      notify.success(`${product.name} added to cart! (F${index + 1})`);
     }
   };
 
@@ -467,11 +466,6 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = () => {
     if (!isOutOfStock) {
       addToCart(product);
-      if (hasPromotion) {
-        notify.success(`${product.name} added with ${product.promotion.discount_value}${product.promotion.discount_type === 'percentage' ? '%' : ' MMK'} discount!`);
-      } else {
-        notify.success(`${product.name} added to cart!`);
-      }
     }
   };
 

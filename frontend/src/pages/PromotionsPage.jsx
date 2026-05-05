@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 import api from '../services/api';
 import notify from '../services/notificationService';
 import Sidebar from '../components/Sidebar';
@@ -175,11 +176,11 @@ const PromotionsPage = () => {
     const status = getPromotionStatus(promotion);
 
     const badges = {
-      active: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300',
-      inactive: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-      upcoming: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
-      expired: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300',
-      'inactive-time': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+      active: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
+      inactive: 'bg-slate-500/20 text-slate-400 border border-slate-500/30',
+      upcoming: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
+      expired: 'bg-red-500/20 text-red-400 border border-red-500/30',
+      'inactive-time': 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
     };
 
     const labels = {
@@ -191,7 +192,7 @@ const PromotionsPage = () => {
     };
 
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-semibold ${badges[status]}`}>
+      <span className={`px-3 py-1.5 inline-flex text-[10px] font-black leading-none uppercase tracking-wider rounded-xl ${badges[status]}`}>
         {labels[status]}
       </span>
     );
@@ -229,8 +230,8 @@ const PromotionsPage = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Sidebar isDark={isDark} toggleTheme={toggleTheme} />
 
-      {/* Main Content - shifted right by sidebar width */}
-      <main className="ml-0 md:ml-20 lg:ml-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Content - full width */}
+      <main className="ml-0 md:ml-20 lg:ml-28 px-4 sm:px-6 lg:px-8 py-8">
         {/* Action Bar */}
         <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
           <div className="flex items-center space-x-4">
@@ -246,17 +247,38 @@ const PromotionsPage = () => {
             </button>
           </div>
 
-          {/* Filters */}
-          <div className="flex items-center space-x-4">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+          {/* Status Filter Tabs */}
+          <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+            <button
+              onClick={() => setFilterStatus('all')}
+              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                filterStatus === 'all'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
+                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+              }`}
             >
-              <option value="all">All Promotions</option>
-              <option value="active">Active Only</option>
-              <option value="inactive">Inactive Only</option>
-            </select>
+              All
+            </button>
+            <button
+              onClick={() => setFilterStatus('active')}
+              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                filterStatus === 'active'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
+                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+              }`}
+            >
+              Active
+            </button>
+            <button
+              onClick={() => setFilterStatus('inactive')}
+              className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                filterStatus === 'inactive'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-[0_10px_30px_rgba(79,70,229,0.3)]'
+                  : 'bg-white/[0.03] border-white/5 text-slate-400 hover:bg-white/5 hover:text-slate-200'
+              }`}
+            >
+              Inactive
+            </button>
           </div>
         </div>
 
@@ -294,140 +316,138 @@ const PromotionsPage = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden transition-colors">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Promotion
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Discount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Date Range
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Applies To
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                    Actions
-                  </th>
+          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-[2rem] overflow-x-auto backdrop-blur-3xl shadow-2xl">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/5 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">
+                  <th className="px-8 py-6 text-left min-w-[200px]">Promotion Identity</th>
+                  <th className="px-8 py-6 text-left">Discount</th>
+                  <th className="px-8 py-6 text-left">Date Range</th>
+                  <th className="px-8 py-6 text-left">Applies To</th>
+                  <th className="px-8 py-6 text-left">Status</th>
+                  <th className="px-8 py-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {filteredPromotions.map((promotion) => (
-                  <tr key={promotion.promotion_id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4">
+              <tbody className="divide-y divide-white/5">
+                <AnimatePresence mode="popLayout">
+                  {filteredPromotions.map((promotion) => (
+                    <motion.tr
+                      key={promotion.promotion_id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="group hover:bg-white/[0.02] transition-colors"
+                    >
+                    <td className="px-8 py-6">
                       <div>
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
+                        <div className="text-sm font-bold text-white">
                           {promotion.name}
                         </div>
                         {promotion.description && (
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-slate-400">
                             {promotion.description}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <span className="text-sm font-bold text-white">
                         {formatDiscount(promotion)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 dark:text-gray-300">
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <div className="text-xs text-slate-400">
                         {formatDateRange(promotion)}
                       </div>
                       {promotion.start_time && promotion.end_time && (
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-slate-400">
                           {promotion.start_time} - {promotion.end_time}
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900 dark:text-gray-300 capitalize">
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <span className="text-sm text-white capitalize">
                         {promotion.applies_to}
                         {promotion.applies_to === 'products' && promotion.products && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-slate-400">
                             {' '}({promotion.products.length})
                           </span>
                         )}
                         {promotion.applies_to === 'categories' && promotion.categories && (
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-slate-400">
                             {' '}({promotion.categories.length})
                           </span>
                         )}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-8 py-6 whitespace-nowrap">
                       {getStatusBadge(promotion)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
+                    <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex gap-2 justify-end">
                         <button
                           onClick={() => handleToggleActive(promotion)}
-                          className={`px-3 py-1 rounded ${
+                          className={`px-3 py-1.5 rounded-lg transition-all ${
                             promotion.is_active
-                              ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:hover:bg-yellow-900/30'
-                              : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/20 dark:text-green-400 dark:hover:bg-green-900/30'
-                          } transition-colors`}
+                              ? 'bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 text-amber-400'
+                              : 'bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400'
+                          }`}
                           title={promotion.is_active ? 'Deactivate' : 'Activate'}
                         >
                           {promotion.is_active ? 'Deactivate' : 'Activate'}
                         </button>
                         <button
                           onClick={() => handleEdit(promotion)}
-                          className="px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:hover:bg-blue-900/30 rounded transition-colors"
+                          className="px-3 py-1.5 bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 rounded-lg text-white text-xs font-bold transition-all"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleClone(promotion)}
-                          className="px-3 py-1 bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:hover:bg-purple-900/30 rounded transition-colors"
+                          className="px-3 py-1.5 bg-violet-500/20 hover:bg-violet-500/30 border border-violet-500/30 rounded-lg text-violet-400 text-xs font-bold transition-all"
                           title="Clone promotion"
                         >
                           Clone
                         </button>
                         <button
                           onClick={() => handleDelete(promotion.promotion_id, promotion.name)}
-                          className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 rounded transition-colors"
+                          className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-lg text-red-400 text-xs font-bold transition-all"
                         >
                           Delete
                         </button>
                       </div>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
+                </AnimatePresence>
               </tbody>
             </table>
           </div>
         )}
 
         {/* Summary Stats */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 transition-colors">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Total Promotions</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{promotions.length}</div>
+        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
+            <div className="text-xs text-slate-400 uppercase tracking-wider">Total Promotions</div>
+            <div className="text-2xl font-bold text-white">{promotions.length}</div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 transition-colors">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Active</div>
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
+            <div className="text-xs text-slate-400 uppercase tracking-wider">Active</div>
+            <div className="text-2xl font-bold text-emerald-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'active').length}
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 transition-colors">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Upcoming</div>
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
+            <div className="text-xs text-slate-400 uppercase tracking-wider">Upcoming</div>
+            <div className="text-2xl font-bold text-blue-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'upcoming').length}
             </div>
           </div>
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 transition-colors">
-            <div className="text-sm text-gray-500 dark:text-gray-400">Expired</div>
-            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+          <div className="bg-[#0a0f1e]/40 border border-white/5 rounded-2xl p-4 backdrop-blur-xl">
+            <div className="text-xs text-slate-400 uppercase tracking-wider">Expired</div>
+            <div className="text-2xl font-bold text-red-400">
               {promotions.filter((p) => getPromotionStatus(p) === 'expired').length}
             </div>
           </div>
