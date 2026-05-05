@@ -263,17 +263,17 @@ const CreatePromotionModal = ({
   const totalSteps = 4;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-colors">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto transition-colors">
         <div className="p-6">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-default">
+            <h3 className="text-2xl font-bold text-primary">
               {isEditMode ? '✏️ Edit Promotion' : '🚀 Create New Promotion'}
             </h3>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl transition-colors"
+              className="text-muted hover:text-primary text-2xl transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded"
             >
               ×
             </button>

@@ -393,7 +393,7 @@ const POSPage = () => {
 
             {/* Shopping Cart - Right Sidebar */}
             <div className="w-[380px] flex-shrink-0 slide-in-right">
-              <div className="lg:sticky lg:top-8">
+              <div className="sticky top-8 h-[calc(100vh-4rem)]">
                 <ShoppingCart
                   onCompleteSale={handleCompleteSale}
                   loading={saleLoading}
