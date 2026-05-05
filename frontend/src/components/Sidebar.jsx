@@ -5,7 +5,6 @@ import {
   LayoutDashboard,
   Package,
   Tag,
-  Settings,
   LogOut,
   Sun,
   Moon,
@@ -27,7 +26,6 @@ const Sidebar = ({ isDark, toggleTheme }) => {
     { icon: Tag, label: 'Promotions', path: '/promotions', ownerOnly: true },
     { icon: BarChart, label: 'Reports', path: '/reports', ownerOnly: true },
     { icon: Sparkles, label: 'AI Insights', path: '/ai-insights', ownerOnly: true },
-    { icon: Settings, label: 'Settings', path: '/settings' },
   ];
 
   const handleLogout = () => {

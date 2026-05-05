@@ -52,7 +52,6 @@ const POSPage = () => {
     if (cart.length > 0) {
       const lastItem = cart[cart.length - 1];
       removeFromCart(lastItem.product_id);
-      notify.info(`Removed ${lastItem.name} from cart`);
     }
   };
 
@@ -60,7 +59,6 @@ const POSPage = () => {
     if (cart.length > 0) {
       const lastItem = cart[cart.length - 1];
       updateQuantity(lastItem.product_id, lastItem.quantity + 1);
-      notify.success(`Increased ${lastItem.name} quantity`);
     }
   };
 
@@ -69,7 +67,6 @@ const POSPage = () => {
       const lastItem = cart[cart.length - 1];
       if (lastItem.quantity > 1) {
         updateQuantity(lastItem.product_id, lastItem.quantity - 1);
-        notify.info(`Decreased ${lastItem.name} quantity`);
       }
     }
   };
@@ -90,7 +87,6 @@ const POSPage = () => {
   const handleClearCart = () => {
     if (cart.length > 0) {
       clearCart();
-      notify.info('Cart cleared');
     }
   };
 
@@ -178,7 +174,6 @@ const POSPage = () => {
 
   const handleLogout = () => {
     logout();
-    notify.info('Logged out successfully. See you soon!');
     navigate('/login');
   };
 

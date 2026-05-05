@@ -65,7 +65,6 @@ const ProductsPage = () => {
 
   const handleLogout = () => {
     logout();
-    notify.info('Logged out successfully. See you soon!');
     navigate('/login');
   };
 

@@ -30,7 +30,6 @@ const LoginPage = () => {
 
     try {
       await login(formData.email, formData.password);
-      notify.success('Login successful! Welcome back!');
       // Redirect to Products page on successful login
       navigate('/products');
     } catch (err) {
