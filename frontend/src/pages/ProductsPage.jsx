@@ -121,10 +121,10 @@ const ProductsPage = () => {
       {/* Main Content - shifted right by sidebar width */}
       <div className="ml-0 md:ml-20 lg:ml-28 transition-all duration-300">
         {/* Main Content - Full Width */}
-        <div className="w-full px-10 py-10">
-          <div className="bg-surface border border-default rounded-2xl p-10">
+        <div className="w-full px-12 py-12">
+          <div className="bg-surface border border-default rounded-2xl p-14">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8 fade-in">
+          <div className="flex justify-between items-center mb-12 fade-in">
             <div>
               <h2 className="text-4xl font-black tracking-tighter text-primary uppercase">
                 Stock Matrix
@@ -183,7 +183,7 @@ const ProductsPage = () => {
         </div>
 
           {/* Category Tabs */}
-          <div className="flex gap-4 mb-10 overflow-x-auto pb-2 custom-scrollbar fade-in-delay-1">
+          <div className="flex gap-4 mt-4 mb-14 overflow-x-auto pb-3 custom-scrollbar fade-in-delay-1">
             <button
               onClick={() => setSelectedCategory('')}
               className={`flex-none px-8 py-3.5 rounded-full text-[11px] font-black uppercase tracking-[0.15em] transition-all border focus:outline-none focus:ring-2 focus:ring-accent ${
@@ -210,7 +210,7 @@ const ProductsPage = () => {
           </div>
 
           {/* Low Stock Filter */}
-          <div className="flex items-center space-x-2 cursor-pointer mb-6 fade-in-delay-1">
+          <div className="flex items-center space-x-2 cursor-pointer mb-8 fade-in-delay-1">
             <input
               type="checkbox"
               checked={showLowStockOnly}
