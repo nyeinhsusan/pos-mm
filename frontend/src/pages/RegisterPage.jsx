@@ -57,88 +57,88 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 gradient-animate">
+    <div className="min-h-screen bg-page flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8 fade-in">
           {/* Logo/Icon */}
           <div className="mb-4 flex justify-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-2xl font-bold text-white">🛍️</span>
+            <div className="w-16 h-16 bg-btn-primary-bg rounded-lg flex items-center justify-center shadow-lg">
+              <span className="text-2xl font-bold text-btn-primary-text">🛍️</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Register</h1>
-          <p className="text-gray-500 dark:text-gray-300">Create a new account</p>
+          <h1 className="text-3xl font-bold text-primary mb-2">Register</h1>
+          <p className="text-muted">Create a new account</p>
         </div>
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 fade-in-up">
+        <form onSubmit={handleSubmit} className="bg-elevated border border-default rounded-lg shadow-lg p-8 fade-in-up">
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Full Name</label>
+            <label className="block text-primary font-semibold mb-2">Full Name</label>
             <input
               type="text"
               name="full_name"
               value={formData.full_name}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 rounded border border-default bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Email</label>
+            <label className="block text-primary font-semibold mb-2">Email</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 rounded border border-default bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Password</label>
+            <label className="block text-primary font-semibold mb-2">Password</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 rounded border border-default bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Confirm Password</label>
+            <label className="block text-primary font-semibold mb-2">Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 rounded border border-default bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent"
               required
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 dark:text-gray-200 font-semibold mb-2">Role</label>
+            <label className="block text-primary font-semibold mb-2">Role</label>
             <select
               name="role"
               value={formData.role}
               onChange={handleChange}
-              className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-4 py-2 rounded border border-default bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <option value="cashier">Cashier</option>
               <option value="owner">Owner</option>
             </select>
           </div>
-          {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
+          {error && <div className="text-red-600 dark:text-red-400 mb-4 text-center">{error}</div>}
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-200"
+            className="w-full bg-btn-primary-bg hover:opacity-90 text-btn-primary-text font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-accent transition duration-200 disabled:opacity-50"
             disabled={loading}
           >
             {loading ? 'Registering...' : 'Register'}
           </button>
           <div className="mt-4 text-center">
-            <span className="text-gray-600 dark:text-gray-300">Already have an account? </span>
+            <span className="text-muted">Already have an account? </span>
             <button
               type="button"
-              className="text-blue-600 hover:underline dark:text-blue-400"
+              className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-accent rounded"
               onClick={() => navigate('/login')}
             >
               Login

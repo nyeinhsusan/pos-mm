@@ -363,25 +363,25 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
             <div className="grid grid-cols-4 gap-2 mb-4">
               <button
                 onClick={() => setCashTendered(cartTotal.toString())}
-                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 Exact
               </button>
               <button
                 onClick={() => handleQuickAmount(1000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 +1,000
               </button>
               <button
                 onClick={() => handleQuickAmount(5000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 +5,000
               </button>
               <button
                 onClick={() => handleQuickAmount(10000)}
-                className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95"
+                className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800 text-white py-3 rounded-lg text-sm font-semibold transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 +10,000
               </button>

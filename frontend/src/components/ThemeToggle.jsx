@@ -39,7 +39,7 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={handleToggle}
-      className="relative group px-3 py-2 rounded-lg transition-all hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="relative group px-3 py-2 rounded-lg transition-all hover:bg-section focus:outline-none focus:ring-2 focus:ring-accent"
       aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
@@ -49,9 +49,8 @@ const ThemeToggle = () => {
       </span>
 
       {/* Tooltip */}
-      <div className="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-md whitespace-nowrap z-50">
+      <div className="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-btn-primary-bg text-btn-primary-text text-xs rounded-md whitespace-nowrap z-50">
         {isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-gray-900 dark:border-b-gray-700"></div>
       </div>
     </button>
   );

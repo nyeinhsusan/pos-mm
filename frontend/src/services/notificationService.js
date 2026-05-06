@@ -40,11 +40,7 @@ export const notifySuccess = (message, options = {}) => {
     ...DEFAULT_OPTIONS,
     ...options,
     icon: '✓',
-    style: {
-      ...DEFAULT_OPTIONS.style,
-      background: '#10b981', // green-500
-      color: '#ffffff',
-    },
+    className: 'toast-success',
   });
 };
 
@@ -59,11 +55,7 @@ export const notifyError = (message, options = {}) => {
     ...DEFAULT_OPTIONS,
     ...options,
     icon: '✗',
-    style: {
-      ...DEFAULT_OPTIONS.style,
-      background: '#ef4444', // red-500
-      color: '#ffffff',
-    },
+    className: 'toast-error',
   });
 };
 
@@ -78,11 +70,7 @@ export const notifyWarning = (message, options = {}) => {
     ...DEFAULT_OPTIONS,
     ...options,
     icon: '⚠',
-    style: {
-      ...DEFAULT_OPTIONS.style,
-      background: '#f59e0b', // yellow-500
-      color: '#ffffff',
-    },
+    className: 'toast-warning',
   });
 };
 
@@ -97,11 +85,7 @@ export const notifyInfo = (message, options = {}) => {
     ...DEFAULT_OPTIONS,
     ...options,
     icon: 'ℹ',
-    style: {
-      ...DEFAULT_OPTIONS.style,
-      background: '#3b82f6', // blue-500
-      color: '#ffffff',
-    },
+    className: 'toast-info',
   });
 };
 

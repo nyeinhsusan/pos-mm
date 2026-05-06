@@ -108,8 +108,8 @@ const DiscountModal = ({
   const selectedReason = DISCOUNT_REASONS.find(r => r.id === reason);
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-elevated border border-default rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="bg-gradient-to-r from-red-500 to-orange-500 dark:from-red-600 dark:to-orange-600 text-white p-6 rounded-t-lg">
           <div className="flex items-center justify-between">
@@ -121,7 +121,7 @@ const DiscountModal = ({
             </div>
             <button
               onClick={onClose}
-              className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors"
+              className="text-white hover:bg-white/20 rounded-lg p-2 transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -133,7 +133,7 @@ const DiscountModal = ({
         <div className="p-6 space-y-6">
           {/* Discount Target Toggle */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-semibold text-primary mb-3">
               Apply Discount To:
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -147,12 +147,12 @@ const DiscountModal = ({
                 className={`p-4 rounded-lg border-2 transition-all ${
                   discountTarget === 'cart'
                     ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600'
-                    : 'border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+                    : 'border-default hover:border-red-300 dark:hover:border-red-700'
                 }`}
               >
                 <div className="text-2xl mb-1">🛒</div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">Entire Cart</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">{cartTotal.toLocaleString()} MMK</div>
+                <div className="font-semibold text-primary">Entire Cart</div>
+                <div className="text-sm text-muted">{cartTotal.toLocaleString()} MMK</div>
               </button>
               <button
                 type="button"
@@ -163,12 +163,12 @@ const DiscountModal = ({
                 className={`p-4 rounded-lg border-2 transition-all ${
                   discountTarget === 'item'
                     ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600'
-                    : 'border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+                    : 'border-default hover:border-red-300 dark:hover:border-red-700'
                 }`}
               >
                 <div className="text-2xl mb-1">📦</div>
-                <div className="font-semibold text-gray-900 dark:text-gray-100">Single Item</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Select below</div>
+                <div className="font-semibold text-primary">Single Item</div>
+                <div className="text-sm text-muted">Select below</div>
               </button>
             </div>
           </div>
@@ -176,10 +176,10 @@ const DiscountModal = ({
           {/* Item Selection (if item discount) */}
           {discountTarget === 'item' && (
             <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+              <label className="block text-sm font-semibold text-primary mb-3">
                 Select Item:
               </label>
-              <div className="max-h-40 overflow-y-auto space-y-2 border dark:border-gray-700 rounded-lg p-2">
+              <div className="max-h-40 overflow-y-auto space-y-2 border border-default rounded-lg p-2">
                 {cartItems.map((item) => (
                   <button
                     key={item.product_id}
@@ -191,17 +191,17 @@ const DiscountModal = ({
                     className={`w-full text-left p-3 rounded-lg border transition-all ${
                       selectedItem?.product_id === item.product_id
                         ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600'
-                        : 'border-gray-200 dark:border-gray-700 hover:border-red-300 dark:hover:border-red-700'
+                        : 'border-default hover:border-red-300 dark:hover:border-red-700'
                     }`}
                   >
                     <div className="flex justify-between items-center">
                       <div>
-                        <div className="font-medium text-gray-900 dark:text-gray-100">{item.name}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="font-medium text-primary">{item.name}</div>
+                        <div className="text-sm text-muted">
                           Qty: {item.quantity} × {item.price.toLocaleString()} MMK
                         </div>
                       </div>
-                      <div className="font-semibold text-gray-900 dark:text-gray-100">
+                      <div className="font-semibold text-primary">
                         {item.subtotal.toLocaleString()} MMK
                       </div>
                     </div>
@@ -213,7 +213,7 @@ const DiscountModal = ({
 
           {/* Discount Type Tabs */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-semibold text-primary mb-3">
               Discount Type:
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -227,7 +227,7 @@ const DiscountModal = ({
                 className={`p-4 rounded-lg border-2 font-semibold transition-all ${
                   discountType === 'percentage'
                     ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-700'
+                    : 'border-default text-primary hover:border-red-300 dark:hover:border-red-700'
                 }`}
               >
                 Percentage (%)
@@ -242,7 +242,7 @@ const DiscountModal = ({
                 className={`p-4 rounded-lg border-2 font-semibold transition-all ${
                   discountType === 'fixed'
                     ? 'border-red-500 bg-red-50 text-red-700 dark:bg-red-900/20 dark:border-red-600 dark:text-red-300'
-                    : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-700'
+                    : 'border-default text-primary hover:border-red-300 dark:hover:border-red-700'
                 }`}
               >
                 Fixed Amount (MMK)
@@ -252,7 +252,7 @@ const DiscountModal = ({
 
           {/* Discount Value Input */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-semibold text-primary mb-3">
               {discountType === 'percentage' ? 'Discount Percentage:' : 'Discount Amount (MMK):'}
             </label>
             <input
@@ -263,9 +263,9 @@ const DiscountModal = ({
                 setError('');
               }}
               placeholder={discountType === 'percentage' ? 'e.g., 10' : 'e.g., 1000'}
-              className="w-full p-4 text-2xl font-bold border-2 border-gray-300 dark:border-gray-600 rounded-lg
-                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                       focus:border-red-500 dark:focus:border-red-600 focus:outline-none"
+              className="w-full p-4 text-2xl font-bold border-2 border-default rounded-lg
+                       bg-surface text-primary
+                       focus:border-red-500 dark:focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-accent"
               min="0"
               max={discountType === 'percentage' ? '100' : undefined}
               step="any"
@@ -274,7 +274,7 @@ const DiscountModal = ({
 
           {/* Reason Selection */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <label className="block text-sm font-semibold text-primary mb-3">
               Reason:
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -286,11 +286,11 @@ const DiscountModal = ({
                   className={`p-3 rounded-lg border-2 transition-all ${
                     reason === r.id
                       ? 'border-red-500 bg-red-50 dark:bg-red-900/20 dark:border-red-600'
-                      : 'border-gray-300 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700'
+                      : 'border-default hover:border-red-300 dark:hover:border-red-700'
                   }`}
                 >
                   <div className="text-xl mb-1">{r.icon}</div>
-                  <div className="text-xs font-medium text-gray-900 dark:text-gray-100">{r.label}</div>
+                  <div className="text-xs font-medium text-primary">{r.label}</div>
                 </button>
               ))}
             </div>
@@ -298,11 +298,11 @@ const DiscountModal = ({
 
           {/* Preview */}
           {discountValue && (
-            <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 space-y-2">
-              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
+            <div className="bg-section rounded-lg p-4 space-y-2">
+              <div className="text-sm font-semibold text-primary mb-3">
                 Preview:
               </div>
-              <div className="flex justify-between text-gray-700 dark:text-gray-300">
+              <div className="flex justify-between text-primary">
                 <span>Original:</span>
                 <span className="line-through">{preview.original.toLocaleString()} MMK</span>
               </div>
@@ -310,7 +310,7 @@ const DiscountModal = ({
                 <span>Discount ({discountType === 'percentage' ? `${discountValue}%` : 'Fixed'}):</span>
                 <span>-{preview.discount.toLocaleString()} MMK</span>
               </div>
-              <div className="flex justify-between text-lg font-bold text-green-600 dark:text-green-400 pt-2 border-t dark:border-gray-600">
+              <div className="flex justify-between text-lg font-bold text-green-600 dark:text-green-400 pt-2 border-t border-default">
                 <span>New Total:</span>
                 <span>{preview.newTotal.toLocaleString()} MMK</span>
               </div>
@@ -331,13 +331,13 @@ const DiscountModal = ({
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 dark:bg-gray-900/50 p-6 rounded-b-lg flex gap-3">
+        <div className="bg-section border-t border-default p-6 rounded-b-lg flex gap-3">
           <button
             onClick={onClose}
             disabled={isApplying}
-            className="flex-1 px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200
-                     rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600
-                     transition-colors disabled:opacity-50"
+            className="flex-1 px-6 py-3 bg-section hover:bg-elevated border border-default text-primary
+                     rounded-lg font-semibold
+                     transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Cancel
           </button>
@@ -348,7 +348,7 @@ const DiscountModal = ({
                      dark:from-red-600 dark:to-orange-600 text-white rounded-lg font-semibold
                      hover:from-red-600 hover:to-orange-600 dark:hover:from-red-700 dark:hover:to-orange-700
                      transition-all disabled:opacity-50 disabled:cursor-not-allowed
-                     shadow-lg hover:shadow-xl"
+                     shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {isApplying ? 'Applying...' : `Apply Discount ${selectedReason?.icon || ''}`}
           </button>

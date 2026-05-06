@@ -181,7 +181,7 @@ function AIInsightsPage() {
       case 'HEALTHY':
         return 'bg-green-500 text-white';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-section text-muted border border-default';
     }
   };
 
