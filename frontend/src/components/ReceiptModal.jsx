@@ -68,7 +68,7 @@ const ReceiptModal = ({ isOpen, onClose, saleId }) => {
       // Create canvas from cloned receipt HTML
       const canvas = await html2canvas(clone, {
         scale: 2,
-        backgroundColor: '#ffffff',
+        backgroundColor: 'white',
         logging: false,
         useCORS: true,
         allowTaint: true
@@ -123,21 +123,21 @@ const ReceiptModal = ({ isOpen, onClose, saleId }) => {
     <>
       {/* Modal Overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 no-print"
+        className="fixed inset-0 bg-black/60 z-40 no-print"
         onClick={handleClose}
       />
 
       {/* Modal Content */}
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           {/* Header - Hide on print */}
-          <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-between items-center no-print">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <div className="sticky top-0 bg-elevated border-b border-default px-6 py-4 flex justify-between items-center no-print">
+            <h2 className="text-xl font-semibold text-primary">
               Receipt
             </h2>
             <button
               onClick={handleClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -149,23 +149,23 @@ const ReceiptModal = ({ isOpen, onClose, saleId }) => {
           <div className="px-6 py-4">
             {loading && (
               <div className="text-center py-12">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-blue-600 dark:border-gray-700 dark:border-t-blue-400"></div>
-                <p className="mt-4 text-gray-600 dark:text-gray-400">Loading receipt...</p>
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-default border-t-accent"></div>
+                <p className="mt-4 text-muted">Loading receipt...</p>
               </div>
             )}
 
             {error && (
               <div className="text-center py-12">
-                <div className="text-red-600 dark:text-red-400 mb-4">
+                <div className="text-red-700 dark:text-red-400 mb-4">
                   <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Error</p>
-                <p className="text-gray-600 dark:text-gray-400">{error}</p>
+                <p className="text-lg font-semibold text-primary mb-2">Error</p>
+                <p className="text-muted">{error}</p>
                 <button
                   onClick={fetchReceiptData}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="mt-4 px-4 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   Retry
                 </button>
@@ -179,16 +179,16 @@ const ReceiptModal = ({ isOpen, onClose, saleId }) => {
 
           {/* Footer - Hide on print */}
           {!loading && !error && receiptData && (
-            <div className="sticky bottom-0 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-6 py-4 flex justify-end space-x-3 no-print">
+            <div className="sticky bottom-0 bg-section border-t border-default px-6 py-4 flex justify-end space-x-3 no-print">
               <button
                 onClick={handleClose}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="px-4 py-2 bg-section hover:bg-elevated border border-default text-primary rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 Close
               </button>
               <button
                 onClick={handleDownloadPDF}
-                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -197,7 +197,7 @@ const ReceiptModal = ({ isOpen, onClose, saleId }) => {
               </button>
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg transition-colors flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />

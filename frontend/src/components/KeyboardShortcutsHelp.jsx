@@ -75,19 +75,19 @@ const KeyboardShortcutsHelp = ({ isOpen, onClose }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 flex items-center justify-center fade-in"
+        className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center fade-in"
         onClick={handleBackdropClick}
       >
         {/* Modal */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden fade-in-up">
+        <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden fade-in-up">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="px-6 py-4 border-b border-default flex items-center justify-between">
+            <h2 className="text-xl font-bold text-primary">
               ⌨️ Keyboard Shortcuts
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              className="text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded"
               aria-label="Close"
             >
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -98,7 +98,7 @@ const KeyboardShortcutsHelp = ({ isOpen, onClose }) => {
 
           {/* Content */}
           <div className="px-6 py-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-sm text-muted mb-6">
               Use these keyboard shortcuts to navigate and perform actions faster.
             </p>
 
@@ -106,26 +106,26 @@ const KeyboardShortcutsHelp = ({ isOpen, onClose }) => {
             <div className="space-y-6">
               {shortcuts.map((section, sectionIndex) => (
                 <div key={sectionIndex}>
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-3">
+                  <h3 className="text-sm font-semibold text-primary uppercase tracking-wider mb-3">
                     {section.category}
                   </h3>
                   <div className="space-y-2">
                     {section.items.map((shortcut, itemIndex) => (
                       <div
                         key={itemIndex}
-                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        className="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-section transition-colors"
                       >
-                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                        <span className="text-sm text-primary">
                           {shortcut.description}
                         </span>
                         <div className="flex items-center space-x-1">
                           {shortcut.keys.map((key, keyIndex) => (
                             <span key={keyIndex} className="flex items-center">
-                              <kbd className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded shadow-sm">
+                              <kbd className="px-2 py-1 text-xs font-semibold text-primary bg-section border border-default rounded shadow-sm">
                                 {key}
                               </kbd>
                               {keyIndex < shortcut.keys.length - 1 && (
-                                <span className="mx-1 text-gray-400">+</span>
+                                <span className="mx-1 text-muted">+</span>
                               )}
                             </span>
                           ))}
@@ -146,10 +146,10 @@ const KeyboardShortcutsHelp = ({ isOpen, onClose }) => {
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+          <div className="px-6 py-4 bg-section border-t border-default flex justify-end">
             <button
               onClick={onClose}
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+              className="px-4 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-accent"
             >
               Got it!
             </button>

@@ -218,28 +218,28 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
     }];
 
     return (
-      <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full p-6 fade-in-up">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4 text-center">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
+        <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-md w-full p-6 fade-in-up">
+          <h2 className="text-2xl font-bold text-primary mb-4 text-center">
             💳 Confirm Payment
           </h2>
 
           <div className="space-y-3 mb-6">
-            <div className="flex justify-between items-center py-2 border-b dark:border-gray-700">
-              <span className="text-gray-600 dark:text-gray-400">Total Amount:</span>
-              <span className="font-bold text-xl text-gray-900 dark:text-gray-100">
+            <div className="flex justify-between items-center py-2 border-b border-default">
+              <span className="text-muted">Total Amount:</span>
+              <span className="font-bold text-xl text-primary">
                 {cartTotal.toLocaleString()} MMK
               </span>
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Payment Methods:</p>
+              <p className="text-sm font-medium text-primary">Payment Methods:</p>
               {finalPayments.map((payment, index) => (
-                <div key={index} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div key={index} className="flex justify-between items-center bg-section p-3 rounded-lg">
+                  <span className="text-primary">
                     {payment.icon} {payment.method_name}
                   </span>
-                  <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="font-semibold text-primary">
                     {parseFloat(payment.amount).toLocaleString()} MMK
                   </span>
                 </div>
@@ -249,7 +249,7 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
             {selectedMethod?.id === 'cash' && parseFloat(cashTendered) > cartTotal && (
               <div className="flex justify-between items-center py-3 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 border-2 border-green-500 dark:border-green-600">
                 <span className="text-green-700 dark:text-green-300 font-medium">Change:</span>
-                <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <span className="text-2xl font-bold text-green-700 dark:text-green-400">
                   {calculateChange().toLocaleString()} MMK
                 </span>
               </div>
@@ -259,13 +259,13 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
           <div className="flex gap-3">
             <button
               onClick={() => setShowSummary(false)}
-              className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-semibold transition-all"
+              className="flex-1 bg-section hover:bg-elevated border border-default text-primary py-3 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-accent"
             >
               ← Back
             </button>
             <button
               onClick={handleFinalizePayment}
-              className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg"
+              className="flex-1 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent"
             >
               ✅ Complete Sale
             </button>
@@ -276,32 +276,32 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-2xl w-full p-6 fade-in-up max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
+      <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-2xl w-full p-6 fade-in-up max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+          <h2 className="text-2xl font-bold text-primary">
             💳 Select Payment Method
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-2xl"
+            className="text-muted hover:text-primary text-2xl focus:outline-none focus:ring-2 focus:ring-accent rounded"
           >
             ×
           </button>
         </div>
 
         {/* Sale Total */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 p-4 rounded-lg mb-6">
+        <div className="bg-section p-4 rounded-lg mb-6">
           <div className="flex justify-between items-center">
-            <span className="text-lg font-medium text-gray-700 dark:text-gray-300">Sale Total:</span>
-            <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            <span className="text-lg font-medium text-primary">Sale Total:</span>
+            <span className="text-3xl font-bold text-blue-700 dark:text-blue-400">
               {cartTotal.toLocaleString()} MMK
             </span>
           </div>
           {splitPayment && (
-            <div className="flex justify-between items-center mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Remaining:</span>
-              <span className="text-xl font-bold text-orange-600 dark:text-orange-400">
+            <div className="flex justify-between items-center mt-2 pt-2 border-t border-default">
+              <span className="text-sm font-medium text-muted">Remaining:</span>
+              <span className="text-xl font-bold text-orange-700 dark:text-orange-400">
                 {remainingAmount.toLocaleString()} MMK
               </span>
             </div>
@@ -317,10 +317,10 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
               setSelectedMethod(null);
               setError('');
             }}
-            className={`px-6 py-2 rounded-lg font-medium transition-all ${
+            className={`px-6 py-2 rounded-lg font-medium transition-all focus:outline-none focus:ring-2 focus:ring-accent ${
               splitPayment
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                ? 'bg-btn-primary-bg text-btn-primary-text'
+                : 'bg-section border border-default text-primary'
             }`}
           >
             {splitPayment ? '✓ Split Payment Mode' : '🔀 Enable Split Payment'}
@@ -334,8 +334,8 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
               key={method.id}
               onClick={() => handleMethodSelect(method)}
               className={`${method.bgColor} ${method.borderColor} ${method.textColor} ${method.hoverColor}
-                border-2 rounded-lg p-4 transition-all hover-lift cursor-pointer
-                ${selectedMethod?.id === method.id ? 'ring-4 ring-offset-2 ring-blue-500 dark:ring-blue-400 scale-105' : ''}
+                border-2 rounded-lg p-4 transition-all hover-lift cursor-pointer focus:outline-none
+                ${selectedMethod?.id === method.id ? 'ring-4 ring-offset-2 ring-accent scale-105' : ''}
               `}
             >
               <div className="text-4xl mb-2">{method.icon}</div>
@@ -349,12 +349,12 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
           <div className="mb-6 p-6 bg-green-50 dark:bg-green-900/20 rounded-lg border-2 border-green-500 dark:border-green-600">
             {/* Amount Display - Large */}
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-primary mb-2">
                 💵 Amount Tendered:
               </label>
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border-2 border-green-300 dark:border-green-700">
-                <div className="text-5xl font-bold text-center text-gray-900 dark:text-gray-100 font-mono">
-                  {cashTendered || '0'} <span className="text-2xl text-gray-500">MMK</span>
+              <div className="bg-elevated rounded-lg p-4 border-2 border-green-300 dark:border-green-700">
+                <div className="text-5xl font-bold text-center text-primary font-mono">
+                  {cashTendered || '0'} <span className="text-2xl text-muted">MMK</span>
                 </div>
               </div>
             </div>
@@ -396,10 +396,10 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
 
             {/* Change Display */}
             {cashTendered && parseFloat(cashTendered) >= cartTotal && (
-              <div className="mt-4 p-4 bg-white dark:bg-gray-700 rounded-lg border-2 border-green-500 dark:border-green-600">
+              <div className="mt-4 p-4 bg-elevated rounded-lg border-2 border-green-500 dark:border-green-600">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-lg font-medium text-green-700 dark:text-green-300">Change:</span>
-                  <span className="text-4xl font-bold text-green-600 dark:text-green-400">
+                  <span className="text-4xl font-bold text-green-700 dark:text-green-400">
                     {calculateChange().toLocaleString()} MMK
                   </span>
                 </div>
@@ -407,10 +407,10 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
                 {/* Denomination Breakdown */}
                 {calculateChange() > 0 && (
                   <div className="pt-3 border-t border-green-200 dark:border-green-800">
-                    <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+                    <div className="text-xs font-medium text-muted mb-2">
                       💰 Denomination Breakdown:
                     </div>
-                    <div className="text-sm font-mono text-gray-800 dark:text-gray-200 bg-gray-50 dark:bg-gray-800 p-3 rounded">
+                    <div className="text-sm font-mono text-primary bg-section p-3 rounded">
                       {calculateDenominationBreakdown(calculateChange()).displayText}
                     </div>
                   </div>
@@ -433,7 +433,7 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
         {/* Amount Input for Split Payment (ALL methods including cash) */}
         {splitPayment && selectedMethod && (
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-primary mb-2">
               Payment Amount:
             </label>
             <input
@@ -442,9 +442,9 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
               onChange={(e) => setPaymentAmount(parseFloat(e.target.value))}
               max={remainingAmount}
               placeholder={`Max: ${remainingAmount.toLocaleString()} MMK`}
-              className="w-full px-4 py-3 text-xl font-bold border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full px-4 py-3 text-xl font-bold border-2 border-default rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent bg-surface text-primary"
             />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-muted mt-2">
               Enter the amount you want to pay with {selectedMethod.name} (Max: {remainingAmount.toLocaleString()} MMK)
             </p>
           </div>
@@ -453,15 +453,15 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
         {/* Added Payments List */}
         {splitPayment && addedPayments.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-3">Added Payments:</h3>
+            <h3 className="text-lg font-semibold text-primary mb-3">Added Payments:</h3>
             <div className="space-y-2">
               {addedPayments.map((payment, index) => (
-                <div key={index} className="flex justify-between items-center bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
-                  <span className="text-gray-700 dark:text-gray-300">
+                <div key={index} className="flex justify-between items-center bg-section p-3 rounded-lg">
+                  <span className="text-primary">
                     {payment.icon} {payment.method_name}
                   </span>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold text-gray-900 dark:text-gray-100">
+                    <span className="font-semibold text-primary">
                       {parseFloat(payment.amount).toLocaleString()} MMK
                     </span>
                     <button
@@ -488,7 +488,7 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-3 rounded-lg font-semibold transition-all"
+            className="flex-1 bg-section hover:bg-elevated border border-default text-primary py-3 rounded-lg font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Cancel
           </button>
@@ -496,7 +496,7 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
           {splitPayment && selectedMethod ? (
             <button
               onClick={handleAddPayment}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg"
+              className="flex-1 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent"
             >
               + Add Payment
             </button>
@@ -505,7 +505,7 @@ const PaymentModal = ({ isOpen, onClose, cartTotal, onPaymentComplete }) => {
           {((splitPayment && addedPayments.length > 0) || (!splitPayment && selectedMethod)) && (
             <button
               onClick={handleConfirmPayment}
-              className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg"
+              className="flex-1 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-lg font-semibold transition-all btn-press shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent"
             >
               Continue →
             </button>

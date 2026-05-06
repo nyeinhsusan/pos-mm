@@ -89,7 +89,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
       {/* Cart Header */}
       <div className="p-6 border-b border-default flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center shadow-2xl">
+          <div className="w-10 h-10 bg-btn-primary-bg text-btn-primary-text rounded-xl flex items-center justify-center shadow-2xl">
             <ShoppingBag size={18} strokeWidth={2.5} />
           </div>
           <h2 className="text-lg font-black tracking-tight uppercase text-primary">Current Order</h2>
@@ -163,7 +163,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                           handleQuantityChange(item.product_id, item.quantity, 1);
                         }}
                         disabled={item.quantity >= item.stock_quantity}
-                        className="p-1 text-slate-500 hover:text-white transition-colors disabled:opacity-30"
+                        className="p-1 text-muted hover:text-primary transition-colors disabled:opacity-30"
                       >
                         <Plus size={10} />
                       </button>
@@ -191,7 +191,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
       {/* AI Recommendations */}
       {cart.length > 0 && (
-        <div className="border-t border-white/5 p-4 flex-shrink-0">
+        <div className="border-t border-default p-4 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-black text-muted uppercase tracking-wider">Also bought</h3>
             <Sparkles size={14} className="text-indigo-700 dark:text-indigo-400" />
@@ -276,7 +276,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                     <X size={10} />
                   </button>
                 </div>
-                <span className="text-rose-400 font-black text-[10px]">
+                <span className="text-rose-700 dark:text-rose-400 font-black text-[10px]">
                   -{cartDiscount.amount.toLocaleString()}
                 </span>
               </div>
@@ -286,22 +286,22 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
         {/* Totals - Reference Style */}
         <div className="space-y-3 mb-6">
-          <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-500">
+          <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted">
             <span>Gross Value</span>
             <span>{getSubtotal().toLocaleString()} MMK</span>
           </div>
           {getTotalDiscount() > 0 && (
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-rose-500">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-rose-700 dark:text-rose-400">
               <span className="flex items-center gap-2"><Tag size={10} /> Discount</span>
               <span>-{getTotalDiscount().toLocaleString()} MMK</span>
             </div>
           )}
-          <div className="flex justify-between items-end pt-3 border-t border-white/5">
+          <div className="flex justify-between items-end pt-3 border-t border-default">
             <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase tracking-widest text-slate-600 mb-1">Payable Amount</span>
-              <span className="text-3xl font-[1000] tracking-tighter text-white">{getCartTotal().toLocaleString()}</span>
+              <span className="text-[8px] font-black uppercase tracking-widest text-muted mb-1">Payable Amount</span>
+              <span className="text-3xl font-[1000] tracking-tighter text-primary">{getCartTotal().toLocaleString()}</span>
             </div>
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">MMK</span>
+            <span className="text-[10px] font-black text-muted uppercase tracking-widest">MMK</span>
           </div>
         </div>
 
@@ -310,16 +310,16 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
           <button
             onClick={() => setShowDiscountModal(true)}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 text-slate-300 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30 flex items-center justify-center gap-2"
+            className="w-full bg-section hover:bg-elevated border border-default text-primary py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            <Sparkles size={12} className="text-rose-400" />
+            <Sparkles size={12} className="text-rose-700 dark:text-rose-400" />
             Apply Discount
           </button>
 
           <button
             onClick={onCompleteSale}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl font-black text-sm uppercase tracking-wider transition disabled:opacity-30"
+            className="w-full bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-xl font-black text-sm uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {loading ? 'Processing...' : 'Complete Sale'}
           </button>
@@ -327,7 +327,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
           <button
             onClick={clearCart}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-white/[0.02] hover:bg-white/[0.05] border border-white/5 text-slate-500 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30"
+            className="w-full bg-section hover:bg-elevated border border-default text-muted py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Clear Cart
           </button>

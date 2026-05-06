@@ -287,8 +287,8 @@ const CreatePromotionModal = ({
                   <div
                     className={`flex items-center justify-center w-10 h-10 rounded-full ${
                       currentStep >= step
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                        ? 'bg-btn-primary-bg text-btn-primary-text'
+                        : 'bg-section text-muted'
                     } font-semibold transition-colors`}
                   >
                     {step}
@@ -297,15 +297,15 @@ const CreatePromotionModal = ({
                     <div
                       className={`flex-1 h-1 mx-2 ${
                         currentStep > step
-                          ? 'bg-blue-600'
-                          : 'bg-gray-200 dark:bg-gray-700'
+                          ? 'bg-btn-primary-bg'
+                          : 'bg-section'
                       } transition-colors`}
                     />
                   )}
                 </div>
               ))}
             </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex justify-between mt-2 text-xs text-muted">
               <span>Basic Info</span>
               <span>Schedule</span>
               <span>Target</span>
@@ -326,7 +326,7 @@ const CreatePromotionModal = ({
             {currentStep === 1 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-primary mb-1">
                     Promotion Name *
                   </label>
                   <input
@@ -334,13 +334,13 @@ const CreatePromotionModal = ({
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     placeholder="e.g., Summer Sale"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-primary mb-1">
                     Description
                   </label>
                   <textarea
@@ -348,21 +348,21 @@ const CreatePromotionModal = ({
                     value={formData.description}
                     onChange={handleChange}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     placeholder="Brief description of this promotion"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Discount Type *
                     </label>
                     <select
                       name="discount_type"
                       value={formData.discount_type}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     >
                       <option value="percentage">Percentage (%)</option>
                       <option value="fixed">Fixed Amount (MMK)</option>
@@ -370,7 +370,7 @@ const CreatePromotionModal = ({
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Discount Value *
                     </label>
                     <input
@@ -379,7 +379,7 @@ const CreatePromotionModal = ({
                       value={formData.discount_value}
                       onChange={handleChange}
                       step="0.01"
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                       placeholder={formData.discount_type === 'percentage' ? '10' : '5000'}
                     />
                   </div>
@@ -392,7 +392,7 @@ const CreatePromotionModal = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Start Date *
                     </label>
                     <input
@@ -400,12 +400,12 @@ const CreatePromotionModal = ({
                       name="start_date"
                       value={formData.start_date}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       End Date *
                     </label>
                     <input
@@ -413,14 +413,14 @@ const CreatePromotionModal = ({
                       name="end_date"
                       value={formData.end_date}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Start Time (optional)
                     </label>
                     <input
@@ -428,12 +428,12 @@ const CreatePromotionModal = ({
                       name="start_time"
                       value={formData.start_time}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       End Time (optional)
                     </label>
                     <input
@@ -441,12 +441,12 @@ const CreatePromotionModal = ({
                       name="end_time"
                       value={formData.end_time}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                     />
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted">
                   Leave time fields empty for all-day promotions
                 </p>
               </div>
@@ -456,14 +456,14 @@ const CreatePromotionModal = ({
             {currentStep === 3 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  <label className="block text-sm font-medium text-primary mb-1">
                     Applies To *
                   </label>
                   <select
                     name="applies_to"
                     value={formData.applies_to}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                    className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                   >
                     <option value="all">All Products</option>
                     <option value="products">Specific Products</option>
@@ -474,14 +474,14 @@ const CreatePromotionModal = ({
                 {/* Product Selection */}
                 {formData.applies_to === 'products' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-primary mb-2">
                       Select Products ({formData.product_ids.length} selected)
                     </label>
-                    <div className="max-h-64 overflow-y-auto border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-gray-50 dark:bg-gray-700">
+                    <div className="max-h-64 overflow-y-auto border border-default rounded-lg p-2 bg-section">
                       {products.map((product) => (
                         <label
                           key={product.product_id}
-                          className="flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded cursor-pointer transition-colors"
+                          className="flex items-center p-2 hover:bg-elevated rounded cursor-pointer transition-colors"
                         >
                           <input
                             type="checkbox"
@@ -489,8 +489,8 @@ const CreatePromotionModal = ({
                             onChange={() => handleProductSelection(product.product_id)}
                             className="mr-2"
                           />
-                          <span className="text-sm text-gray-900 dark:text-gray-200">{product.name}</span>
-                          <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-sm text-primary">{product.name}</span>
+                          <span className="ml-auto text-xs text-muted">
                             {product.price} MMK
                           </span>
                         </label>
@@ -502,14 +502,14 @@ const CreatePromotionModal = ({
                 {/* Category Selection */}
                 {formData.applies_to === 'categories' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    <label className="block text-sm font-medium text-primary mb-2">
                       Select Categories ({formData.categories.length} selected)
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       {categories.map((category) => (
                         <label
                           key={category}
-                          className="flex items-center p-3 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+                          className="flex items-center p-3 border border-default rounded-lg hover:bg-section cursor-pointer transition-colors"
                         >
                           <input
                             type="checkbox"
@@ -517,7 +517,7 @@ const CreatePromotionModal = ({
                             onChange={() => handleCategorySelection(category)}
                             className="mr-2"
                           />
-                          <span className="text-sm text-gray-900 dark:text-gray-200">{category}</span>
+                          <span className="text-sm text-primary">{category}</span>
                         </label>
                       ))}
                     </div>
@@ -525,9 +525,9 @@ const CreatePromotionModal = ({
                 )}
 
                 {/* Conditions */}
-                <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-default">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Min Purchase Amount (MMK)
                     </label>
                     <input
@@ -535,13 +535,13 @@ const CreatePromotionModal = ({
                       name="min_purchase_amount"
                       value={formData.min_purchase_amount}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                       placeholder="0"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-primary mb-1">
                       Max Discount Amount (MMK)
                     </label>
                     <input
@@ -549,7 +549,7 @@ const CreatePromotionModal = ({
                       name="max_discount_amount"
                       value={formData.max_discount_amount}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition-colors"
+                      className="w-full px-3 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                       placeholder="No limit"
                     />
                   </div>
@@ -560,18 +560,18 @@ const CreatePromotionModal = ({
             {/* Step 4: Review */}
             {currentStep === 4 && (
               <div className="space-y-4">
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Promotion Summary</h4>
+                <div className="bg-section rounded-lg p-4">
+                  <h4 className="font-semibold text-primary mb-3">Promotion Summary</h4>
 
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Name:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">{formData.name}</span>
+                      <span className="text-muted">Name:</span>
+                      <span className="font-medium text-primary">{formData.name}</span>
                     </div>
 
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Discount:</span>
-                      <span className="font-medium text-green-600 dark:text-green-400">
+                      <span className="text-muted">Discount:</span>
+                      <span className="font-medium text-green-700 dark:text-green-400">
                         {formData.discount_type === 'percentage'
                           ? `${formData.discount_value}%`
                           : `${formData.discount_value} MMK`} OFF
@@ -579,24 +579,24 @@ const CreatePromotionModal = ({
                     </div>
 
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Duration:</span>
-                      <span className="font-medium text-gray-900 dark:text-white">
+                      <span className="text-muted">Duration:</span>
+                      <span className="font-medium text-primary">
                         {formData.start_date} to {formData.end_date}
                       </span>
                     </div>
 
                     {(formData.start_time || formData.end_time) && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Time:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="text-muted">Time:</span>
+                        <span className="font-medium text-primary">
                           {formData.start_time || '00:00'} - {formData.end_time || '23:59'}
                         </span>
                       </div>
                     )}
 
                     <div className="flex justify-between">
-                      <span className="text-gray-600 dark:text-gray-400">Applies To:</span>
-                      <span className="font-medium text-gray-900 dark:text-white capitalize">
+                      <span className="text-muted">Applies To:</span>
+                      <span className="font-medium text-primary capitalize">
                         {formData.applies_to}
                         {formData.applies_to === 'products' && ` (${formData.product_ids.length})`}
                         {formData.applies_to === 'categories' && ` (${formData.categories.length})`}
@@ -605,8 +605,8 @@ const CreatePromotionModal = ({
 
                     {formData.min_purchase_amount && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Min Purchase:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="text-muted">Min Purchase:</span>
+                        <span className="font-medium text-primary">
                           {formData.min_purchase_amount} MMK
                         </span>
                       </div>
@@ -614,8 +614,8 @@ const CreatePromotionModal = ({
 
                     {formData.max_discount_amount && (
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Max Discount:</span>
-                        <span className="font-medium text-gray-900 dark:text-white">
+                        <span className="text-muted">Max Discount:</span>
+                        <span className="font-medium text-primary">
                           {formData.max_discount_amount} MMK
                         </span>
                       </div>
@@ -632,7 +632,7 @@ const CreatePromotionModal = ({
                     onChange={handleChange}
                     className="mr-2"
                   />
-                  <label htmlFor="is_active" className="text-sm text-gray-700 dark:text-gray-300">
+                  <label htmlFor="is_active" className="text-sm text-primary">
                     Activate promotion immediately
                   </label>
                 </div>
@@ -640,11 +640,11 @@ const CreatePromotionModal = ({
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex justify-between mt-6 pt-4 border-t border-default">
               <button
                 type="button"
                 onClick={currentStep === 1 ? handleClose : handlePrevious}
-                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="px-4 py-2 text-muted hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded"
               >
                 {currentStep === 1 ? 'Cancel' : 'Previous'}
               </button>
@@ -653,7 +653,7 @@ const CreatePromotionModal = ({
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                  className="px-6 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   Next
                 </button>
@@ -661,7 +661,7 @@ const CreatePromotionModal = ({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium disabled:bg-gray-400 transition-colors"
+                  className="px-6 py-2 bg-btn-primary-bg hover:opacity-90 text-btn-primary-text rounded-lg font-medium disabled:opacity-50 transition-colors focus:outline-none focus:ring-2 focus:ring-accent"
                 >
                   {loading ? 'Saving...' : isEditMode ? 'Update Promotion' : 'Create Promotion'}
                 </button>

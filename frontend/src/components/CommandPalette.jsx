@@ -117,15 +117,15 @@ const CommandPalette = ({ isOpen, onClose, onNavigate, onAction }) => {
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 z-50 fade-in"
+        className="fixed inset-0 bg-black/60 z-50 fade-in"
         onClick={onClose}
       />
 
       {/* Command Palette */}
       <div className="fixed top-20 left-1/2 transform -translate-x-1/2 w-full max-w-2xl z-50 fade-in-up">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="bg-elevated rounded-lg shadow-2xl border border-default overflow-hidden">
           {/* Search Input */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-default">
             <input
               ref={searchInputRef}
               type="text"
@@ -136,20 +136,20 @@ const CommandPalette = ({ isOpen, onClose, onNavigate, onAction }) => {
               }}
               onKeyDown={handleKeyDown}
               placeholder="🔍 Type a command or search..."
-              className="w-full px-4 py-3 bg-transparent text-gray-900 dark:text-gray-100 text-lg focus:outline-none placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full px-4 py-3 bg-transparent text-primary text-lg focus:outline-none placeholder:text-muted"
             />
           </div>
 
           {/* Commands List */}
           <div className="max-h-96 overflow-y-auto">
             {displayCommands.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+              <div className="p-8 text-center text-muted">
                 No commands found
               </div>
             ) : (
               <div className="py-2">
                 {!search && recentCommandObjects.length > 0 && (
-                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  <div className="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wider">
                     Recent
                   </div>
                 )}
@@ -161,7 +161,7 @@ const CommandPalette = ({ isOpen, onClose, onNavigate, onAction }) => {
                   return (
                     <div key={command.id}>
                       {showCategoryHeader && (
-                        <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-2">
+                        <div className="px-4 py-2 text-xs font-semibold text-muted uppercase tracking-wider mt-2">
                           All Commands
                         </div>
                       )}
@@ -169,28 +169,28 @@ const CommandPalette = ({ isOpen, onClose, onNavigate, onAction }) => {
                       <button
                         onClick={() => executeCommand(command)}
                         onMouseEnter={() => setSelectedIndex(index)}
-                        className={`w-full px-4 py-3 flex items-center justify-between transition-colors ${
+                        className={`w-full px-4 py-3 flex items-center justify-between transition-colors focus:outline-none ${
                           index === selectedIndex
-                            ? 'bg-blue-50 dark:bg-blue-900/30'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                            ? 'bg-section'
+                            : 'hover:bg-section'
                         }`}
                       >
                         <div className="flex items-center space-x-3">
                           {isRecent && (
-                            <span className="text-gray-400 dark:text-gray-500">🕐</span>
+                            <span className="text-muted">🕐</span>
                           )}
                           <div className="text-left">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <div className="text-sm font-medium text-primary">
                               {command.label}
                             </div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <div className="text-xs text-muted">
                               {command.category}
                             </div>
                           </div>
                         </div>
 
                         {command.shortcut && (
-                          <kbd className="px-2 py-1 text-xs font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">
+                          <kbd className="px-2 py-1 text-xs font-semibold text-muted bg-section border border-default rounded">
                             {command.shortcut}
                           </kbd>
                         )}
@@ -203,23 +203,23 @@ const CommandPalette = ({ isOpen, onClose, onNavigate, onAction }) => {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+          <div className="px-4 py-3 bg-section border-t border-default flex items-center justify-between text-xs text-muted">
             <div className="flex items-center space-x-4">
               <span className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded">↑↓</kbd>
+                <kbd className="px-1.5 py-0.5 bg-elevated border border-default rounded">↑↓</kbd>
                 <span>Navigate</span>
               </span>
               <span className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded">↵</kbd>
+                <kbd className="px-1.5 py-0.5 bg-elevated border border-default rounded">↵</kbd>
                 <span>Select</span>
               </span>
               <span className="flex items-center space-x-1">
-                <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded">Esc</kbd>
+                <kbd className="px-1.5 py-0.5 bg-elevated border border-default rounded">Esc</kbd>
                 <span>Close</span>
               </span>
             </div>
             <div>
-              Press <kbd className="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded">Ctrl+H</kbd> for all shortcuts
+              Press <kbd className="px-1.5 py-0.5 bg-elevated border border-default rounded">Ctrl+H</kbd> for all shortcuts
             </div>
           </div>
         </div>

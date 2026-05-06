@@ -143,20 +143,18 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
   if (!isOpen || !product) return null;
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-pink-500/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
-      <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto fade-in-up hover-lift">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 fade-in">
+      <div className="bg-elevated border border-default rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto fade-in-up hover-lift">
         <div className="p-6">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6 pb-4 border-b-2 border-gradient-to-r from-blue-400 to-purple-400">
-            <h3 className="text-2xl font-bold text-gray-800 flex items-center">
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-default">
+            <h3 className="text-2xl font-bold text-primary flex items-center">
               <span className="mr-3 text-3xl pulse">✏️</span>
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Edit Product
-              </span>
+              <span>Edit Product</span>
             </h3>
             <button
               onClick={handleClose}
-              className="text-gray-500 hover:text-red-500 text-2xl transition-all btn-press hover:rotate-90"
+              className="text-muted hover:text-primary text-2xl transition-all btn-press hover:rotate-90 focus:outline-none focus:ring-2 focus:ring-accent rounded"
             >
               ✕
             </button>
@@ -164,7 +162,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
 
           {/* Error Message */}
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 shake">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg mb-4 shake">
               <span className="mr-2">⚠️</span>
               {error}
             </div>
@@ -174,7 +172,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
           <form onSubmit={handleSubmit} className="space-y-4 stagger-children">
             {/* Name */}
             <div className="fade-in">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                 <span className="mr-2">📦</span>
                 Product Name *
               </label>
@@ -184,14 +182,14 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
               />
             </div>
 
             {/* Category and SKU */}
             <div className="grid grid-cols-2 gap-4">
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">🏷️</span>
                   Category *
                 </label>
@@ -201,11 +199,11 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   value={formData.category}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">🔖</span>
                   SKU
                 </label>
@@ -214,7 +212,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   name="sku"
                   value={formData.sku}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
             </div>
@@ -222,7 +220,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
             {/* Price and Cost */}
             <div className="grid grid-cols-2 gap-4">
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">💰</span>
                   Price (MMK) *
                 </label>
@@ -234,11 +232,11 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">💵</span>
                   Cost Price (MMK) *
                 </label>
@@ -250,7 +248,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
             </div>
@@ -258,7 +256,7 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
             {/* Stock Quantity and Threshold */}
             <div className="grid grid-cols-2 gap-4">
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">📊</span>
                   Stock Quantity *
                 </label>
@@ -269,11 +267,11 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   onChange={handleChange}
                   required
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
               <div className="fade-in">
-                <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+                <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                   <span className="mr-2">⚠️</span>
                   Low Stock Threshold *
                 </label>
@@ -284,14 +282,14 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                   onChange={handleChange}
                   required
                   min="0"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg"
+                  className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg"
                 />
               </div>
             </div>
 
             {/* Description */}
             <div className="fade-in">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                 <span className="mr-2">📝</span>
                 Description
               </label>
@@ -300,25 +298,25 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                 value={formData.description}
                 onChange={handleChange}
                 rows="3"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:border-blue-400 focus:shadow-lg resize-none"
+                className="w-full px-4 py-2 border border-default rounded-lg bg-surface text-primary focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all focus:shadow-lg resize-none"
               />
             </div>
 
             {/* Product Image Upload */}
             <div className="fade-in">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="block text-sm font-medium text-primary mb-1 flex items-center">
                 <span className="mr-2">🖼️</span>
                 Product Image
               </label>
               <div className="flex items-center gap-4">
-                <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-gray-50 transition-all">
+                <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-default rounded-lg cursor-pointer hover:bg-section transition-all">
                   <div className="text-center">
                     {uploadingImage ? (
-                      <span className="text-blue-500 text-sm">Uploading...</span>
+                      <span className="text-accent text-sm">Uploading...</span>
                     ) : (
                       <>
-                        <span className="text-2xl text-gray-400">📁</span>
-                        <p className="text-xs text-gray-500 mt-1">Click to upload</p>
+                        <span className="text-2xl text-muted">📁</span>
+                        <p className="text-xs text-muted mt-1">Click to upload</p>
                       </>
                     )}
                   </div>
@@ -335,12 +333,12 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                     <img
                       src={previewImage ? (previewImage.startsWith('data:') ? previewImage : getImageUrl(previewImage)) : getImageUrl(formData.image)}
                       alt="Preview"
-                      className="w-24 h-24 object-cover rounded-lg border border-gray-300"
+                      className="w-24 h-24 object-cover rounded-lg border border-default"
                     />
                     <button
                       type="button"
                       onClick={removeImage}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                      className="absolute -top-2 -right-2 bg-red-600 dark:bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-accent"
                     >
                       ×
                     </button>
@@ -350,21 +348,21 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
             </div>
 
             {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 mt-6 fade-in-delay-1">
+            <div className="flex justify-end space-x-3 pt-4 border-t border-default mt-6 fade-in-delay-1">
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-6 py-2 border-2 border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all btn-press hover:shadow-md hover:border-gray-400"
+                className="px-6 py-2 border border-default rounded-lg text-primary hover:bg-section transition-all btn-press hover:shadow-md focus:outline-none focus:ring-2 focus:ring-accent"
               >
                 ❌ Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className={`px-6 py-2 rounded-lg text-white transition-all btn-press shadow-md ${
+                className={`px-6 py-2 rounded-lg bg-btn-primary-bg text-btn-primary-text transition-all btn-press shadow-md focus:outline-none focus:ring-2 focus:ring-accent ${
                   loading
-                    ? 'bg-blue-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 hover:shadow-lg'
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:opacity-90 hover:shadow-lg'
                 }`}
               >
                 {loading ? (
