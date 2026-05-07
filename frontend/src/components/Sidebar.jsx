@@ -11,7 +11,8 @@ import {
   Menu,
   X,
   BarChart,
-  Sparkles
+  Sparkles,
+  Truck
 } from 'lucide-react';
 
 const Sidebar = ({ isDark, toggleTheme }) => {
@@ -24,6 +25,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
     { icon: LayoutDashboard, label: 'Marketplace', path: '/pos' },
     { icon: Package, label: 'Products', path: '/products' },
     { icon: Tag, label: 'Promotions', path: '/promotions', ownerOnly: true },
+    { icon: Truck, label: 'Vendors', path: '/vendors', ownerOnly: true },
     { icon: BarChart, label: 'Reports', path: '/reports', ownerOnly: true },
     { icon: Sparkles, label: 'AI Insights', path: '/ai-insights', ownerOnly: true },
   ];
@@ -59,17 +61,17 @@ const Sidebar = ({ isDark, toggleTheme }) => {
           flex flex-col
           transition-all duration-300 ease-in-out
           z-40
-          w-28 px-4
+          w-28 px-2
           ${isCollapsed ? '-translate-x-full md:translate-x-0' : 'translate-x-0'}
         `}
       >
         {/* Logo/Header */}
-        <div className="w-20 h-20 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-[1.2rem] flex items-center justify-center shadow-2xl shadow-indigo-500/30 cursor-pointer mx-auto my-6">
-          <LayoutDashboard className="text-white" size={44} fill="currentColor" />
+        <div className="w-14 h-14 bg-gradient-to-tr from-indigo-600 via-blue-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/30 cursor-pointer mx-auto my-3">
+          <span className="text-4xl leading-none" role="img" aria-label="POS Myanmar">🏪</span>
         </div>
 
         {/* Menu Items */}
-        <nav className="flex flex-col gap-8">
+        <nav className="flex flex-col gap-4">
           {filteredMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -98,7 +100,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
         </nav>
 
         {/* Bottom Actions */}
-        <div className="mt-auto flex flex-col gap-8 pb-8">
+        <div className="mt-auto flex flex-col gap-4 pb-4">
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}

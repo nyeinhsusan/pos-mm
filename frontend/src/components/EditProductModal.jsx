@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Star, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import api from '../services/api';
 import { uploadProductImage } from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import vendorService from '../services/vendorService';
 
 // Helper to get full image URL
 const getImageUrl = (path) => {
@@ -13,6 +17,8 @@ const getImageUrl = (path) => {
 };
 
 const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -28,6 +34,9 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
   const [error, setError] = useState('');
   const [previewImage, setPreviewImage] = useState(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [vendors, setVendors] = useState([]);
+  const [vendorsExpanded, setVendorsExpanded] = useState(false);
+  const [loadingVendors, setLoadingVendors] = useState(false);
 
   useEffect(() => {
     if (product) {
@@ -45,6 +54,28 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
       setPreviewImage(product.image || null);
     }
   }, [product]);
+
+  // Load linked vendors when expanded (owner only). Endpoint is owner-only on
+  // server; if Cashier somehow opens this modal, the section just stays hidden.
+  useEffect(() => {
+    const isOwner = user?.role === 'owner';
+    if (!isOpen || !product?.product_id || !isOwner || !vendorsExpanded) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingVendors(true);
+      try {
+        const res = await vendorService.getProductVendors(product.product_id);
+        if (!cancelled && res.success) setVendors(res.data || []);
+      } catch (err) {
+        if (!cancelled) console.error('Load product vendors error:', err);
+      } finally {
+        if (!cancelled) setLoadingVendors(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, product?.product_id, user?.role, vendorsExpanded]);
 
   const handleChange = (e) => {
     setFormData({
@@ -346,6 +377,79 @@ const EditProductModal = ({ isOpen, onClose, product, onProductUpdated }) => {
                 )}
               </div>
             </div>
+
+            {/* Linked Vendors (owner only, read-only) */}
+            {user?.role === 'owner' && product?.product_id && (
+              <div className="pt-4 border-t border-default fade-in">
+                <button
+                  type="button"
+                  onClick={() => setVendorsExpanded((v) => !v)}
+                  className="w-full flex items-center justify-between text-sm font-medium text-primary hover:text-primary py-1 focus:outline-none focus:ring-2 focus:ring-accent rounded"
+                >
+                  <span className="flex items-center gap-2">
+                    <span>🏭</span> Vendors {vendors.length > 0 ? `(${vendors.length})` : ''}
+                  </span>
+                  {vendorsExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </button>
+
+                {vendorsExpanded && (
+                  <div className="mt-3 space-y-2">
+                    {loadingVendors ? (
+                      <div className="text-center py-3">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-accent mx-auto"></div>
+                      </div>
+                    ) : vendors.length === 0 ? (
+                      <div className="bg-section border border-default rounded-lg p-3 text-center">
+                        <p className="text-xs text-muted">No vendors linked yet.</p>
+                        <button
+                          type="button"
+                          onClick={() => navigate('/vendors')}
+                          className="text-xs text-accent hover:underline mt-1 focus:outline-none"
+                        >
+                          Manage in Vendors page
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <ul className="space-y-1.5">
+                          {vendors.map((v) => (
+                            <li
+                              key={v.vendor_product_id}
+                              className={`p-2.5 rounded-lg border flex items-center gap-2 ${
+                                v.is_preferred
+                                  ? 'bg-amber-500/5 border-amber-500/30'
+                                  : 'bg-section border-default'
+                              }`}
+                            >
+                              {v.is_preferred && (
+                                <Star size={12} className="text-amber-500 fill-amber-500 flex-none" />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-bold text-primary truncate">{v.vendor_name}</p>
+                                <p className="text-[10px] text-muted truncate">{v.vendor_email}</p>
+                              </div>
+                              <div className="flex flex-col items-end text-[10px] text-muted">
+                                <span className="font-bold text-primary">
+                                  {parseInt(v.vendor_cost_price).toLocaleString()} MMK
+                                </span>
+                                <span>default {v.default_reorder_qty}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <button
+                          type="button"
+                          onClick={() => navigate(`/vendors?open=${vendors[0].vendor_id}`)}
+                          className="w-full text-[11px] text-accent hover:underline flex items-center justify-center gap-1 py-1 focus:outline-none"
+                        >
+                          Manage in Vendors page <ExternalLink size={11} />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Buttons */}
             <div className="flex justify-end space-x-3 pt-4 border-t border-default mt-6 fade-in-delay-1">

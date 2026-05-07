@@ -203,32 +203,45 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
             </div>
           ) : recommendations.length > 0 ? (
             <div className="space-y-2">
-              {recommendations.map((rec) => (
-                <button
-                  key={rec.product_id}
-                  onClick={() => addToCart({
-                    product_id: rec.product_id,
-                    name: rec.product_name,
-                    price: rec.price || 0,
-                    stock_quantity: rec.stock_quantity || 0,
-                    image: rec.image || null
-                  })}
-                  className="w-full p-2 bg-surface hover:bg-section border border-default rounded-xl transition text-left flex items-center gap-2"
-                >
-                  <div className="w-8 h-8 rounded-lg overflow-hidden bg-elevated flex-none">
-                    {rec.image ? (
-                      <img src={getImageUrl(rec.image)} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted text-[8px]">N/A</div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[10px] font-black text-primary truncate uppercase">{rec.product_name}</p>
-                    <p className="text-[8px] text-indigo-700 dark:text-indigo-400">{(rec.confidence * 100).toFixed(0)}% match</p>
-                  </div>
-                  <Plus size={14} className="text-muted" />
-                </button>
-              ))}
+              {recommendations.map((rec) => {
+                const outOfStock = (rec.stock_quantity ?? 0) <= 0;
+                return (
+                  <button
+                    key={rec.product_id}
+                    disabled={outOfStock}
+                    onClick={() => addToCart({
+                      product_id: rec.product_id,
+                      name: rec.product_name,
+                      price: rec.price ?? 0,
+                      stock_quantity: rec.stock_quantity ?? 0,
+                      image: rec.image ?? null,
+                      category: rec.category ?? null
+                    })}
+                    className="w-full p-2 bg-surface hover:bg-section border border-default rounded-xl transition text-left flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-elevated flex-none">
+                      {rec.image ? (
+                        <img src={getImageUrl(rec.image)} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted text-[8px]">N/A</div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[10px] font-black text-primary truncate uppercase">{rec.product_name}</p>
+                      <div className="flex items-center justify-between gap-2 mt-0.5">
+                        <p className="text-[8px] text-indigo-700 dark:text-indigo-400">{(rec.confidence * 100).toFixed(0)}% match</p>
+                        {rec.price != null && (
+                          <p className="text-[10px] font-black text-primary whitespace-nowrap">
+                            {parseInt(rec.price).toLocaleString()}
+                            <span className="opacity-40 text-[8px]"> MMK</span>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <Plus size={14} className="text-muted" />
+                  </button>
+                );
+              })}
             </div>
           ) : (
             <p className="text-[10px] text-muted text-center py-2">No recommendations</p>

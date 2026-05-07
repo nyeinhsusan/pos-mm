@@ -10,6 +10,15 @@
 import { useState, useEffect } from 'react';
 import aiService from '../services/aiService';
 
+// Helper to get full image URL
+const getImageUrl = (path) => {
+  if (!path) return null;
+  if (path.startsWith('http')) return path;
+  const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5002/api';
+  const base = apiBase.replace('/api', '');
+  return `${base}${path}`;
+};
+
 function ProductRecommendationsModal({ isOpen, onClose, product }) {
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -110,7 +119,31 @@ function ProductRecommendationsModal({ isOpen, onClose, product }) {
                             <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-full pulse">
                               <span className="text-blue-700 dark:text-blue-300 font-bold text-sm">#{index + 1}</span>
                             </div>
-                            <h4 className="text-lg font-semibold text-primary">🛒 {rec.product_name}</h4>
+                            <div className="w-12 h-12 rounded-lg overflow-hidden border border-default flex-none bg-elevated">
+                              {rec.image ? (
+                                <img
+                                  src={getImageUrl(rec.image)}
+                                  alt={rec.product_name}
+                                  className="w-full h-full object-cover"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-muted text-[10px]">No Image</div>
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="text-lg font-semibold text-primary">🛒 {rec.product_name}</h4>
+                              {rec.price != null && (
+                                <p className="text-sm font-bold text-indigo-700 dark:text-indigo-300">
+                                  {parseInt(rec.price).toLocaleString()} MMK
+                                  {rec.has_promotion && rec.original_price && rec.original_price !== rec.price && (
+                                    <span className="ml-2 text-xs text-muted line-through">
+                                      {parseInt(rec.original_price).toLocaleString()}
+                                    </span>
+                                  )}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
 

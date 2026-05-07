@@ -11,6 +11,7 @@
 const express = require('express');
 const router = express.Router();
 const mlService = require('../services/mlService');
+const Product = require('../models/Product');
 const authenticate = require('../middleware/authenticate');
 
 /**
@@ -164,6 +165,30 @@ router.get('/recommendations', authenticate, async (req, res) => {
     }
 
     const recommendations = await mlService.getRecommendations(productId, limit);
+
+    // Enrich each recommendation with current product price, image, stock, etc.
+    // Promotion-applied price is used so cart totals match what /sales recomputes.
+    if (recommendations.recommendations && recommendations.recommendations.length > 0) {
+      const allProducts = await Product.findAllWithPromotions({});
+      const productMap = new Map(allProducts.map((p) => [p.product_id, p]));
+
+      recommendations.recommendations = recommendations.recommendations
+        .map((rec) => {
+          const p = productMap.get(rec.product_id);
+          if (!p) return null;
+          return {
+            ...rec,
+            price: p.price,
+            original_price: p.original_price ?? p.price,
+            has_promotion: !!p.has_promotion,
+            stock_quantity: p.stock_quantity,
+            image: p.image,
+            category: p.category
+          };
+        })
+        .filter(Boolean);
+      recommendations.count = recommendations.recommendations.length;
+    }
 
     res.json({
       success: !recommendations.fallback,

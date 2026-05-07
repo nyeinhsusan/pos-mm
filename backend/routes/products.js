@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const productController = require('../controllers/productController');
+const vendorProductController = require('../controllers/vendorProductController');
 const authenticate = require('../middleware/authenticate');
 const authorize = require('../middleware/authorize');
 
@@ -63,6 +64,14 @@ router.get('/', authenticate, productController.getAllProducts);
 
 // Get single product by ID (accessible to all authenticated users)
 router.get('/:id', authenticate, productController.getProductById);
+
+// Get vendors linked to a product (owner-only sub-resource)
+router.get(
+  '/:productId/vendors',
+  authenticate,
+  authorize(['owner']),
+  vendorProductController.getVendorsByProduct
+);
 
 // Create new product (owner only)
 router.post(

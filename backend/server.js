@@ -10,6 +10,8 @@ const reportRoutes = require('./routes/reports');
 const aiRoutes = require('./routes/aiRoutes');
 const discountRoutes = require('./routes/discounts');
 const promotionRoutes = require('./routes/promotions');
+const vendorRoutes = require('./routes/vendors');
+const vendorProductRoutes = require('./routes/vendor-products');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve uploaded product images statically
 app.use('/uploads/products', express.static('uploads/products'));
+app.use('/uploads/vendors', express.static('uploads/vendors'));
 
 // Request logging middleware (development)
 if (process.env.NODE_ENV === 'development') {
@@ -61,6 +64,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/discounts', discountRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/vendors', vendorRoutes);
+app.use('/api/vendor-products', vendorProductRoutes);
 
 // 404 handler
 app.use((req, res) => {
