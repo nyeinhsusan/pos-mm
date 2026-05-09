@@ -50,7 +50,16 @@ function invalidateTransporter() {
   cachedConfigKey = null;
 }
 
-async function insertLogRow({ to, subject, emailType, relatedPoId }) {
+async function insertLogRow({ to, subject, emailType, relatedPoId, existingLogId }) {
+  // If existingLogId provided (retry scenario), update existing row instead of inserting new
+  if (existingLogId) {
+    await pool.query(
+      `UPDATE email_log SET recipient_email=?, subject=?, email_type=?, related_po_id=?, status='queued', attempts=attempts+1, last_error=NULL WHERE log_id=?`,
+      [to, subject, emailType, relatedPoId || null, existingLogId]
+    );
+    return existingLogId;
+  }
+  // New email - insert fresh row
   const [result] = await pool.query(
     `INSERT INTO email_log (recipient_email, subject, email_type, related_po_id, status, attempts)
      VALUES (?, ?, ?, ?, 'queued', 0)`,
@@ -90,12 +99,12 @@ function sleep(ms) {
  * @param {number} [args.relatedPoId] - FK to purchase_orders.po_id
  * @returns {Promise<{ logId: number, status: 'sent'|'failed', attempts: number }>}
  */
-async function sendMail({ to, subject, html, text, attachments, emailType, relatedPoId }) {
+async function sendMail({ to, subject, html, text, attachments, emailType, relatedPoId, existingLogId }) {
   if (!to || !subject || !emailType) {
     throw new TypeError('sendMail requires { to, subject, emailType }');
   }
 
-  const logId = await insertLogRow({ to, subject, emailType, relatedPoId });
+  const logId = await insertLogRow({ to, subject, emailType, relatedPoId, existingLogId });
 
   let transporter;
   try {

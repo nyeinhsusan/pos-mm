@@ -10,6 +10,10 @@ const ERROR_TO_STATUS = {
   NOT_FOUND: 404,
   PO_NOT_EDITABLE: 409,
   PO_NOT_CANCELLABLE: 409,
+  PO_NOT_SENDABLE: 409,
+  PO_NOT_SENT_YET: 409,
+  PO_FULLY_RECEIVED: 409,
+  PO_CANCELLED: 409,
   VENDOR_NOT_CHANGEABLE: 409,
   VENDOR_ARCHIVED: 400,
   INVALID_VENDOR: 400,
@@ -18,7 +22,9 @@ const ERROR_TO_STATUS = {
   INVALID_UNIT_COST: 400,
   INVALID_TAX: 400,
   INVALID_USER: 400,
-  EMPTY_PO: 400
+  EMPTY_PO: 400,
+  OVER_RECEIVE: 400,
+  INVALID_ITEMS: 400
 };
 
 function handleDomainError(error, res, fallbackMessage) {
@@ -264,5 +270,41 @@ exports.sendPurchaseOrder = async (req, res) => {
     }
   } catch (error) {
     return handleDomainError(error, res, 'Failed to send purchase order');
+  }
+};
+
+/**
+ * POST /api/purchase-orders/:id/receive
+ * Receive line items and increment stock
+ */
+exports.receivePurchaseOrder = async (req, res) => {
+  try {
+    const poId = req.params.id;
+    const { items } = req.body || {};
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: { code: 'INVALID_ITEMS', message: 'items array is required with at least one entry' }
+      });
+    }
+
+    const updated = await PurchaseOrder.receive(poId, items, req.user.user_id);
+    res.status(200).json({ success: true, data: updated });
+  } catch (error) {
+    return handleDomainError(error, res, 'Failed to receive purchase order');
+  }
+};
+
+/**
+ * GET /api/purchase-orders/:id/history
+ * Get PO history
+ */
+exports.getPurchaseOrderHistory = async (req, res) => {
+  try {
+    const history = await PurchaseOrder.getHistory(req.params.id);
+    res.status(200).json({ success: true, data: history });
+  } catch (error) {
+    return handleDomainError(error, res, 'Failed to get purchase order history');
   }
 };

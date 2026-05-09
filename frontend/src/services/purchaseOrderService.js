@@ -47,13 +47,27 @@ export const sendPurchaseOrder = async (id) => {
   return response.data;
 };
 
+/** Receive PO items and increment stock. */
+export const receivePurchaseOrder = async (id, items) => {
+  const response = await api.post(`/purchase-orders/${id}/receive`, { items });
+  return response.data;
+};
+
+/** Get PO history. */
+export const getPurchaseOrderHistory = async (id) => {
+  const response = await api.get(`/purchase-orders/${id}/history`);
+  return response.data;
+};
+
 const purchaseOrderService = {
   listPurchaseOrders,
   getPurchaseOrder,
   createPurchaseOrder,
   updatePurchaseOrder,
   cancelPurchaseOrder,
-  sendPurchaseOrder
+  sendPurchaseOrder,
+  receivePurchaseOrder,
+  getPurchaseOrderHistory
 };
 
 export default purchaseOrderService;

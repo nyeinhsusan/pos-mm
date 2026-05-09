@@ -15,6 +15,8 @@ const promotionRoutes = require('./routes/promotions');
 const vendorRoutes = require('./routes/vendors');
 const vendorProductRoutes = require('./routes/vendor-products');
 const purchaseOrderRoutes = require('./routes/purchaseOrders');
+const emailLogRoutes = require('./routes/emailLog');
+const vendorSettingsRoutes = require('./routes/vendorSettings');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -80,6 +82,8 @@ app.use('/api/promotions', promotionRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/vendor-products', vendorProductRoutes);
 app.use('/api/purchase-orders', purchaseOrderRoutes);
+app.use('/api/email-log', emailLogRoutes);
+app.use('/api/vendor-settings', vendorSettingsRoutes);
 
 // 404 handler
 app.use((req, res) => {

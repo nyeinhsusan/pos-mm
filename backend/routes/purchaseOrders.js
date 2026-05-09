@@ -11,6 +11,7 @@ const authorize = require('../middleware/authorize');
 
 router.get('/', authenticate, authorize(['owner']), purchaseOrderController.getAllPurchaseOrders);
 router.get('/:id', authenticate, authorize(['owner']), purchaseOrderController.getPurchaseOrderById);
+router.get('/:id/history', authenticate, authorize(['owner']), purchaseOrderController.getPurchaseOrderHistory);
 router.post('/', authenticate, authorize(['owner']), purchaseOrderController.createPurchaseOrder);
 router.put('/:id', authenticate, authorize(['owner']), purchaseOrderController.updatePurchaseOrder);
 router.post(
@@ -24,6 +25,12 @@ router.post(
   authenticate,
   authorize(['owner']),
   purchaseOrderController.sendPurchaseOrder
+);
+router.post(
+  '/:id/receive',
+  authenticate,
+  authorize(['owner']),
+  purchaseOrderController.receivePurchaseOrder
 );
 
 module.exports = router;

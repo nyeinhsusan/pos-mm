@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Sparkles, Save, X, Edit, Send, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Sparkles, Save, X, Edit, Send, Download, FileText, Package, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import purchaseOrderService from '../services/purchaseOrderService';
@@ -9,6 +9,7 @@ import vendorService from '../services/vendorService';
 import api from '../services/api';
 import notify from '../services/notificationService';
 import Sidebar from '../components/Sidebar';
+import ReceivePurchaseOrderModal from '../components/ReceivePurchaseOrderModal';
 
 const STATUS_BADGE = {
   draft: 'bg-section text-muted',
@@ -77,6 +78,13 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
   const [showSendModal, setShowSendModal] = useState(false);
   const [sending, setSending] = useState(false);
 
+  // Receive modal
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
+
+  // History
+  const [history, setHistory] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+
   const isCreate = mode === 'create';
   const isEdit = mode === 'edit';
   const isView = mode === 'view';
@@ -106,22 +114,29 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
     if (isCreate || !id) return;
     try {
       setLoading(true);
-      const res = await purchaseOrderService.getPurchaseOrder(id);
-      if (res.success) {
-        setPo(res.data);
-        setVendorId(res.data.vendor_id);
-        setNotes(res.data.notes || '');
+      const [poRes, historyRes] = await Promise.all([
+        purchaseOrderService.getPurchaseOrder(id),
+        purchaseOrderService.getPurchaseOrderHistory(id)
+      ]);
+      if (poRes.success) {
+        setPo(poRes.data);
+        setVendorId(poRes.data.vendor_id);
+        setNotes(poRes.data.notes || '');
         setItems(
-          (res.data.items || []).map((it) => ({
+          (poRes.data.items || []).map((it) => ({
             _key: `line-${it.po_item_id}`,
             po_item_id: it.po_item_id,
             product_id: it.product_id,
             product_name: it.product_name,
             quantity_ordered: it.quantity_ordered,
+            quantity_received: it.quantity_received,
             unit_cost: Number(it.unit_cost),
             tax_amount: Number(it.tax_amount)
           }))
         );
+        if (historyRes.success) {
+          setHistory(historyRes.data || []);
+        }
       }
     } catch (err) {
       console.error('Load PO error:', err);
@@ -426,6 +441,22 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
               <Download size={16} /> Download PDF
             </button>
           )}
+          {isView && po && ['sent', 'partially_received'].includes(po.status) && (
+            <button
+              onClick={() => setShowReceiveModal(true)}
+              className="px-3 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold flex items-center gap-2 hover:bg-emerald-500"
+            >
+              <Package size={16} /> Receive
+            </button>
+          )}
+          {isView && history.length > 0 && (
+            <button
+              onClick={() => setShowHistory(true)}
+              className="px-3 py-2 rounded-xl bg-section text-primary text-sm font-semibold flex items-center gap-2 hover:bg-elevated"
+            >
+              <Clock size={16} /> History
+            </button>
+          )}
         </div>
 
         {/* Vendor selector */}
@@ -726,6 +757,61 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
                 <Send size={16} />
                 {sending ? 'Sending…' : 'Send PO'}
               </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Receive PO modal */}
+      {showReceiveModal && po && (
+        <ReceivePurchaseOrderModal
+          po={po}
+          onClose={() => setShowReceiveModal(false)}
+          onSuccess={() => {
+            setShowReceiveModal(false);
+            loadPo();
+          }}
+        />
+      )}
+
+      {/* History modal */}
+      {showHistory && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-elevated rounded-2xl p-6 max-w-lg w-full border border-default max-h-[80vh] overflow-y-auto"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold flex items-center gap-2">
+                <Clock size={20} /> Purchase Order History
+              </h3>
+              <button onClick={() => setShowHistory(false)} className="p-1 rounded-lg hover:bg-section">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-3">
+              {history.map(event => (
+                <div key={event.history_id} className="p-3 bg-section rounded-xl">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs uppercase font-semibold px-2 py-0.5 rounded-full ${
+                      event.event_type === 'received' ? 'bg-emerald-500/20 text-emerald-400' :
+                      event.event_type === 'partially_received' ? 'bg-amber-500/20 text-amber-400' :
+                      event.event_type === 'sent' ? 'bg-blue-500/20 text-blue-400' :
+                      event.event_type === 'created' ? 'bg-section text-muted' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {event.event_type.replace('_', ' ')}
+                    </span>
+                    <span className="text-xs text-muted">
+                      {new Date(event.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted">
+                    by {event.actor_name || 'Unknown'}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         </div>

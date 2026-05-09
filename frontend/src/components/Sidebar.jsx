@@ -13,7 +13,9 @@ import {
   BarChart,
   Sparkles,
   Truck,
-  ShoppingBag
+  ShoppingBag,
+  Mail,
+  Settings
 } from 'lucide-react';
 
 const Sidebar = ({ isDark, toggleTheme }) => {
@@ -28,6 +30,8 @@ const Sidebar = ({ isDark, toggleTheme }) => {
     { icon: Tag, label: 'Promotions', path: '/promotions', ownerOnly: true },
     { icon: Truck, label: 'Vendors', path: '/vendors', ownerOnly: true },
     { icon: ShoppingBag, label: 'Purchase Orders', path: '/purchase-orders', ownerOnly: true },
+    { icon: Mail, label: 'Email Log', path: '/email-log', ownerOnly: true },
+    { icon: Settings, label: 'Vendor Settings', path: '/vendor-settings', ownerOnly: true },
     { icon: BarChart, label: 'Reports', path: '/reports', ownerOnly: true },
     { icon: Sparkles, label: 'AI Insights', path: '/ai-insights', ownerOnly: true },
   ];

@@ -516,6 +516,160 @@ class PurchaseOrder {
       connection.release();
     }
   }
+
+  /**
+   * Receive line items from a PO and increment stock.
+   * @param {number} poId - PO ID
+   * @param {Array} items - [{ po_item_id, quantity_received }]
+   * @param {number} actorUserId - User performing the receive
+   * @returns {Promise<Object>} Updated PO
+   */
+  static async receive(poId, items, actorUserId) {
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new PurchaseOrderError('INVALID_ITEMS', 'At least one item is required');
+    }
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+
+      // 1. Lock PO row
+      const [poRows] = await connection.query(
+        'SELECT po_id, status FROM purchase_orders WHERE po_id = ? FOR UPDATE',
+        [poId]
+      );
+      if (poRows.length === 0) {
+        throw new PurchaseOrderError('NOT_FOUND', `Purchase order ${poId} not found`);
+      }
+
+      const currentStatus = poRows[0].status;
+      if (currentStatus === 'draft') {
+        throw new PurchaseOrderError('PO_NOT_SENT_YET', 'Send the PO first before receiving');
+      }
+      if (currentStatus === 'cancelled') {
+        throw new PurchaseOrderError('PO_CANCELLED', 'Cannot receive a cancelled purchase order');
+      }
+      if (currentStatus === 'received') {
+        throw new PurchaseOrderError('PO_FULLY_RECEIVED', 'This purchase order is already fully received');
+      }
+
+      // 2. Lock and validate PO items
+      const itemIds = items.map(i => i.po_item_id);
+      const [itemRows] = await connection.query(
+        `SELECT poi.po_item_id, poi.product_id, poi.quantity_ordered, poi.quantity_received
+           FROM purchase_order_items poi
+          WHERE poi.po_id = ? AND poi.po_item_id IN (?)`,
+        [poId, itemIds]
+      );
+
+      if (itemRows.length !== itemIds.length) {
+        throw new PurchaseOrderError('INVALID_ITEMS', 'One or more items do not belong to this PO');
+      }
+
+      const itemMap = new Map(itemRows.map(i => [i.po_item_id, i]));
+      const receivedDetails = [];
+
+      // 3. Process each item
+      for (const item of items) {
+        const poItem = itemMap.get(item.po_item_id);
+        const qtyReceived = Number(item.quantity_received);
+
+        if (!poItem) {
+          throw new PurchaseOrderError('INVALID_ITEMS', `Item ${item.po_item_id} not found`);
+        }
+        if (qtyReceived < 1) {
+          throw new PurchaseOrderError('INVALID_QUANTITY', 'Quantity received must be at least 1');
+        }
+
+        const remaining = poItem.quantity_ordered - poItem.quantity_received;
+        if (qtyReceived > remaining) {
+          throw new PurchaseOrderError(
+            'OVER_RECEIVE',
+            `Cannot receive ${qtyReceived} (only ${remaining} remaining)`,
+            { po_item_id: item.po_item_id, remaining }
+          );
+        }
+
+        // Update PO item quantity_received
+        const newTotalReceived = poItem.quantity_received + qtyReceived;
+        await connection.query(
+          'UPDATE purchase_order_items SET quantity_received = ? WHERE po_item_id = ?',
+          [newTotalReceived, item.po_item_id]
+        );
+
+        // Increment product stock
+        await connection.query(
+          'UPDATE products SET stock_quantity = stock_quantity + ? WHERE product_id = ?',
+          [qtyReceived, poItem.product_id]
+        );
+
+        receivedDetails.push({
+          po_item_id: item.po_item_id,
+          product_id: poItem.product_id,
+          quantity_received: qtyReceived,
+          new_total_received: newTotalReceived
+        });
+      }
+
+      // 4. Recompute PO status
+      const [aggRows] = await connection.query(
+        `SELECT
+           SUM(quantity_ordered) as total_ordered,
+           SUM(quantity_received) as total_received
+         FROM purchase_order_items WHERE po_id = ?`,
+        [poId]
+      );
+
+      const totalOrdered = Number(aggRows[0].total_ordered);
+      const totalReceived = Number(aggRows[0].total_received);
+      const isFullyReceived = totalReceived >= totalOrdered;
+
+      const newStatus = isFullyReceived ? 'received' : 'partially_received';
+      const receivedAt = isFullyReceived ? 'NOW()' : null;
+
+      await connection.query(
+        `UPDATE purchase_orders
+           SET status = ?, received_at = ${receivedAt}
+         WHERE po_id = ?`,
+        [newStatus, poId]
+      );
+
+      // 5. Insert history row
+      await connection.query(
+        `INSERT INTO purchase_order_history (po_id, event_type, details, actor_user_id)
+         VALUES (?, ?, ?, ?)`,
+        [poId, newStatus, JSON.stringify({ items: receivedDetails }), actorUserId]
+      );
+
+      await connection.commit();
+
+      // Return refreshed PO
+      return PurchaseOrder.findById(poId);
+    } catch (err) {
+      await connection.rollback();
+      throw err;
+    } finally {
+      connection.release();
+    }
+  }
+
+  /**
+   * Get PO history
+   * @param {number} poId - PO ID
+   * @returns {Promise<Array>} History rows
+   */
+  static async getHistory(poId) {
+    const [rows] = await pool.query(
+      `SELECT poh.history_id, poh.event_type, poh.details, poh.actor_user_id,
+              u.full_name as actor_name, poh.created_at
+         FROM purchase_order_history poh
+         LEFT JOIN users u ON poh.actor_user_id = u.user_id
+        WHERE poh.po_id = ?
+        ORDER BY poh.created_at ASC`,
+      [poId]
+    );
+    return rows;
+  }
 }
 
 PurchaseOrder.PurchaseOrderError = PurchaseOrderError;
