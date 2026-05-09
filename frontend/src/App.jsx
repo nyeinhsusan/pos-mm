@@ -13,6 +13,8 @@ import ReportsPage from './pages/ReportsPage';
 import AIInsightsPage from './pages/AIInsightsPage';
 import PromotionsPage from './pages/PromotionsPage';
 import VendorsPage from './pages/VendorsPage';
+import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
+import PurchaseOrderEditorPage from './pages/PurchaseOrderEditorPage';
 
 function App() {
   return (
@@ -61,6 +63,10 @@ function App() {
                 <Route path="/products" element={<ProductsPage />} />
                 <Route path="/promotions" element={<PromotionsPage />} />
                 <Route path="/vendors" element={<VendorsPage />} />
+                <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+                <Route path="/purchase-orders/new" element={<PurchaseOrderEditorPage mode="create" />} />
+                <Route path="/purchase-orders/:id" element={<PurchaseOrderEditorPage mode="view" />} />
+                <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEditorPage mode="edit" />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/ai-insights" element={<AIInsightsPage />} />
               </Route>

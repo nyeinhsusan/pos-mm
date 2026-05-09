@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const { testConnection } = require('./config/database');
@@ -12,6 +14,7 @@ const discountRoutes = require('./routes/discounts');
 const promotionRoutes = require('./routes/promotions');
 const vendorRoutes = require('./routes/vendors');
 const vendorProductRoutes = require('./routes/vendor-products');
+const purchaseOrderRoutes = require('./routes/purchaseOrders');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -38,6 +41,16 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded product images statically
 app.use('/uploads/products', express.static('uploads/products'));
 app.use('/uploads/vendors', express.static('uploads/vendors'));
+app.use('/uploads/purchase-orders', express.static('uploads/purchase-orders'));
+
+// Ensure upload directories exist
+const uploadDirs = ['uploads/products', 'uploads/vendors', 'uploads/purchase-orders'];
+uploadDirs.forEach(dir => {
+  const dirPath = path.join(__dirname, dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+});
 
 // Request logging middleware (development)
 if (process.env.NODE_ENV === 'development') {
@@ -66,6 +79,7 @@ app.use('/api/discounts', discountRoutes);
 app.use('/api/promotions', promotionRoutes);
 app.use('/api/vendors', vendorRoutes);
 app.use('/api/vendor-products', vendorProductRoutes);
+app.use('/api/purchase-orders', purchaseOrderRoutes);
 
 // 404 handler
 app.use((req, res) => {

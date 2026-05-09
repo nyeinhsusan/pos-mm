@@ -146,14 +146,14 @@ const LoginPage = () => {
           {/* Demo Accounts Info */}
           <div className="mt-6 p-4 bg-section border border-default rounded-lg">
             <p className="text-xs text-primary font-medium mb-2">
-              Demo Accounts:
+             Welcome to POS Myanmar
             </p>
             <div className="text-xs text-muted space-y-1">
               <p>
-                <strong>Owner:</strong> owner@pos.com / owner123
+                <strong>Simple </strong> and modern point of sale system
               </p>
               <p>
-                <strong>Cashier:</strong> cashier@pos.com / cashier123
+                <strong>Designed</strong>  for daily business needs
               </p>
             </div>
           </div>

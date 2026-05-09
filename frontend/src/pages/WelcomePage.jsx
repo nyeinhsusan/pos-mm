@@ -14,7 +14,7 @@ const WelcomePage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 overflow-hidden">
+    <div className="min-h-screen bg-surface from-blue-600 via-indigo-600 to-purple-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center p-4 overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-0 left-0 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
@@ -35,17 +35,17 @@ const WelcomePage = () => {
 
         {/* Main Heading */}
         <div className={`mb-6 transform transition-all duration-1000 delay-300 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <h1 className="text-5xl md:text-6xl font-bold text-white dark:text-gray-100 mb-4 leading-tight">
-            Welcome to <span className="bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent">POS Myanmar</span>
+          <h1 className="text-5xl md:text-6xl font-bold text-dark dark:text-gray-100 mb-4 leading-tight">
+            Welcome to <span className="bg-gradient-to-r from-cyan-400 to-pink-400 bg-clip-text text-transparent">POS Myanmar "Shwe Aura"</span>
           </h1>
         </div>
 
         {/* Subtitle */}
         <div className={`mb-12 transform transition-all duration-1000 delay-500 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
-          <p className="text-xl md:text-2xl text-gray-100 dark:text-gray-300 mb-3">
+          <p className="text-xl md:text-2xl text-dark-100 dark:text-gray-300 mb-3">
             Modern Point of Sale Management System
           </p>
-          <p className="text-lg text-gray-200 dark:text-gray-400">
+          <p className="text-lg text-dark-200 dark:text-gray-400">
             Streamline your sales, boost productivity, and grow your business
           </p>
         </div>
@@ -54,20 +54,20 @@ const WelcomePage = () => {
         <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 transform transition-all duration-1000 delay-700 ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <div className="bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md rounded-lg p-6 hover:bg-opacity-20 dark:hover:bg-opacity-30 transition-all hover:scale-105">
             <div className="text-4xl mb-3">💳</div>
-            <h3 className="text-white font-semibold mb-2">Fast Checkout</h3>
-            <p className="text-gray-200 dark:text-gray-300 text-sm">Quick and secure payment processing</p>
+            <h3 className="text-blue-600 font-bold font-semibold mb-2">Fast Checkout</h3>
+            <p className="text-drak-200 font-bold dark:text-gray-100 text-sm">Quick and secure payment processing</p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md rounded-lg p-6 hover:bg-opacity-20 dark:hover:bg-opacity-30 transition-all hover:scale-105">
             <div className="text-4xl mb-3">📊</div>
-            <h3 className="text-white font-semibold mb-2">Analytics</h3>
-            <p className="text-gray-200 dark:text-gray-300 text-sm">Real-time sales insights and reports</p>
+            <h3 className="text-blue-600 font-bold font-semibold mb-2">Analytics</h3>
+            <p className="text-drak-200 font-bold  dark:text-gray-300 text-sm">Real-time sales insights and reports</p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 bg-opacity-10 dark:bg-opacity-20 backdrop-blur-md rounded-lg p-6 hover:bg-opacity-20 dark:hover:bg-opacity-30 transition-all hover:scale-105">
             <div className="text-4xl mb-3">🎯</div>
-            <h3 className="text-white font-semibold mb-2">Promotions</h3>
-            <p className="text-gray-200 dark:text-gray-300 text-sm">Create and manage promotional campaigns</p>
+            <h3 className="text-blue-600 font-bold font-semibold mb-2">Promotions</h3>
+            <p className="text-drak-200 font-bold  dark:text-gray-300 text-sm">Create and manage promotional campaigns</p>
           </div>
         </div>
 
@@ -89,7 +89,7 @@ const WelcomePage = () => {
 
         {/* Footer Text */}
         <div className={`mt-12 transform transition-all duration-1000 delay-1200 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-          <p className="text-gray-200 dark:text-gray-400 text-sm">
+          <p className="text-dark-200 dark:text-gray-400 text-sm">
             © 2026 POS Myanmar. All rights reserved. | <a href="#" className="hover:text-white transition">Privacy Policy</a>
           </p>
         </div>
