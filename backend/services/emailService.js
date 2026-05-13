@@ -157,19 +157,4 @@ async function sendMail({ to, subject, html, text, attachments, emailType, relat
   return { logId, status: 'failed', attempts };
 }
 
-/**
- * Re-attempt a previously-failed email. The caller (Story 26) is responsible
- * for re-constructing the body from the related_po_id; this function only
- * exposes the interface — the implementation looks up the original log row
- * and is intentionally limited to PO emails for v1.
- */
-async function retry(logId) {
-  // v1 implementation deferred to Story 26 — surface as not-implemented for now.
-  // Interface frozen so the email log UI can be built against it.
-  const err = new Error('emailService.retry() will be implemented in Story 26');
-  err.code = 'NOT_IMPLEMENTED';
-  err.logId = logId;
-  throw err;
-}
-
-module.exports = { sendMail, retry, invalidateTransporter };
+module.exports = { sendMail, invalidateTransporter };

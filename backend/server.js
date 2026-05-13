@@ -17,6 +17,9 @@ const vendorProductRoutes = require('./routes/vendor-products');
 const purchaseOrderRoutes = require('./routes/purchaseOrders');
 const emailLogRoutes = require('./routes/emailLog');
 const vendorSettingsRoutes = require('./routes/vendorSettings');
+const vendorInvoiceRoutes = require('./routes/vendorInvoices');
+const autoReorderRoutes = require('./routes/autoReorder');
+const { registerCronJobs, unscheduleAll: unscheduleCron } = require('./cron');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -44,9 +47,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads/products', express.static('uploads/products'));
 app.use('/uploads/vendors', express.static('uploads/vendors'));
 app.use('/uploads/purchase-orders', express.static('uploads/purchase-orders'));
+app.use('/uploads/vendor-invoices', express.static('uploads/vendor-invoices'));
 
 // Ensure upload directories exist
-const uploadDirs = ['uploads/products', 'uploads/vendors', 'uploads/purchase-orders'];
+const uploadDirs = ['uploads/products', 'uploads/vendors', 'uploads/purchase-orders', 'uploads/vendor-invoices'];
 uploadDirs.forEach(dir => {
   const dirPath = path.join(__dirname, dir);
   if (!fs.existsSync(dirPath)) {
@@ -84,6 +88,8 @@ app.use('/api/vendor-products', vendorProductRoutes);
 app.use('/api/purchase-orders', purchaseOrderRoutes);
 app.use('/api/email-log', emailLogRoutes);
 app.use('/api/vendor-settings', vendorSettingsRoutes);
+app.use('/api/vendor-invoices', vendorInvoiceRoutes);
+app.use('/api/auto-reorder', autoReorderRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -121,6 +127,27 @@ async function startServer() {
     console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/health`);
   });
+
+  // Auto-reorder cron (Story 30) — non-blocking; if it fails the server still serves API.
+  if (dbConnected) {
+    registerCronJobs().catch((err) => {
+      console.error('[auto-reorder] failed to register cron jobs:', err);
+    });
+  } else {
+    console.warn('[auto-reorder] skipping cron registration (no DB)');
+  }
 }
+
+// Graceful shutdown — unschedule cron tasks so we don't leak timers.
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received — shutting down');
+  try { unscheduleCron(); } catch (e) { /* noop */ }
+  process.exit(0);
+});
+process.on('SIGINT', () => {
+  console.log('SIGINT received — shutting down');
+  try { unscheduleCron(); } catch (e) { /* noop */ }
+  process.exit(0);
+});
 
 startServer();

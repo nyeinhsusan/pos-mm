@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../services/api';
@@ -20,6 +20,10 @@ const ReportsPage = () => {
   const [dateRange, setDateRange] = useState('30'); // days
   const [paymentDateRange, setPaymentDateRange] = useState('30'); // days for payment analytics
   const [selectedSale, setSelectedSale] = useState(null);
+
+  // Story 29: tabs + vendor spend
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') === 'vendor-spend' ? 'vendor-spend' : 'sales');
 
   useEffect(() => {
     if (user?.role !== 'owner') {
@@ -187,11 +191,42 @@ const ReportsPage = () => {
           📊 Business Reports & Analytics
         </h2>
 
+        {/* Tabs (Story 29) */}
+        <div className="flex gap-2 border-b border-default mb-6">
+          {[
+            { key: 'sales', label: 'Sales & Inventory' },
+            { key: 'vendor-spend', label: 'Vendor Spend' }
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => {
+                setActiveTab(t.key);
+                const next = new URLSearchParams(searchParams);
+                if (t.key === 'sales') next.delete('tab'); else next.set('tab', t.key);
+                setSearchParams(next, { replace: true });
+              }}
+              className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition-colors ${
+                activeTab === t.key
+                  ? 'border-indigo-500 text-primary'
+                  : 'border-transparent text-muted hover:text-primary'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         {error && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 shake">
             {error}
           </div>
         )}
+
+        {activeTab === 'vendor-spend' && (
+          <VendorSpendTab navigate={navigate} searchParams={searchParams} setSearchParams={setSearchParams} />
+        )}
+
+        {activeTab === 'sales' && (<>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 stagger-children">
@@ -309,6 +344,7 @@ const ReportsPage = () => {
           onViewDetails={viewSaleDetails}
           onExport={handleExportSalesHistory}
         />
+        </>)}
       </div>
 
       {/* Sale Details Modal */}
@@ -828,6 +864,162 @@ const SaleDetailsModal = ({ sale, onClose }) => {
           >
             ✅ Close
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ────────────────────────────────────────────────────────────────────
+// Vendor Spend Tab (Story 29)
+// ────────────────────────────────────────────────────────────────────
+
+const DAYS_OPTIONS = [30, 60, 90, 180, 365];
+
+const VendorSpendTab = ({ navigate, searchParams, setSearchParams }) => {
+  const [days, setDays] = useState(Number(searchParams.get('days')) || 30);
+  const [rows, setRows] = useState([]);
+  const [generatedAt, setGeneratedAt] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [sortBy, setSortBy] = useState('total_paid');
+  const [sortDir, setSortDir] = useState('DESC');
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const res = await api.get(`/reports/vendor-spend?days=${days}`);
+        if (alive && res.data.success) {
+          setRows(res.data.data.rows || []);
+          setGeneratedAt(res.data.data.generated_at);
+        }
+      } catch (err) {
+        if (alive) setError(err.response?.data?.error?.message || 'Failed to load vendor spend');
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [days]);
+
+  // Persist days in URL
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    next.set('tab', 'vendor-spend');
+    if (days !== 30) next.set('days', String(days)); else next.delete('days');
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [days]);
+
+  const sortedRows = [...rows].sort((a, b) => {
+    const av = a[sortBy] ?? 0;
+    const bv = b[sortBy] ?? 0;
+    if (typeof av === 'string' && typeof bv === 'string') {
+      return sortDir === 'ASC' ? av.localeCompare(bv) : bv.localeCompare(av);
+    }
+    return sortDir === 'ASC' ? av - bv : bv - av;
+  });
+
+  const handleSort = (col) => {
+    if (sortBy === col) setSortDir((d) => (d === 'ASC' ? 'DESC' : 'ASC'));
+    else { setSortBy(col); setSortDir('DESC'); }
+  };
+
+  const totalPaid = sortedRows.reduce((s, r) => s + (r.total_paid || 0), 0);
+  const totalOutstanding = sortedRows.reduce((s, r) => s + (r.total_outstanding || 0), 0);
+  const vendorCount = sortedRows.filter((r) => r.invoice_count > 0).length;
+
+  const handleRowClick = (row) => {
+    const dateFrom = new Date();
+    dateFrom.setDate(dateFrom.getDate() - days);
+    const dateFromStr = dateFrom.toISOString().slice(0, 10);
+    navigate(`/invoices?vendor_id=${row.vendor_id}&date_from=${dateFromStr}`);
+  };
+
+  return (
+    <div>
+      {/* Date range selector */}
+      <div className="flex items-center gap-2 mb-4 flex-wrap">
+        <span className="text-sm text-muted mr-2">Window:</span>
+        {DAYS_OPTIONS.map((d) => (
+          <button
+            key={d}
+            onClick={() => setDays(d)}
+            className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
+              days === d
+                ? 'bg-indigo-600 text-white'
+                : 'bg-section text-primary hover:bg-elevated border border-default'
+            }`}
+          >
+            {d} days
+          </button>
+        ))}
+      </div>
+
+      {/* Summary line */}
+      {!loading && (
+        <div className="bg-surface border border-default rounded-2xl pt-6 pr-6 pb-5 pl-5 mb-6">
+          <p className="text-sm text-primary">
+            Spent <span className="font-bold">{Number(totalPaid).toLocaleString()} MMK</span>{' '}
+            across <span className="font-bold">{vendorCount}</span>{' '}
+            {vendorCount === 1 ? 'vendor' : 'vendors'} in the last{' '}
+            <span className="font-bold">{days}</span> days.{' '}
+            Outstanding: <span className="font-bold text-rose-500">{Number(totalOutstanding).toLocaleString()} MMK</span>.
+          </p>
+          {generatedAt && (
+            <p className="text-xs text-muted mt-2">
+              Generated {new Date(generatedAt).toLocaleString()}
+            </p>
+          )}
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 px-4 py-3 rounded-lg mb-4">
+          {error}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="bg-surface border border-default rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-xs uppercase tracking-wider text-muted border-b border-default">
+                <th onClick={() => handleSort('vendor_name')} className="py-3 px-4 text-left cursor-pointer select-none">Vendor</th>
+                <th onClick={() => handleSort('invoice_count')} className="py-3 px-4 text-right cursor-pointer select-none">Invoices</th>
+                <th onClick={() => handleSort('total_paid')} className="py-3 px-4 text-right cursor-pointer select-none">Paid (MMK)</th>
+                <th onClick={() => handleSort('total_outstanding')} className="py-3 px-4 text-right cursor-pointer select-none">Outstanding (MMK)</th>
+                <th onClick={() => handleSort('last_invoice_date')} className="py-3 px-4 text-left cursor-pointer select-none">Last invoice</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={5} className="py-12 text-center text-muted">Loading…</td></tr>
+              ) : sortedRows.length === 0 ? (
+                <tr><td colSpan={5} className="py-12 text-center text-muted">No invoice activity in the last {days} days.</td></tr>
+              ) : (
+                sortedRows.map((r) => (
+                  <tr
+                    key={r.vendor_id}
+                    onClick={() => handleRowClick(r)}
+                    className="border-b border-default/40 last:border-0 hover:bg-elevated/40 cursor-pointer"
+                  >
+                    <td className="py-3 px-4 font-semibold text-primary">{r.vendor_name}</td>
+                    <td className="py-3 px-4 text-right text-muted">{r.invoice_count}</td>
+                    <td className="py-3 px-4 text-right font-semibold">{Number(r.total_paid).toLocaleString()}</td>
+                    <td className="py-3 px-4 text-right font-semibold text-rose-500">{Number(r.total_outstanding).toLocaleString()}</td>
+                    <td className="py-3 px-4 text-muted">
+                      {r.last_invoice_date ? new Date(r.last_invoice_date).toLocaleDateString() : '—'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

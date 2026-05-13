@@ -23,6 +23,10 @@ Forward-only SQL files in `migrations/`. Apply in numerical order.
 | `008_add_purchase_orders.sql` | Purchase orders + line items (Epic 7 / Story 22) |
 | `009_add_email_log.sql` | Outbound email audit trail (Epic 7 / Story 22) |
 | `010_add_vendor_settings.sql` | Singleton vendor-module config + SMTP creds (Epic 7 / Story 22) |
+| `011_add_purchase_order_history.sql` | Purchase order history / audit trail |
+| `012_add_vendor_invoices.sql` | Vendor invoice tracking |
+| `013_add_system_user.sql` | System user for auto-generated POs |
+| `014_add_auto_reorder_runs.sql` | Auto-reorder run history for status + activity log (Epic 9 / Story 32) |
 
 Apply a single migration:
 

@@ -64,6 +64,7 @@ const EmailLogPage = () => {
   const [filterDateFrom, setFilterDateFrom] = useState(searchParams.get('date_from') || '');
   const [filterDateTo, setFilterDateTo] = useState(searchParams.get('date_to') || '');
   const [filterVendorId, setFilterVendorId] = useState(searchParams.get('vendor_id') || '');
+  const [filterRelatedPoId, setFilterRelatedPoId] = useState(searchParams.get('related_po_id') || '');
 
   const [selectedLog, setSelectedLog] = useState(null);
   const [retryingId, setRetryingId] = useState(null);
@@ -97,6 +98,7 @@ const EmailLogPage = () => {
       if (filterDateFrom) params.date_from = filterDateFrom;
       if (filterDateTo) params.date_to = filterDateTo;
       if (filterVendorId) params.vendor_id = filterVendorId;
+      if (filterRelatedPoId) params.related_po_id = filterRelatedPoId;
 
       const res = await emailLogService.listEmailLogs(params);
       if (res.success) {
@@ -110,7 +112,7 @@ const EmailLogPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, filterStatus, filterType, filterDateFrom, filterDateTo, filterVendorId]);
+  }, [page, pageSize, filterStatus, filterType, filterDateFrom, filterDateTo, filterVendorId, filterRelatedPoId]);
 
   useEffect(() => {
     if (user?.role === 'owner') {
@@ -130,8 +132,9 @@ const EmailLogPage = () => {
     if (filterDateFrom) next.set('date_from', filterDateFrom); else next.delete('date_from');
     if (filterDateTo) next.set('date_to', filterDateTo); else next.delete('date_to');
     if (filterVendorId) next.set('vendor_id', filterVendorId); else next.delete('vendor_id');
+    if (filterRelatedPoId) next.set('related_po_id', filterRelatedPoId); else next.delete('related_po_id');
     setSearchParams(next, { replace: true });
-  }, [filterStatus, filterType, filterDateFrom, filterDateTo, filterVendorId]);
+  }, [filterStatus, filterType, filterDateFrom, filterDateTo, filterVendorId, filterRelatedPoId]);
 
   const handleRetry = async (log) => {
     setRetryingId(log.log_id);

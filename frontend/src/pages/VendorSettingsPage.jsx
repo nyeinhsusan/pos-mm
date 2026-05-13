@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Mail, RefreshCw, ChevronDown, ChevronUp, Send, Check, AlertCircle } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { Settings, Mail, RefreshCw, ChevronDown, ChevronUp, Send, Check, AlertCircle, AlertTriangle, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import vendorSettingsService from '../services/vendorSettingsService';
@@ -9,16 +9,51 @@ import notify from '../services/notificationService';
 import Sidebar from '../components/Sidebar';
 
 const AUTO_REORDER_MODES = [
-  { value: 'disabled', label: 'Disabled' },
-  { value: 'approve_first', label: 'Approve First' },
-  { value: 'auto_send', label: 'Auto Send' }
+  {
+    value: 'disabled',
+    label: 'Disabled',
+    description: 'No automatic ordering. Cron stays registered but no-ops.'
+  },
+  {
+    value: 'approve_first',
+    label: 'Approve First',
+    description: 'System creates draft POs but I review and send each one.',
+    recommended: true
+  },
+  {
+    value: 'auto_send',
+    label: 'Auto Send',
+    description: 'System creates AND emails POs without my review.'
+  }
 ];
 
 const CRON_PRESETS = [
-  { value: '0 2 * * *', label: 'Daily at 2:00 AM' },
-  { value: '0 2 * * 1', label: 'Weekly on Monday at 2:00 AM' },
-  { value: '0 2 1 * *', label: 'Monthly on 1st at 2:00 AM' }
+  { value: '0 2 * * *', label: 'Daily at 02:00' },
+  { value: '0 8 * * *', label: 'Daily at 08:00' },
+  { value: '0 8,20 * * *', label: 'Twice daily (08:00 + 20:00)' },
+  { value: '', label: 'Custom' }
 ];
+
+const MODE_BADGE = {
+  disabled: 'bg-section text-muted',
+  approve_first: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400',
+  auto_send: 'bg-amber-500/20 text-amber-700 dark:text-amber-400'
+};
+
+const RUN_STATUS_BADGE = {
+  success: 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400',
+  partial_failure: 'bg-amber-500/20 text-amber-700 dark:text-amber-400',
+  ml_unavailable: 'bg-rose-500/20 text-rose-700 dark:text-rose-400',
+  disabled: 'bg-section text-muted',
+  error: 'bg-rose-500/20 text-rose-700 dark:text-rose-400',
+  running: 'bg-indigo-500/20 text-indigo-700 dark:text-indigo-400'
+};
+
+function cronToEnglish(expr) {
+  const presetMatch = CRON_PRESETS.find((p) => p.value && p.value === expr);
+  if (presetMatch) return presetMatch.label;
+  return expr || '—';
+}
 
 const CRON_REGEX = /^(\*|([0-5]?\d)(-([0-5]?\d))?)(\/(\d+))?(\s+(\*|([0-5]?\d)(-([0-5]?\d))?)(\/(\d+))?){4}$/;
 
@@ -46,6 +81,11 @@ const VendorSettingsPage = () => {
   const [autoReorderCron, setAutoReorderCron] = useState('');
   const [leadTimeBufferDays, setLeadTimeBufferDays] = useState(0);
   const [digestEmailEnabled, setDigestEmailEnabled] = useState(false);
+
+  // Story 32: confirm_auto_send checkbox + operational status panel
+  const [savedMode, setSavedMode] = useState('disabled');
+  const [confirmAutoSend, setConfirmAutoSend] = useState(false);
+  const [autoStatus, setAutoStatus] = useState(null);
 
   // UI state
   const [smtpOpen, setSmtpOpen] = useState(true);
@@ -78,9 +118,11 @@ const VendorSettingsPage = () => {
         setSmtpPassword(s.smtp_password === '***' ? '' : ''); // Empty means "keep existing"
         // Auto-reorder settings
         setAutoReorderMode(s.auto_reorder_mode || 'disabled');
+        setSavedMode(s.auto_reorder_mode || 'disabled');
         setAutoReorderCron(s.auto_reorder_cron || '');
         setLeadTimeBufferDays(s.lead_time_buffer_days || 0);
         setDigestEmailEnabled(s.digest_email_enabled || false);
+        setConfirmAutoSend(false);
       }
     } catch (err) {
       console.error('Fetch settings error:', err);
@@ -93,6 +135,20 @@ const VendorSettingsPage = () => {
   useEffect(() => {
     if (user?.role === 'owner') fetchSettings();
   }, [user, fetchSettings]);
+
+  // Story 32: load operational status snapshot
+  const fetchAutoStatus = useCallback(async () => {
+    try {
+      const res = await vendorSettingsService.autoReorderStatus();
+      if (res.success) setAutoStatus(res.data);
+    } catch (err) {
+      console.error('Fetch auto-reorder status error:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user?.role === 'owner') fetchAutoStatus();
+  }, [user, fetchAutoStatus]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -128,10 +184,19 @@ const VendorSettingsPage = () => {
         // Only update password if user typed something
         if (smtpPassword) updateData.smtp_password = smtpPassword;
       } else if (section === 'auto_reorder') {
+        // Guard: switching to auto_send requires the explicit checkbox (Story 32).
+        if (autoReorderMode === 'auto_send' && savedMode !== 'auto_send' && !confirmAutoSend) {
+          notify.error('Please confirm by checking the "I understand" box before enabling Auto Send.');
+          setSaving(false);
+          return;
+        }
         updateData.auto_reorder_mode = autoReorderMode;
         updateData.auto_reorder_cron = autoReorderCron;
         updateData.lead_time_buffer_days = leadTimeBufferDays;
         updateData.digest_email_enabled = digestEmailEnabled;
+        if (autoReorderMode === 'auto_send' && savedMode !== 'auto_send') {
+          updateData.confirm_auto_send = true;
+        }
       }
 
       const res = await vendorSettingsService.updateSettings(updateData);
@@ -139,6 +204,9 @@ const VendorSettingsPage = () => {
         notify.success('Settings saved successfully');
         setSmtpPassword(''); // Clear password after save
         fetchSettings();
+        if (section === 'auto_reorder') {
+          fetchAutoStatus();
+        }
       }
     } catch (err) {
       console.error('Save settings error:', err);
@@ -346,7 +414,7 @@ const VendorSettingsPage = () => {
           </AnimatePresence>
         </div>
 
-        {/* Auto-Reorder Section */}
+        {/* Auto-Reorder Section (Story 32) */}
         <div className="bg-elevated rounded-2xl border border-default mb-6">
           <button
             onClick={() => setAutoReorderOpen(!autoReorderOpen)}
@@ -354,7 +422,10 @@ const VendorSettingsPage = () => {
           >
             <div className="flex items-center gap-3">
               <RefreshCw size={20} className="text-indigo-400" />
-              <span className="font-semibold">Auto-Reorder Defaults</span>
+              <span className="font-semibold">Auto-Reorder</span>
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${MODE_BADGE[savedMode]}`}>
+                {AUTO_REORDER_MODES.find((m) => m.value === savedMode)?.label || savedMode}
+              </span>
             </div>
             {autoReorderOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
@@ -366,37 +437,151 @@ const VendorSettingsPage = () => {
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <div className="px-4 pb-4 space-y-4">
-                  <p className="text-xs text-muted">
-                    These settings configure automatic reordering. The cron schedule will be applied once auto-reorder is enabled (Epic 9).
-                  </p>
+                <div className="px-4 pb-4 space-y-5">
+                  {/* Operational status panel */}
+                  <div className="bg-base border border-default rounded-xl p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Clock size={14} className="text-muted" />
+                      <span className="text-xs uppercase tracking-wider text-muted font-bold">Operational Status</span>
+                    </div>
+                    {autoStatus ? (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                        <div>
+                          <p className="text-xs text-muted mb-1">Mode</p>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded ${MODE_BADGE[autoStatus.current_mode]}`}>
+                            {AUTO_REORDER_MODES.find((m) => m.value === autoStatus.current_mode)?.label || autoStatus.current_mode}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted mb-1">Schedule</p>
+                          <p className="font-mono text-xs">{autoStatus.cron_expression || '—'}</p>
+                          <p className="text-[10px] text-muted">{cronToEnglish(autoStatus.cron_expression)}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted mb-1">Last Run</p>
+                          {autoStatus.last_run ? (
+                            <>
+                              <p className="text-xs">{new Date(autoStatus.last_run.started_at).toLocaleString()}</p>
+                              <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded mt-1 ${RUN_STATUS_BADGE[autoStatus.last_run.status] || 'bg-section text-muted'}`}>
+                                {autoStatus.last_run.status}
+                              </span>
+                              {autoStatus.last_run.created_pos_count != null && autoStatus.last_run.created_pos_count > 0 && (
+                                <p className="text-[10px] text-muted mt-1">
+                                  {autoStatus.last_run.created_pos_count} PO{autoStatus.last_run.created_pos_count === 1 ? '' : 's'} created
+                                </p>
+                              )}
+                            </>
+                          ) : (
+                            <p className="text-xs text-muted">Never run</p>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted">Loading status…</p>
+                    )}
 
+                    {/* Stale-run banner: >2 days since last run AND mode != disabled */}
+                    {autoStatus?.last_run?.started_at &&
+                      autoStatus.current_mode !== 'disabled' &&
+                      Date.now() - new Date(autoStatus.last_run.started_at).getTime() > 2 * 24 * 60 * 60 * 1000 && (
+                        <div className="mt-3 flex items-start gap-2 bg-rose-500/10 border border-rose-500/30 rounded-lg p-3">
+                          <AlertTriangle size={16} className="text-rose-500 flex-none mt-0.5" />
+                          <p className="text-xs text-rose-700 dark:text-rose-400">
+                            Auto-reorder hasn't run in 2+ days — check server logs.
+                          </p>
+                        </div>
+                      )}
+                  </div>
+
+                  {/* Mode selector — segmented control */}
+                  <div>
+                    <label className="block text-xs uppercase tracking-wider text-muted mb-2">Mode</label>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {AUTO_REORDER_MODES.map((m) => {
+                        const active = autoReorderMode === m.value;
+                        return (
+                          <button
+                            key={m.value}
+                            type="button"
+                            onClick={() => {
+                              setAutoReorderMode(m.value);
+                              // Reset the confirm checkbox when toggling away from auto_send
+                              if (m.value !== 'auto_send') setConfirmAutoSend(false);
+                            }}
+                            className={`text-left p-3 rounded-xl border transition-all ${
+                              active
+                                ? 'border-indigo-500 bg-indigo-500/10'
+                                : 'border-default bg-base hover:bg-section'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-semibold text-sm">{m.label}</span>
+                              {m.recommended && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-400">
+                                  Recommended
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-muted leading-snug">{m.description}</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Auto-send warning callout (only when transitioning to auto_send) */}
+                  {autoReorderMode === 'auto_send' && savedMode !== 'auto_send' && (
+                    <div className="bg-amber-500/10 border border-amber-500/40 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle size={18} className="text-amber-500 flex-none mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-bold text-amber-700 dark:text-amber-400 mb-1">
+                            Heads up — auto-send means POs go to vendors without your review.
+                          </p>
+                          <p className="text-xs text-muted mb-3">
+                            POs the system creates will be emailed to the preferred vendor immediately. Make sure each vendor's email address is correct and your SMTP credentials are working.
+                          </p>
+                          <label className="flex items-start gap-2 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={confirmAutoSend}
+                              onChange={(e) => setConfirmAutoSend(e.target.checked)}
+                              className="mt-0.5 w-4 h-4 rounded border-default text-amber-600 focus:ring-amber-500"
+                            />
+                            <span className="text-sm">
+                              I understand POs will be sent to vendors automatically without my approval.
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Schedule (preset + custom cron) + Lead-time buffer */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-muted mb-1">
-                        Auto-Reorder Mode
-                      </label>
+                      <label className="block text-xs uppercase tracking-wider text-muted mb-1">Schedule (preset)</label>
                       <select
-                        value={autoReorderMode}
-                        onChange={(e) => setAutoReorderMode(e.target.value)}
+                        value={CRON_PRESETS.some((p) => p.value === autoReorderCron && p.value) ? autoReorderCron : ''}
+                        onChange={(e) => { setAutoReorderCron(e.target.value); setErrors({ ...errors, auto_reorder_cron: null }); }}
                         className="w-full bg-base border border-default rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       >
-                        {AUTO_REORDER_MODES.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        {CRON_PRESETS.map((p, idx) => (
+                          <option key={idx} value={p.value}>{p.label}</option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs uppercase tracking-wider text-muted mb-1">
-                        Lead Time Buffer (Days)
-                      </label>
+                      <label className="block text-xs uppercase tracking-wider text-muted mb-1">Lead-Time Buffer (Days)</label>
                       <input
                         type="number"
                         value={leadTimeBufferDays}
-                        onChange={(e) => { setLeadTimeBufferDays(Number(e.target.value)); setErrors({ ...errors, lead_time_buffer_days: null }); }}
+                        onChange={(e) => { setLeadTimeBufferDays(Math.max(0, Number(e.target.value))); setErrors({ ...errors, lead_time_buffer_days: null }); }}
                         min="0"
                         className={`w-full bg-base border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${errors.lead_time_buffer_days ? 'border-red-500' : 'border-default'}`}
+                        title="Extra days added to vendor's lead time to give you safety margin."
                       />
+                      <p className="text-[11px] text-muted mt-1">Extra safety margin on top of each vendor's lead time.</p>
                       {errors.lead_time_buffer_days && (
                         <p className="text-xs text-red-400 mt-1">{errors.lead_time_buffer_days}</p>
                       )}
@@ -404,32 +589,20 @@ const VendorSettingsPage = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs uppercase tracking-wider text-muted mb-1">
-                      Cron Expression
-                    </label>
-                    <div className="flex flex-col md:flex-row gap-2">
-                      <input
-                        type="text"
-                        value={autoReorderCron}
-                        onChange={(e) => { setAutoReorderCron(e.target.value); setErrors({ ...errors, auto_reorder_cron: null }); }}
-                        placeholder="0 2 * * *"
-                        className={`flex-1 bg-base border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 ${errors.auto_reorder_cron ? 'border-red-500' : 'border-default'}`}
-                      />
-                      <select
-                        onChange={(e) => { setAutoReorderCron(e.target.value); setErrors({ ...errors, auto_reorder_cron: null }); }}
-                        className="bg-base border border-default rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      >
-                        <option value="">Presets</option>
-                        {CRON_PRESETS.map((opt) => (
-                          <option key={opt.value} value={opt.value}>{opt.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <label className="block text-xs uppercase tracking-wider text-muted mb-1">Custom cron expression</label>
+                    <input
+                      type="text"
+                      value={autoReorderCron}
+                      onChange={(e) => { setAutoReorderCron(e.target.value); setErrors({ ...errors, auto_reorder_cron: null }); }}
+                      placeholder="0 2 * * *"
+                      className={`w-full bg-base border rounded-xl px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500 ${errors.auto_reorder_cron ? 'border-red-500' : 'border-default'}`}
+                    />
                     {errors.auto_reorder_cron && (
                       <p className="text-xs text-red-400 mt-1">{errors.auto_reorder_cron}</p>
                     )}
-                    <p className="text-xs text-muted mt-1">
-                      Schedule applies once auto-reorder is enabled (Epic 9).
+                    <p className="text-[11px] text-muted mt-1">
+                      Format: <span className="font-mono">minute hour day-of-month month day-of-week</span>.
+                      Currently means: <span className="font-semibold">{cronToEnglish(autoReorderCron)}</span>.
                     </p>
                   </div>
 
@@ -442,14 +615,17 @@ const VendorSettingsPage = () => {
                       className="w-4 h-4 rounded border-default text-indigo-600 focus:ring-indigo-500"
                     />
                     <label htmlFor="digestEmailEnabled" className="text-sm">
-                      Enable Digest Email
+                      Enable digest email <span className="text-muted text-xs">(daily summary — v1.1)</span>
                     </label>
                   </div>
 
                   <button
                     onClick={() => handleSave('auto_reorder')}
-                    disabled={saving}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors font-semibold flex items-center gap-2"
+                    disabled={
+                      saving ||
+                      (autoReorderMode === 'auto_send' && savedMode !== 'auto_send' && !confirmAutoSend)
+                    }
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition-colors font-semibold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {saving ? <RefreshCw size={16} className="animate-spin" /> : <Check size={16} />}
                     Save Auto-Reorder Settings

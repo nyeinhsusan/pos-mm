@@ -183,7 +183,8 @@ class PurchaseOrder {
          poi.quantity_received,
          poi.unit_cost,
          poi.tax_amount,
-         poi.line_total
+         poi.line_total,
+         poi.ml_confidence
        FROM purchase_order_items poi
        JOIN products p ON p.product_id = poi.product_id
        WHERE poi.po_id = ?
@@ -227,7 +228,8 @@ class PurchaseOrder {
         quantity_received: r.quantity_received,
         unit_cost: Number(r.unit_cost),
         tax_amount: Number(r.tax_amount),
-        line_total: Number(r.line_total)
+        line_total: Number(r.line_total),
+        ml_confidence: r.ml_confidence != null ? Number(r.ml_confidence) : null
       }))
     };
   }
@@ -317,9 +319,9 @@ class PurchaseOrder {
       for (const line of totals.lines) {
         await connection.query(
           `INSERT INTO purchase_order_items
-             (po_id, product_id, quantity_ordered, quantity_received, unit_cost, tax_amount, line_total)
-           VALUES (?, ?, ?, 0, ?, ?, ?)`,
-          [newPoId, line.product_id, line.quantity_ordered, line.unit_cost, line.tax_amount, line.line_total]
+             (po_id, product_id, quantity_ordered, quantity_received, unit_cost, tax_amount, line_total, ml_confidence)
+           VALUES (?, ?, ?, 0, ?, ?, ?, ?)`,
+          [newPoId, line.product_id, line.quantity_ordered, line.unit_cost, line.tax_amount, line.line_total, line.ml_confidence ?? null]
         );
       }
 
@@ -402,9 +404,9 @@ class PurchaseOrder {
         for (const line of totals.lines) {
           await connection.query(
             `INSERT INTO purchase_order_items
-               (po_id, product_id, quantity_ordered, quantity_received, unit_cost, tax_amount, line_total)
-             VALUES (?, ?, ?, 0, ?, ?, ?)`,
-            [poId, line.product_id, line.quantity_ordered, line.unit_cost, line.tax_amount, line.line_total]
+               (po_id, product_id, quantity_ordered, quantity_received, unit_cost, tax_amount, line_total, ml_confidence)
+             VALUES (?, ?, ?, 0, ?, ?, ?, ?)`,
+            [poId, line.product_id, line.quantity_ordered, line.unit_cost, line.tax_amount, line.line_total, line.ml_confidence ?? null]
           );
         }
 

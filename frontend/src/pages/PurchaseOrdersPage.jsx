@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Plus, Search, ShoppingBag } from 'lucide-react';
+import { Plus, Search, ShoppingBag, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import purchaseOrderService from '../services/purchaseOrderService';
@@ -15,6 +15,12 @@ const STATUS_OPTIONS = [
   { value: 'partially_received', label: 'Partially Received' },
   { value: 'received', label: 'Received' },
   { value: 'cancelled', label: 'Cancelled' }
+];
+
+const SOURCE_OPTIONS = [
+  { value: '', label: 'All Sources' },
+  { value: 'manual', label: 'Manual' },
+  { value: 'auto_ml', label: 'Auto ML' }
 ];
 
 const STATUS_BADGE = {
@@ -58,6 +64,7 @@ const PurchaseOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState(searchParams.get('status') || 'all');
+  const [filterSource, setFilterSource] = useState(searchParams.get('source') || '');
 
   // Defense in depth: API also rejects non-owner with 403, but redirect for cleaner UX
   useEffect(() => {
@@ -72,6 +79,7 @@ const PurchaseOrdersPage = () => {
       setLoading(true);
       const params = {};
       if (filterStatus !== 'all') params.status = filterStatus;
+      if (filterSource) params.source = filterSource;
       const res = await purchaseOrderService.listPurchaseOrders(params);
       if (res.success) {
         setPurchaseOrders(res.data);
@@ -83,7 +91,7 @@ const PurchaseOrdersPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [filterStatus]);
+  }, [filterStatus, filterSource]);
 
   useEffect(() => {
     if (user?.role === 'owner') fetchPurchaseOrders();
@@ -97,9 +105,14 @@ const PurchaseOrdersPage = () => {
     } else {
       next.set('status', filterStatus);
     }
+    if (filterSource === '') {
+      next.delete('source');
+    } else {
+      next.set('source', filterSource);
+    }
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus]);
+  }, [filterStatus, filterSource]);
 
   const visiblePOs = purchaseOrders.filter((po) => {
     if (!searchTerm) return true;
@@ -160,6 +173,15 @@ const PurchaseOrdersPage = () => {
               </button>
             ))}
           </div>
+          <select
+            value={filterSource}
+            onChange={(e) => setFilterSource(e.target.value)}
+            className="bg-elevated border border-default rounded-xl px-3 py-2 text-sm text-primary focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {SOURCE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
         </div>
 
         {/* List */}
@@ -216,12 +238,21 @@ const PurchaseOrdersPage = () => {
                     onClick={() => navigate(`/purchase-orders/${po.po_id}`)}
                     className="border-b border-default last:border-b-0 cursor-pointer hover:bg-section transition-colors"
                   >
-                    <td className="p-3 font-mono text-sm font-semibold">{po.po_number}</td>
+                    <td className="p-3 font-mono text-sm font-semibold">
+                      <span className="inline-flex items-center gap-2">
+                        {po.po_number}
+                        {po.source === 'auto_ml' && (
+                          <span
+                            className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                            title="Auto-generated from ML predictions"
+                          >
+                            <Sparkles size={10} /> Auto
+                          </span>
+                        )}
+                      </span>
+                    </td>
                     <td className="p-3">
                       <div className="font-medium">{po.vendor_name}</div>
-                      {po.source === 'auto_ml' && (
-                        <span className="text-[10px] text-amber-400 uppercase tracking-wider">Auto</span>
-                      )}
                     </td>
                     <td className="p-3 text-sm text-muted">{formatDate(po.created_at)}</td>
                     <td className="p-3 text-right text-sm">{po.item_count}</td>

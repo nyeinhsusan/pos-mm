@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { X, Edit2, Archive, ArchiveRestore, Trash2, Plus, Star, Trash } from 'lucide-react';
+import { X, Edit2, Archive, ArchiveRestore, Trash2, Plus, Star, Trash, FileText } from 'lucide-react';
 import vendorService from '../services/vendorService';
+import vendorInvoiceService from '../services/vendorInvoiceService';
 import notify from '../services/notificationService';
 import LinkProductModal from './LinkProductModal';
+import VendorInvoiceCaptureModal from './VendorInvoiceCaptureModal';
 
 const getImageUrl = (path) => {
   if (!path) return null;
@@ -26,6 +28,11 @@ const VendorDetailDrawer = ({ isOpen, onClose, vendor, onEdit, onArchive, onRest
   const [editingRowId, setEditingRowId] = useState(null);
   const [editForm, setEditForm] = useState({ vendor_cost_price: '', default_reorder_qty: '', min_order_qty: '' });
 
+  // Invoices (Story 27)
+  const [invoices, setInvoices] = useState([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+
   const fetchCatalog = useCallback(async () => {
     if (!vendor?.vendor_id) return;
     setLoadingCatalog(true);
@@ -40,14 +47,29 @@ const VendorDetailDrawer = ({ isOpen, onClose, vendor, onEdit, onArchive, onRest
     }
   }, [vendor?.vendor_id]);
 
+  const fetchInvoices = useCallback(async () => {
+    if (!vendor?.vendor_id) return;
+    setLoadingInvoices(true);
+    try {
+      const res = await vendorInvoiceService.listInvoices({ vendor_id: vendor.vendor_id });
+      if (res.success) setInvoices(res.data || []);
+    } catch (err) {
+      console.error('Load invoices error:', err);
+    } finally {
+      setLoadingInvoices(false);
+    }
+  }, [vendor?.vendor_id]);
+
   useEffect(() => {
     if (isOpen && vendor?.vendor_id) {
       fetchCatalog();
+      fetchInvoices();
     } else {
       setCatalog([]);
+      setInvoices([]);
       setEditingRowId(null);
     }
-  }, [isOpen, vendor?.vendor_id, fetchCatalog]);
+  }, [isOpen, vendor?.vendor_id, fetchCatalog, fetchInvoices]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -352,6 +374,74 @@ const VendorDetailDrawer = ({ isOpen, onClose, vendor, onEdit, onArchive, onRest
           </div>
 
           {/* Timestamps */}
+          {/* Invoices (Story 27) */}
+          <div className="pt-4 border-t border-default">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[10px] font-black uppercase tracking-widest text-muted flex items-center gap-2">
+                <FileText size={12} /> Invoices ({invoices.length})
+              </p>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`/invoices?vendor_id=${vendor.vendor_id}`}
+                  className="px-3 py-1.5 bg-section hover:bg-elevated border border-default rounded-lg text-primary text-[11px] font-bold focus:outline-none focus:ring-2 focus:ring-accent"
+                  title="View all invoices for this vendor"
+                >
+                  View all
+                </a>
+                <button
+                  onClick={() => setShowInvoiceModal(true)}
+                  disabled={isArchived}
+                  className="px-3 py-1.5 bg-section hover:bg-elevated border border-default rounded-lg text-primary text-[11px] font-bold flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-accent disabled:opacity-50"
+                  title={isArchived ? 'Restore vendor to add invoices' : 'Add invoice'}
+                >
+                  <Plus size={12} /> Add Invoice
+                </button>
+              </div>
+            </div>
+            {loadingInvoices ? (
+              <div className="bg-section border border-default rounded-xl p-4 text-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent mx-auto"></div>
+              </div>
+            ) : invoices.length === 0 ? (
+              <div className="bg-section border border-default rounded-xl p-4 text-center">
+                <p className="text-sm text-muted">No invoices captured yet</p>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {invoices.map((inv) => (
+                  <li key={inv.invoice_id} className="p-3 rounded-xl bg-section border border-default">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-bold text-primary truncate">
+                          {inv.invoice_number}
+                          {inv.po_number && (
+                            <span className="text-[10px] text-muted ml-2">PO {inv.po_number}</span>
+                          )}
+                        </p>
+                        <p className="text-[10px] text-muted">
+                          {inv.invoice_date?.slice(0, 10)}
+                          {inv.due_date && ` · due ${inv.due_date.slice(0, 10)}`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-none">
+                        <span className="text-sm font-bold text-primary whitespace-nowrap">
+                          {Number(inv.total).toLocaleString()} {inv.currency}
+                        </span>
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded ${
+                          inv.status === 'paid' ? 'bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' :
+                          inv.status === 'overdue' ? 'bg-rose-500/20 text-rose-700 dark:text-rose-400' :
+                          'bg-amber-500/20 text-amber-700 dark:text-amber-400'
+                        }`}>
+                          {inv.status}
+                        </span>
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           <div className="pt-2 text-[10px] text-muted">
             Created: {new Date(vendor.created_at).toLocaleString()} · Updated: {new Date(vendor.updated_at).toLocaleString()}
           </div>
@@ -399,6 +489,18 @@ const VendorDetailDrawer = ({ isOpen, onClose, vendor, onEdit, onArchive, onRest
           setShowLinkModal(false);
           fetchCatalog();
         }}
+      />
+
+      {/* Capture Invoice modal */}
+      <VendorInvoiceCaptureModal
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        onSaved={() => {
+          setShowInvoiceModal(false);
+          fetchInvoices();
+        }}
+        vendorId={vendor?.vendor_id}
+        vendorName={vendor?.name}
       />
     </div>
   );

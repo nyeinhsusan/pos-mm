@@ -49,4 +49,12 @@ router.get(
   reportController.getPaymentTrendsReport
 );
 
+// Spending by vendor (Story 29)
+router.get(
+  '/vendor-spend',
+  authenticate,
+  authorize(['owner']),
+  reportController.getVendorSpend
+);
+
 module.exports = router;

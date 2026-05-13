@@ -479,3 +479,83 @@ exports.getPaymentTrendsReport = async (req, res) => {
     });
   }
 };
+
+/**
+ * Get spending by vendor over the last N days.
+ * GET /api/reports/vendor-spend?days=30[&vendor_id=]
+ *
+ * Aggregates `vendor_invoices` joined with active `vendors` for invoices with
+ * `invoice_date >= today - days`. Returns per-vendor totals.
+ *
+ * Story 29.
+ */
+const ALLOWED_DAYS = [30, 60, 90, 180, 365];
+
+exports.getVendorSpend = async (req, res) => {
+  try {
+    const days = Number(req.query.days || 30);
+    if (!ALLOWED_DAYS.includes(days)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_DAYS',
+          message: `days must be one of: ${ALLOWED_DAYS.join(', ')}`
+        }
+      });
+    }
+
+    const vendorId = req.query.vendor_id ? Number(req.query.vendor_id) : null;
+
+    // Aggregate. Lazy-overdue rule: unpaid invoices (paid or overdue or unpaid)
+    // contribute to `total_outstanding`; paid invoices contribute to `total_paid`.
+    const params = [days];
+    let vendorWhere = '';
+    if (vendorId) {
+      vendorWhere = ' AND v.vendor_id = ?';
+      params.push(vendorId);
+    }
+
+    const [rows] = await pool.query(
+      `SELECT
+         v.vendor_id,
+         v.name AS vendor_name,
+         COUNT(vi.invoice_id) AS invoice_count,
+         COALESCE(SUM(CASE WHEN vi.status = 'paid' THEN vi.total ELSE 0 END), 0) AS total_paid,
+         COALESCE(SUM(CASE WHEN vi.status = 'unpaid' THEN vi.total ELSE 0 END), 0) AS total_outstanding,
+         MAX(vi.invoice_date) AS last_invoice_date
+       FROM vendors v
+       LEFT JOIN vendor_invoices vi
+         ON vi.vendor_id = v.vendor_id
+        AND vi.invoice_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+       WHERE v.status = 'active'${vendorWhere}
+       GROUP BY v.vendor_id, v.name
+       ORDER BY total_paid DESC, vendor_name ASC`,
+      params
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        days,
+        generated_at: new Date().toISOString(),
+        rows: rows.map((r) => ({
+          vendor_id: r.vendor_id,
+          vendor_name: r.vendor_name,
+          invoice_count: Number(r.invoice_count) || 0,
+          total_paid: Number(r.total_paid) || 0,
+          total_outstanding: Number(r.total_outstanding) || 0,
+          last_invoice_date: r.last_invoice_date
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Get vendor-spend report error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Failed to retrieve vendor-spend report',
+        details: error.message
+      }
+    });
+  }
+};

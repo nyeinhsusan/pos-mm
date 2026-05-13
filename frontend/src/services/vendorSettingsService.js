@@ -26,10 +26,19 @@ export const testEmail = async (to) => {
   return response.data;
 };
 
+/**
+ * Auto-reorder operational status (Story 32).
+ */
+export const autoReorderStatus = async () => {
+  const response = await api.get('/auto-reorder/status');
+  return response.data;
+};
+
 const vendorSettingsService = {
   getSettings,
   updateSettings,
-  testEmail
+  testEmail,
+  autoReorderStatus
 };
 
 export default vendorSettingsService;

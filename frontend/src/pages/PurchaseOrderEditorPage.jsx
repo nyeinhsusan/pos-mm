@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, Trash2, Sparkles, Save, X, Edit, Send, Download, FileText, Package, Clock } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Sparkles, Save, X, Edit, Send, Download, FileText, Package, Clock, Mail, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import purchaseOrderService from '../services/purchaseOrderService';
@@ -10,6 +10,9 @@ import api from '../services/api';
 import notify from '../services/notificationService';
 import Sidebar from '../components/Sidebar';
 import ReceivePurchaseOrderModal from '../components/ReceivePurchaseOrderModal';
+import VendorInvoiceCaptureModal from '../components/VendorInvoiceCaptureModal';
+import MarkInvoicePaidModal from '../components/MarkInvoicePaidModal';
+import vendorInvoiceService from '../services/vendorInvoiceService';
 
 const STATUS_BADGE = {
   draft: 'bg-section text-muted',
@@ -81,6 +84,21 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
   // Receive modal
   const [showReceiveModal, setShowReceiveModal] = useState(false);
 
+  // Invoice capture modal + invoices for this PO
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+  const [poInvoices, setPoInvoices] = useState([]);
+  const [markPaidInvoice, setMarkPaidInvoice] = useState(null);
+
+  const refreshPoInvoices = useCallback(async () => {
+    if (!id) return;
+    try {
+      const invRes = await vendorInvoiceService.listInvoices({ po_id: id });
+      if (invRes.success) setPoInvoices(invRes.data || []);
+    } catch (err) {
+      console.error('Failed to refresh PO invoices', err);
+    }
+  }, [id]);
+
   // History
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
@@ -131,11 +149,19 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
             quantity_ordered: it.quantity_ordered,
             quantity_received: it.quantity_received,
             unit_cost: Number(it.unit_cost),
-            tax_amount: Number(it.tax_amount)
+            tax_amount: Number(it.tax_amount),
+            ml_confidence: it.ml_confidence != null ? Number(it.ml_confidence) : null
           }))
         );
         if (historyRes.success) {
           setHistory(historyRes.data || []);
+        }
+        // Load invoices for this PO (Story 27)
+        try {
+          const invRes = await vendorInvoiceService.listInvoices({ po_id: id });
+          if (invRes.success) setPoInvoices(invRes.data || []);
+        } catch (invErr) {
+          console.error('Failed to load PO invoices', invErr);
         }
       }
     } catch (err) {
@@ -389,8 +415,16 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold">
-              {isCreate ? 'New Purchase Order' : po?.po_number || 'Purchase Order'}
+            <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+              <span>{isCreate ? 'New Purchase Order' : po?.po_number || 'Purchase Order'}</span>
+              {po?.source === 'auto_ml' && (
+                <span
+                  className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400"
+                  title="Auto-generated from ML predictions"
+                >
+                  <Sparkles size={12} /> Auto
+                </span>
+              )}
             </h1>
             {!isCreate && po && (
               <div className="flex items-center gap-2 mt-1">
@@ -401,9 +435,6 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
                 >
                   {STATUS_LABEL[po.status] || po.status}
                 </span>
-                {po.source === 'auto_ml' && (
-                  <span className="text-[10px] uppercase tracking-wider text-amber-400">Auto-Generated</span>
-                )}
               </div>
             )}
           </div>
@@ -455,6 +486,24 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
               className="px-3 py-2 rounded-xl bg-section text-primary text-sm font-semibold flex items-center gap-2 hover:bg-elevated"
             >
               <Clock size={16} /> History
+            </button>
+          )}
+          {isView && po && po.po_id && po.status !== 'draft' && (
+            <button
+              onClick={() => navigate(`/email-log?related_po_id=${po.po_id}`)}
+              className="px-3 py-2 rounded-xl bg-section text-primary text-sm font-semibold flex items-center gap-2 hover:bg-elevated"
+              title="View email send log for this PO"
+            >
+              <Mail size={16} /> Email Log
+            </button>
+          )}
+          {isView && po && po.po_id && (
+            <button
+              onClick={() => setShowInvoiceModal(true)}
+              className="px-3 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold flex items-center gap-2 hover:bg-indigo-500"
+              title="Capture an invoice for this PO"
+            >
+              <FileText size={16} /> Capture Invoice
             </button>
           )}
         </div>
@@ -526,7 +575,19 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
                     <tr key={it._key} className="border-t border-default">
                       <td className="py-2 px-2">
                         {readOnly ? (
-                          <span>{it.product_name || '—'}</span>
+                          <span className="flex items-center gap-1">
+                            {it.product_name || '—'}
+                            {it.ml_confidence != null && it.ml_confidence < 0.6 && (
+                              <span className="text-amber-400" title="ML prediction confidence below 60% — review carefully before sending">
+                                <AlertTriangle size={14} />
+                              </span>
+                            )}
+                            {it.ml_confidence != null && (
+                              <span className="text-xs text-muted ml-1">
+                                ({Math.round(it.ml_confidence * 100)}%)
+                              </span>
+                            )}
+                          </span>
                         ) : (
                           <select
                             value={it.product_id || ''}
@@ -636,6 +697,19 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
           </div>
         </div>
 
+        {/* Auto-generated notice (Story 31) */}
+        {isView && po?.source === 'auto_ml' && notes && (
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 mb-4 flex items-start gap-3">
+            <Sparkles size={18} className="text-amber-500 flex-none mt-0.5" />
+            <div>
+              <p className="text-xs uppercase tracking-wider text-amber-700 dark:text-amber-400 font-bold mb-1">
+                ML Auto-Generated
+              </p>
+              <p className="text-sm whitespace-pre-wrap">{notes}</p>
+            </div>
+          </div>
+        )}
+
         {/* Notes */}
         <div className="bg-elevated rounded-2xl p-5 mb-4 border border-default">
           <label className="text-xs uppercase tracking-wider text-muted mb-2 block">
@@ -658,6 +732,86 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
           <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-5 mb-4">
             <div className="text-xs uppercase tracking-wider text-red-400 mb-1">Cancellation reason</div>
             <div className="text-sm">{po.cancellation_reason}</div>
+          </div>
+        )}
+
+        {/* Captured Invoices (Story 27) */}
+        {isView && po?.po_id && (
+          <div className="bg-elevated rounded-2xl p-5 mb-4 border border-default">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <FileText size={16} className="text-muted" />
+                <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
+                  Captured Invoices ({poInvoices.length})
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowInvoiceModal(true)}
+                className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-500"
+              >
+                + Add
+              </button>
+            </div>
+            {poInvoices.length === 0 ? (
+              <p className="text-sm text-muted italic">No invoices captured for this PO yet.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-xs uppercase tracking-wider text-muted border-b border-default">
+                    <th className="text-left py-2">Invoice #</th>
+                    <th className="text-left py-2">Date</th>
+                    <th className="text-right py-2">Total</th>
+                    <th className="text-left py-2 pl-4">Status</th>
+                    <th className="text-left py-2 pl-4">Attachment</th>
+                    <th className="text-right py-2 pl-4">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {poInvoices.map((inv) => (
+                    <tr key={inv.invoice_id} className="border-b border-default/50 last:border-0">
+                      <td className="py-2 font-semibold">{inv.invoice_number}</td>
+                      <td className="py-2 text-muted">{inv.invoice_date?.slice(0, 10)}</td>
+                      <td className="py-2 text-right font-semibold">
+                        {Number(inv.total).toLocaleString()} {inv.currency}
+                      </td>
+                      <td className="py-2 pl-4">
+                        <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded ${
+                          inv.status === 'paid' ? 'bg-emerald-500/20 text-emerald-400' :
+                          inv.status === 'overdue' ? 'bg-rose-500/20 text-rose-400' :
+                          'bg-amber-500/20 text-amber-400'
+                        }`}>
+                          {inv.status}
+                        </span>
+                      </td>
+                      <td className="py-2 pl-4">
+                        {inv.attachment_url ? (
+                          <a
+                            href={`${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5002'}${inv.attachment_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-indigo-400 hover:text-indigo-300 text-xs underline"
+                          >
+                            View
+                          </a>
+                        ) : (
+                          <span className="text-muted text-xs">—</span>
+                        )}
+                      </td>
+                      <td className="py-2 pl-4 text-right">
+                        {(inv.status === 'unpaid' || inv.status === 'overdue') && (
+                          <button
+                            onClick={() => setMarkPaidInvoice(inv)}
+                            className="px-2 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold"
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 
@@ -773,6 +927,28 @@ const PurchaseOrderEditorPage = ({ mode = 'create' }) => {
           }}
         />
       )}
+
+      {/* Vendor Invoice capture modal */}
+      <VendorInvoiceCaptureModal
+        isOpen={showInvoiceModal}
+        onClose={() => setShowInvoiceModal(false)}
+        onSaved={() => {
+          setShowInvoiceModal(false);
+          refreshPoInvoices();
+        }}
+        vendorId={po?.vendor_id}
+        poId={po?.po_id}
+        vendorName={po?.vendor?.name}
+        poNumber={po?.po_number}
+      />
+
+      {/* Mark Invoice Paid modal */}
+      <MarkInvoicePaidModal
+        isOpen={!!markPaidInvoice}
+        invoice={markPaidInvoice}
+        onClose={() => setMarkPaidInvoice(null)}
+        onSaved={() => { setMarkPaidInvoice(null); refreshPoInvoices(); }}
+      />
 
       {/* History modal */}
       {showHistory && (

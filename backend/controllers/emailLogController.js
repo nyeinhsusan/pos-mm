@@ -9,7 +9,7 @@ const StoreConfig = require('../models/StoreConfig');
  */
 exports.getAllEmailLogs = async (req, res) => {
   try {
-    const { status, email_type, date_from, date_to, vendor_id, page = 1, pageSize = 50 } = req.query;
+    const { status, email_type, date_from, date_to, vendor_id, related_po_id, page = 1, pageSize = 50 } = req.query;
     const offset = (Number(page) - 1) * Number(pageSize);
     const limit = Math.min(Number(pageSize), 200);
 
@@ -37,6 +37,10 @@ exports.getAllEmailLogs = async (req, res) => {
     if (vendor_id) {
       whereClause += ' AND po.vendor_id = ?';
       params.push(vendor_id);
+    }
+    if (related_po_id) {
+      whereClause += ' AND el.related_po_id = ?';
+      params.push(related_po_id);
     }
 
     // Get total count

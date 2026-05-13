@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import autoReorderService from '../services/autoReorderService';
 import {
   LayoutDashboard,
   Package,
@@ -15,7 +16,9 @@ import {
   Truck,
   ShoppingBag,
   Mail,
-  Settings
+  Settings,
+  Receipt,
+  History
 } from 'lucide-react';
 
 const Sidebar = ({ isDark, toggleTheme }) => {
@@ -23,14 +26,36 @@ const Sidebar = ({ isDark, toggleTheme }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [pendingApprovalCount, setPendingApprovalCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== 'owner') return;
+
+    const fetch = async () => {
+      try {
+        const res = await autoReorderService.pendingApprovalCount();
+        if (res.success) {
+          setPendingApprovalCount(res.data.count);
+        }
+      } catch (err) {
+        console.error('Fetch pending count error:', err);
+      }
+    };
+
+    fetch();
+    const interval = setInterval(fetch, 30000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Marketplace', path: '/pos' },
     { icon: Package, label: 'Products', path: '/products' },
     { icon: Tag, label: 'Promotions', path: '/promotions', ownerOnly: true },
     { icon: Truck, label: 'Vendors', path: '/vendors', ownerOnly: true },
-    { icon: ShoppingBag, label: 'Purchase Orders', path: '/purchase-orders', ownerOnly: true },
+    { icon: ShoppingBag, label: 'Purchase Orders', path: '/purchase-orders', ownerOnly: true, badge: pendingApprovalCount > 0 ? pendingApprovalCount : null, badgeTooltip: `${pendingApprovalCount} auto-generated POs awaiting your approval.` },
+    { icon: Receipt, label: 'Invoices', path: '/invoices', ownerOnly: true },
     { icon: Mail, label: 'Email Log', path: '/email-log', ownerOnly: true },
+    { icon: History, label: 'Auto-Reorder Activity', path: '/auto-reorder-activity', ownerOnly: true },
     { icon: Settings, label: 'Vendor Settings', path: '/vendor-settings', ownerOnly: true },
     { icon: BarChart, label: 'Reports', path: '/reports', ownerOnly: true },
     { icon: Sparkles, label: 'AI Insights', path: '/ai-insights', ownerOnly: true },
@@ -39,6 +64,15 @@ const Sidebar = ({ isDark, toggleTheme }) => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleMenuItemClick = (item) => {
+    // If clicking Purchase Orders with a badge, navigate to filtered view
+    if (item.path === '/purchase-orders' && pendingApprovalCount > 0) {
+      navigate('/purchase-orders?status=draft&source=auto_ml');
+    } else {
+      navigate(item.path);
+    }
   };
 
   const filteredMenuItems = menuItems.filter(item => {
@@ -85,7 +119,7 @@ const Sidebar = ({ isDark, toggleTheme }) => {
             return (
               <button
                 key={item.path}
-                onClick={() => navigate(item.path)}
+                onClick={() => handleMenuItemClick(item)}
                 className={`
                   group relative p-2 rounded-[1.5rem] transition-all
                   hover:scale-110 flex items-center justify-center
@@ -96,9 +130,15 @@ const Sidebar = ({ isDark, toggleTheme }) => {
                 `}
               >
                 <Icon size={36} strokeWidth={1.5} />
+                {/* Badge */}
+                {item.badge && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {item.badge > 99 ? '99+' : item.badge}
+                  </span>
+                )}
                 {/* Hover tooltip */}
                 <span className="absolute left-full ml-4 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                  {item.label}
+                  {item.badgeTooltip || item.label}
                 </span>
               </button>
             );

@@ -17,6 +17,8 @@ import PurchaseOrdersPage from './pages/PurchaseOrdersPage';
 import PurchaseOrderEditorPage from './pages/PurchaseOrderEditorPage';
 import EmailLogPage from './pages/EmailLogPage';
 import VendorSettingsPage from './pages/VendorSettingsPage';
+import VendorInvoicesPage from './pages/VendorInvoicesPage';
+import AutoReorderActivityPage from './pages/AutoReorderActivityPage';
 
 function App() {
   return (
@@ -71,6 +73,8 @@ function App() {
                 <Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEditorPage mode="edit" />} />
                 <Route path="/email-log" element={<EmailLogPage />} />
                 <Route path="/vendor-settings" element={<VendorSettingsPage />} />
+                <Route path="/auto-reorder-activity" element={<AutoReorderActivityPage />} />
+                <Route path="/invoices" element={<VendorInvoicesPage />} />
                 <Route path="/reports" element={<ReportsPage />} />
                 <Route path="/ai-insights" element={<AIInsightsPage />} />
               </Route>

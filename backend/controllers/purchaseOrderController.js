@@ -1,8 +1,5 @@
 const PurchaseOrder = require('../models/PurchaseOrder');
-const emailService = require('../services/emailService');
-const vendorSettingsService = require('../services/vendorSettingsService');
-const pdfService = require('../services/pdfService');
-const StoreConfig = require('../models/StoreConfig');
+const { sendPurchaseOrderById, PurchaseOrderSendError } = require('../services/purchaseOrderSendService');
 
 const PurchaseOrderError = PurchaseOrder.PurchaseOrderError;
 
@@ -162,113 +159,36 @@ exports.cancelPurchaseOrder = async (req, res) => {
  */
 exports.sendPurchaseOrder = async (req, res) => {
   try {
-    const poId = req.params.id;
-
-    // 1. Load PO
-    const po = await PurchaseOrder.findById(poId);
-    if (!po) {
-      return res.status(404).json({
-        success: false,
-        error: { code: 'NOT_FOUND', message: 'Purchase order not found' }
-      });
-    }
-
-    // 2. Status check - must be draft
-    if (po.status !== 'draft') {
-      return res.status(409).json({
-        success: false,
-        error: { code: 'PO_NOT_SENDABLE', message: 'Only draft purchase orders can be sent' }
-      });
-    }
-
-    // 3. Vendor must have email
-    const vendorEmail = po.vendor?.email;
-    if (!vendorEmail) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'VENDOR_HAS_NO_EMAIL', message: 'Vendor has no email address' }
-      });
-    }
-
-    // 4. SMTP must be configured
-    const smtpConfig = await vendorSettingsService.getSmtpConfig();
-    if (!smtpConfig) {
-      return res.status(400).json({
-        success: false,
-        error: { code: 'SMTP_NOT_CONFIGURED', message: 'SMTP is not configured' }
-      });
-    }
-
-    // 5. Generate PDF
-    const branding = await StoreConfig.get();
-    const pdfResult = await pdfService.generatePoPdf(po, branding);
-
-    // 6. Compose email
-    const shopName = branding?.store_name || 'POS Myanmar';
-    const vendorName = po.vendor?.name || 'Vendor';
-    const contactName = po.vendor?.contact_name || vendorName;
-    const itemsList = po.items.map(item =>
-      `• ${item.product_name || `Product #${item.product_id}`}: ${item.quantity_ordered} × ${item.unit_cost} MMK`
-    ).join('\n');
-
-    const emailHtml = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #333;">Purchase Order ${po.po_number}</h2>
-        <p>Dear ${contactName},</p>
-        <p>Please find attached our purchase order for your review.</p>
-        <h3 style="color: #555;">Order Details:</h3>
-        <pre style="font-family: Arial, sans-serif; background: #f5f5f5; padding: 15px; border-radius: 5px;">${itemsList}</pre>
-        <h3 style="color: #333;">Total: ${Number(po.total).toLocaleString('en-US')} MMK</h3>
-        <p>Please review the attached PDF and confirm receipt.</p>
-        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-        <p style="color: #666; font-size: 12px;">
-          This email was sent from ${shopName}.<br>
-          Please do not reply to this email directly. For inquiries, please contact us through our official channels.
-        </p>
-      </div>
-    `;
-
-    const emailSubject = `Purchase Order ${po.po_number} from ${shopName}`;
-
-    // 7. Send email
-    const emailResult = await emailService.sendMail({
-      to: vendorEmail,
-      subject: emailSubject,
-      html: emailHtml,
-      attachments: [{
-        filename: pdfResult.fileName,
-        path: pdfResult.filePath
-      }],
-      emailType: 'po',
-      relatedPoId: po.po_id
-    });
-
-    // 8. Handle result
-    if (emailResult.status === 'sent') {
-      // Update PO status to sent
-      await PurchaseOrder.markAsSent(poId, pdfResult.url);
-
-      const updatedPo = await PurchaseOrder.findById(poId);
+    const result = await sendPurchaseOrderById(req.params.id, req.user.user_id);
+    if (result.status === 'sent') {
       return res.status(200).json({
         success: true,
         data: {
-          purchase_order: updatedPo,
-          email_log_id: emailResult.logId,
+          purchase_order: result.purchase_order,
+          email_log_id: result.email_log_id,
           status: 'sent'
         }
       });
-    } else {
-      // Email failed - PO stays as draft
-      return res.status(502).json({
+    }
+    return res.status(502).json({
+      success: false,
+      error: {
+        code: 'EMAIL_FAILED',
+        message: 'Failed to send email',
+        email_log_id: result.email_log_id
+      }
+    });
+  } catch (error) {
+    if (error instanceof PurchaseOrderSendError) {
+      const status =
+        error.code === 'NOT_FOUND' ? 404 :
+        error.code === 'PO_NOT_SENDABLE' ? 409 :
+        400;
+      return res.status(status).json({
         success: false,
-        error: {
-          code: 'EMAIL_FAILED',
-          message: 'Failed to send email',
-          email_log_id: emailResult.logId
-        }
+        error: { code: error.code, message: error.message }
       });
     }
-  } catch (error) {
     return handleDomainError(error, res, 'Failed to send purchase order');
   }
 };
