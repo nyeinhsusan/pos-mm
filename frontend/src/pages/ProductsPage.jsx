@@ -276,31 +276,31 @@ const ProductsPage = () => {
                         {/* Card Content */}
                         <div className="p-4">
                           {/* Category */}
-                          <p className="text-[8px] text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.2em] font-black mb-1">
+                          <p className="text-xs text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.2em] font-black mb-1">
                             {product.category || 'N/A'}
                           </p>
 
                           {/* Product Name */}
-                          <h3 className="text-sm font-bold text-primary truncate">
+                          <h3 className="text-base font-bold text-primary truncate">
                             {product.name}
                           </h3>
-                          <p className="text-[10px] text-muted mb-3">
+                          <p className="text-xs text-muted mb-3">
                             {product.sku}
                           </p>
 
                           {/* Price & Stock */}
                           <div className="flex items-end justify-between mb-3">
                             <div>
-                              <p className="text-lg font-bold text-primary">
+                              <p className="text-xl font-bold text-primary">
                                 {parseInt(product.price).toLocaleString()}
-                                <span className="text-[8px] font-normal opacity-50 ml-1">MMK</span>
+                                <span className="text-xs font-normal opacity-50 ml-1">MMK</span>
                               </p>
-                              <p className="text-[10px] text-muted">
+                              <p className="text-xs text-muted">
                                 Cost: {parseInt(product.cost_price).toLocaleString()} MMK
                               </p>
                             </div>
                             {/* Glassmorphism Stock Badge */}
-                            <div className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${
+                            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-widest ${
                               product.stock_quantity < 10
                                 ? 'bg-rose-500/10 text-rose-700 dark:text-rose-400'
                                 : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400'
@@ -317,9 +317,9 @@ const ProductsPage = () => {
                                   setSelectedProduct(product);
                                   setShowEditModal(true);
                                 }}
-                                className="flex-1 text-xs px-2 py-1.5 bg-btn-primary-bg hover:opacity-90 rounded-md text-btn-primary-text focus:outline-none focus:ring-2 focus:ring-accent transition-all flex items-center justify-center gap-1"
+                                className="flex-1 text-sm px-3 py-2 bg-btn-primary-bg hover:opacity-90 rounded-md text-btn-primary-text focus:outline-none focus:ring-2 focus:ring-accent transition-all flex items-center justify-center gap-1.5"
                               >
-                                <Edit2 size={12} />
+                                <Edit2 size={14} />
                                 Edit
                               </button>
                               <button
@@ -327,16 +327,16 @@ const ProductsPage = () => {
                                   setSelectedProduct(product);
                                   setShowRecommendationsModal(true);
                                 }}
-                                className="text-xs px-2 py-1.5 bg-section hover:bg-elevated border border-default rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+                                className="text-sm px-3 py-2 bg-section hover:bg-elevated border border-default rounded-md text-primary focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                                 title="AI Recommendations"
                               >
-                                <Sparkles size={12} />
+                                <Sparkles size={14} />
                               </button>
                               <button
                                 onClick={() => handleDelete(product.product_id, product.name)}
-                                className="text-xs px-2 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-md text-rose-700 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
+                                className="text-sm px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/30 rounded-md text-rose-700 dark:text-rose-400 focus:outline-none focus:ring-2 focus:ring-accent transition-colors"
                               >
-                                <Trash2 size={12} />
+                                <Trash2 size={14} />
                               </button>
                             </div>
                           )}
@@ -352,7 +352,7 @@ const ProductsPage = () => {
                   <div className="fade-in-delay-2 bg-surface border border-default rounded-[3rem] overflow-x-auto shadow-2xl">
                     <table className="w-full text-left">
                       <thead>
-                        <tr className="border-b border-default text-[10px] font-black uppercase tracking-[0.35em] text-muted">
+                        <tr className="border-b border-default text-xs font-black uppercase tracking-[0.35em] text-muted">
                           <th className="px-10 py-8">Asset Profile</th>
                           <th className="px-10 py-8">Category</th>
                           <th className="px-10 py-8">Valuation</th>
@@ -374,19 +374,19 @@ const ProductsPage = () => {
                                 </div>
                                 <div>
                                   <p className="font-black text-lg tracking-tighter text-primary group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors uppercase">{product.name}</p>
-                                  <p className="text-[10px] text-muted font-black uppercase tracking-widest mt-1">Ref: {product.sku}</p>
+                                  <p className="text-xs text-muted font-black uppercase tracking-widest mt-1">Ref: {product.sku}</p>
                                 </div>
                               </div>
                             </td>
-                            <td className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted italic">
+                            <td className="px-10 py-6 text-sm font-black uppercase tracking-widest text-muted italic">
                               {product.category || 'N/A'}
                             </td>
                             <td className="px-10 py-6">
-                              <p className="font-black text-xl text-primary tracking-tighter">{parseInt(product.price).toLocaleString()} <span className="text-[10px] opacity-30 font-bold ml-1">MMK</span></p>
+                              <p className="font-black text-xl text-primary tracking-tighter">{parseInt(product.price).toLocaleString()} <span className="text-xs opacity-30 font-bold ml-1">MMK</span></p>
                             </td>
                             <td className="px-10 py-6">
                               <div className="flex flex-col items-center gap-2">
-                                <span className={`text-[10px] font-black uppercase tracking-widest ${product.stock_quantity < 10 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
+                                <span className={`text-xs font-black uppercase tracking-widest ${product.stock_quantity < 10 ? 'text-rose-700 dark:text-rose-400' : 'text-emerald-700 dark:text-emerald-400'}`}>
                                   {product.stock_quantity} Units
                                 </span>
                                 <div className="w-20 h-1 bg-elevated rounded-full overflow-hidden">

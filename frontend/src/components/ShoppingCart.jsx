@@ -108,7 +108,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
         {cart.length === 0 ? (
           <div className="flex flex-col items-center justify-center flex-1 text-muted py-20 text-center">
             <ShoppingBag size={48} strokeWidth={1} className="mb-4 opacity-20" />
-            <p className="text-[8px] font-black uppercase tracking-[0.3em]">Cart Empty</p>
+            <p className="text-sm font-black uppercase tracking-[0.3em]">Cart Empty</p>
           </div>
         ) : (
           <AnimatePresence>
@@ -139,7 +139,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
                 {/* Product Info */}
                 <div className="flex-1 min-w-0 flex flex-col justify-between">
-                  <h4 className="font-black text-[11px] text-primary truncate uppercase">
+                  <h4 className="font-black text-sm text-primary truncate uppercase">
                     {item.name}
                   </h4>
                   <div className="flex items-center justify-between mt-1">
@@ -152,9 +152,9 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                         }}
                         className="p-1 text-muted hover:text-btn-primary-text transition-colors"
                       >
-                        <Minus size={10} />
+                        <Minus size={14} />
                       </button>
-                      <span className="text-[10px] font-black min-w-[16px] text-center text-primary">
+                      <span className="text-sm font-black min-w-[20px] text-center text-primary">
                         {item.quantity}
                       </span>
                       <button
@@ -165,13 +165,13 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                         disabled={item.quantity >= item.stock_quantity}
                         className="p-1 text-muted hover:text-primary transition-colors disabled:opacity-30"
                       >
-                        <Plus size={10} />
+                        <Plus size={14} />
                       </button>
                     </div>
                     {/* Subtotal */}
-                    <span className="text-[10px] text-indigo-700 dark:text-indigo-400 font-black">
+                    <span className="text-sm text-indigo-700 dark:text-indigo-400 font-black">
                       {(item.price * item.quantity).toLocaleString()}
-                      <span className="opacity-40 text-[8px]"> MMK</span>
+                      <span className="opacity-40 text-xs"> MMK</span>
                     </span>
                   </div>
                 </div>
@@ -193,8 +193,8 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
       {cart.length > 0 && (
         <div className="border-t border-default p-4 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-black text-muted uppercase tracking-wider">Also bought</h3>
-            <Sparkles size={14} className="text-indigo-700 dark:text-indigo-400" />
+            <h3 className="text-sm font-black text-muted uppercase tracking-wider">Also bought</h3>
+            <Sparkles size={16} className="text-indigo-700 dark:text-indigo-400" />
           </div>
 
           {loadingRecs ? (
@@ -227,24 +227,24 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] font-black text-primary truncate uppercase">{rec.product_name}</p>
+                      <p className="text-sm font-black text-primary truncate uppercase">{rec.product_name}</p>
                       <div className="flex items-center justify-between gap-2 mt-0.5">
-                        <p className="text-[8px] text-indigo-700 dark:text-indigo-400">{(rec.confidence * 100).toFixed(0)}% match</p>
+                        <p className="text-xs text-indigo-700 dark:text-indigo-400">{(rec.confidence * 100).toFixed(0)}% match</p>
                         {rec.price != null && (
-                          <p className="text-[10px] font-black text-primary whitespace-nowrap">
+                          <p className="text-sm font-black text-primary whitespace-nowrap">
                             {parseInt(rec.price).toLocaleString()}
-                            <span className="opacity-40 text-[8px]"> MMK</span>
+                            <span className="opacity-40 text-xs"> MMK</span>
                           </p>
                         )}
                       </div>
                     </div>
-                    <Plus size={14} className="text-muted" />
+                    <Plus size={16} className="text-muted" />
                   </button>
                 );
               })}
             </div>
           ) : (
-            <p className="text-[10px] text-muted text-center py-2">No recommendations</p>
+            <p className="text-xs text-muted text-center py-2">No recommendations</p>
           )}
         </div>
       )}
@@ -257,19 +257,19 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
             {Object.entries(itemDiscounts).map(([productId, discount]) => {
               const item = cart.find(i => i.product_id === parseInt(productId));
               return (
-                <div key={productId} className="flex justify-between items-center text-xs">
+                <div key={productId} className="flex justify-between items-center text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-muted truncate max-w-[120px]">
+                    <span className="text-muted truncate max-w-[140px]">
                       {item?.name}
                     </span>
                     <button
                       onClick={() => removeItemDiscount(parseInt(productId))}
                       className="text-red-600 dark:hover:text-red-400 hover:text-red-500"
                     >
-                      <X size={10} />
+                      <X size={12} />
                     </button>
                   </div>
-                  <span className="text-red-600 dark:text-red-400 font-black text-[10px]">
+                  <span className="text-red-600 dark:text-red-400 font-black text-sm">
                     -{discount.amount.toLocaleString()}
                   </span>
                 </div>
@@ -277,7 +277,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
             })}
 
             {cartDiscount && (
-              <div className="flex justify-between items-center text-xs">
+              <div className="flex justify-between items-center text-sm">
                 <div className="flex items-center gap-2">
                   <span className="text-muted">
                     Discount
@@ -286,10 +286,10 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
                     onClick={removeCartDiscount}
                     className="text-red-600 dark:hover:text-red-400 hover:text-red-500"
                   >
-                    <X size={10} />
+                    <X size={12} />
                   </button>
                 </div>
-                <span className="text-rose-700 dark:text-rose-400 font-black text-[10px]">
+                <span className="text-rose-700 dark:text-rose-400 font-black text-sm">
                   -{cartDiscount.amount.toLocaleString()}
                 </span>
               </div>
@@ -299,22 +299,22 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
 
         {/* Totals - Reference Style */}
         <div className="space-y-3 mb-6">
-          <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-muted">
+          <div className="flex justify-between text-sm font-black uppercase tracking-widest text-muted">
             <span>Gross Value</span>
             <span>{getSubtotal().toLocaleString()} MMK</span>
           </div>
           {getTotalDiscount() > 0 && (
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-rose-700 dark:text-rose-400">
-              <span className="flex items-center gap-2"><Tag size={10} /> Discount</span>
+            <div className="flex justify-between text-sm font-black uppercase tracking-widest text-rose-700 dark:text-rose-400">
+              <span className="flex items-center gap-2"><Tag size={14} /> Discount</span>
               <span>-{getTotalDiscount().toLocaleString()} MMK</span>
             </div>
           )}
           <div className="flex justify-between items-end pt-3 border-t border-default">
             <div className="flex flex-col">
-              <span className="text-[8px] font-black uppercase tracking-widest text-muted mb-1">Payable Amount</span>
+              <span className="text-xs font-black uppercase tracking-widest text-muted mb-1">Payable Amount</span>
               <span className="text-3xl font-[1000] tracking-tighter text-primary">{getCartTotal().toLocaleString()}</span>
             </div>
-            <span className="text-[10px] font-black text-muted uppercase tracking-widest">MMK</span>
+            <span className="text-sm font-black text-muted uppercase tracking-widest">MMK</span>
           </div>
         </div>
 
@@ -323,16 +323,16 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
           <button
             onClick={() => setShowDiscountModal(true)}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-section hover:bg-elevated border border-default text-primary py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full bg-section hover:bg-elevated border border-default text-primary py-3 rounded-xl font-black text-sm uppercase tracking-wider transition disabled:opacity-30 flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-accent"
           >
-            <Sparkles size={12} className="text-rose-700 dark:text-rose-400" />
+            <Sparkles size={14} className="text-rose-700 dark:text-rose-400" />
             Apply Discount
           </button>
 
           <button
             onClick={onCompleteSale}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-xl font-black text-sm uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full bg-btn-primary-bg hover:opacity-90 text-btn-primary-text py-3 rounded-xl font-black text-base uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             {loading ? 'Processing...' : 'Complete Sale'}
           </button>
@@ -340,7 +340,7 @@ const ShoppingCart = ({ onCompleteSale, loading }) => {
           <button
             onClick={clearCart}
             disabled={cart.length === 0 || loading}
-            className="w-full bg-section hover:bg-elevated border border-default text-muted py-3 rounded-xl font-black text-xs uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full bg-section hover:bg-elevated border border-default text-muted py-3 rounded-xl font-black text-sm uppercase tracking-wider transition disabled:opacity-30 focus:outline-none focus:ring-2 focus:ring-accent"
           >
             Clear Cart
           </button>

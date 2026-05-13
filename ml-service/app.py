@@ -187,7 +187,7 @@ def forecast_sales():
                 'message': 'days must be 7, 14, or 30'
             }), 400
 
-        # Load forecast from CSV (pre-generated during training)
+        # Load forecast from CSV (pre-generated predictions with relative dates)
         forecast_file = f'data/forecast_{days}d.csv'
 
         if not os.path.exists(forecast_file):
@@ -198,11 +198,15 @@ def forecast_sales():
 
         df_forecast = pd.read_csv(forecast_file)
 
-        # Format response
+        # Dynamically generate dates starting from today (not from static CSV dates)
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        forecast_dates = pd.date_range(start=today, periods=days, freq='D')
+
+        # Format response with dynamic dates
         forecast_data = []
-        for _, row in df_forecast.iterrows():
+        for i, (_, row) in enumerate(df_forecast.iterrows()):
             forecast_data.append({
-                'date': row['date'],
+                'date': forecast_dates[i].strftime('%Y-%m-%d'),
                 'predicted_sales': round(float(row['predicted_sales']), 2),
                 'lower_bound': round(float(row['lower_bound']), 2),
                 'upper_bound': round(float(row['upper_bound']), 2)

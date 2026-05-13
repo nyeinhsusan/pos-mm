@@ -414,15 +414,27 @@ const LowStockProducts = ({ products }) => {
 // Sales Trend Chart Component (Simple Line Visualization)
 const SalesTrendChart = ({ monthlyData, dateRange, onDateRangeChange }) => {
   const maxSales = Math.max(...monthlyData.map((d) => parseFloat(d.sales)), 1);
+  const visibleData = monthlyData.slice(-parseInt(dateRange));
+  const days = parseInt(dateRange);
+
+  // Determine label interval based on data length
+  const getLabelInterval = () => {
+    if (days <= 7) return 1;
+    if (days <= 14) return 2;
+    if (days <= 30) return 4;
+    return 7;
+  };
+
+  const labelInterval = getLabelInterval();
 
   return (
-    <div className="bg-surface border border-default rounded-lg shadow-md p-6 mb-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-surface border border-default rounded-lg shadow-md p-4 md:p-6 mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6">
         <h3 className="text-xl font-bold text-primary">Sales Trend</h3>
         <select
           value={dateRange}
           onChange={(e) => onDateRangeChange(e.target.value)}
-          className="px-4 py-2 border border-default bg-surface text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
+          className="px-3 py-2 text-sm border border-default bg-surface text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent"
         >
           <option value="7">Last 7 Days</option>
           <option value="14">Last 14 Days</option>
@@ -431,26 +443,31 @@ const SalesTrendChart = ({ monthlyData, dateRange, onDateRangeChange }) => {
         </select>
       </div>
 
-      <div className="relative h-64">
-        <div className="flex items-end justify-between h-full space-x-1">
-          {monthlyData.slice(-parseInt(dateRange)).map((day, index) => {
+      {/* Chart Container */}
+      <div className="relative h-48 sm:h-64">
+        <div className="flex items-end h-full gap-1">
+          {visibleData.map((day, index) => {
             const heightPercent = (parseFloat(day.sales) / maxSales) * 100;
             return (
               <div key={index} className="flex-1 flex flex-col items-center">
-                <div className="w-full flex items-end justify-center" style={{ height: '200px' }}>
+                {/* Bar */}
+                <div className="w-full flex items-end justify-center h-36 sm:h-40">
                   <div
-                    className="w-full bg-blue-600 rounded-t hover:bg-blue-700 transition-all cursor-pointer"
-                    style={{ height: `${heightPercent}%` }}
+                    className="w-[85%] bg-blue-600 rounded-t hover:bg-blue-700 transition-all cursor-pointer"
+                    style={{ height: `${Math.max(heightPercent, 2)}%` }}
                     title={`${day.date}: ${parseInt(day.sales).toLocaleString()} MMK`}
                   ></div>
                 </div>
-                {index % Math.floor(parseInt(dateRange) / 7) === 0 && (
-                  <div className="text-xs text-muted mt-2 transform -rotate-45">
+                {/* Date Label - show based on interval */}
+                {(index + 1) % labelInterval === 0 || index === visibleData.length - 1 ? (
+                  <div className="text-[8px] sm:text-xs text-muted mt-1 whitespace-nowrap">
                     {new Date(day.date).toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric'
                     })}
                   </div>
+                ) : (
+                  <div className="h-2 sm:h-3"></div>
                 )}
               </div>
             );
@@ -458,22 +475,23 @@ const SalesTrendChart = ({ monthlyData, dateRange, onDateRangeChange }) => {
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-4 text-sm">
+      {/* Summary Cards */}
+      <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-4 text-xs sm:text-sm">
         <div className="text-center">
           <div className="font-semibold text-blue-700 dark:text-blue-400">Revenue</div>
-          <div className="text-primary">
+          <div className="text-primary text-xs sm:text-base">
             {monthlyData.reduce((sum, d) => sum + parseFloat(d.sales), 0).toLocaleString()} MMK
           </div>
         </div>
         <div className="text-center">
           <div className="font-semibold text-emerald-700 dark:text-emerald-400">Profit</div>
-          <div className="text-primary">
+          <div className="text-primary text-xs sm:text-base">
             {monthlyData.reduce((sum, d) => sum + parseFloat(d.profit), 0).toLocaleString()} MMK
           </div>
         </div>
         <div className="text-center">
           <div className="font-semibold text-purple-700 dark:text-purple-400">Transactions</div>
-          <div className="text-primary">
+          <div className="text-primary text-xs sm:text-base">
             {monthlyData.reduce((sum, d) => sum + d.transactions, 0)}
           </div>
         </div>

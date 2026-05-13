@@ -97,10 +97,10 @@ async function generatePoPdf(po, shopBranding) {
 
     doc.fontSize(20).font('Helvetica-Bold').text(SHOP_NAME, 130, yPos);
     if (SHOP_ADDRESS) {
-      doc.fontSize(10).font('Helvetica').text(SHOP_ADDRESS, 130, yPos + 20, { width: 300 });
+      doc.fontSize(10).font('Helvetica').text(SHOP_ADDRESS, 130, yPos + 24, { width: 300 });
     }
     if (SHOP_PHONE) {
-      doc.fontSize(10).font('Helvetica').text(`Tel: ${SHOP_PHONE}`, 130, yPos + 35);
+      doc.fontSize(10).font('Helvetica').text(`Tel: ${SHOP_PHONE}`, 130, yPos + 52);
     }
 
     yPos = 130;

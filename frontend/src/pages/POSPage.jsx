@@ -316,7 +316,7 @@ const POSPage = () => {
                 <div className="flex gap-4 mb-8 overflow-x-auto pb-2 custom-scrollbar">
                   <button
                     onClick={() => setSelectedCategory('')}
-                    className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                    className={`flex-none px-8 py-3.5 rounded-2xl text-sm font-black uppercase tracking-[0.15em] transition-all border ${
                       selectedCategory === ''
                         ? 'bg-btn-primary-bg text-btn-primary-text border-btn-primary-bg shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
                         : 'bg-surface border-default text-muted hover:bg-section hover:text-primary'
@@ -328,7 +328,7 @@ const POSPage = () => {
                     <button
                       key={category}
                       onClick={() => setSelectedCategory(category)}
-                      className={`flex-none px-8 py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-[0.15em] transition-all border ${
+                      className={`flex-none px-8 py-3.5 rounded-2xl text-sm font-black uppercase tracking-[0.15em] transition-all border ${
                         selectedCategory === category
                           ? 'bg-btn-primary-bg text-btn-primary-text border-btn-primary-bg shadow-[0_10px_30px_rgba(255,255,255,0.1)]'
                           : 'bg-surface border-default text-muted hover:bg-section hover:text-primary'
@@ -494,7 +494,7 @@ const ProductCard = ({ product }) => {
 
         {/* Discount Badge */}
         {discount > 0 && (
-          <div className="absolute top-4 left-4 px-3 py-1 bg-indigo-600 rounded-full text-[8px] font-black text-white shadow-xl">
+          <div className="absolute top-4 left-4 px-3 py-1 bg-indigo-600 rounded-full text-sm font-black text-white shadow-xl">
             {discount}%
           </div>
         )}
@@ -503,12 +503,12 @@ const ProductCard = ({ product }) => {
       {/* Card Content */}
       <div className="p-5">
         {/* Category */}
-        <p className="text-[8px] text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.25em] font-black mb-1">
+        <p className="text-xs text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.25em] font-black mb-1">
           {product.category || 'N/A'}
         </p>
 
         {/* Product Name */}
-        <h3 className="text-xs font-black text-primary leading-tight uppercase truncate">
+        <h3 className="text-base font-black text-primary leading-tight uppercase truncate">
           {product.name}
         </h3>
 
@@ -516,22 +516,22 @@ const ProductCard = ({ product }) => {
         <div className="mt-4 pt-4 border-t border-default flex items-end justify-between">
           <div>
             {hasPromotion && originalPrice !== displayPrice && (
-              <p className="text-[8px] text-muted line-through">
+              <p className="text-sm text-muted line-through">
                 {parseInt(originalPrice).toLocaleString()}
               </p>
             )}
-            <p className="text-sm font-[1000] tracking-tighter text-primary whitespace-nowrap">
+            <p className="text-2xl font-[1000] tracking-tighter text-primary whitespace-nowrap">
               {parseInt(displayPrice).toLocaleString()}{' '}
-              <span className="text-[8px] font-bold opacity-30 ml-0.5">MMK</span>
+              <span className="text-sm font-bold opacity-30 ml-0.5">MMK</span>
             </p>
           </div>
-          <div className="w-8 h-8 rounded-lg bg-elevated flex items-center justify-center text-muted group-hover:bg-btn-primary-bg group-hover:text-btn-primary-text transition-all">
-            <Plus size={14} strokeWidth={3} />
+          <div className="w-9 h-9 rounded-lg bg-elevated flex items-center justify-center text-muted group-hover:bg-btn-primary-bg group-hover:text-btn-primary-text transition-all">
+            <Plus size={16} strokeWidth={3} />
           </div>
         </div>
 
         {/* Stock Info */}
-        <div className="flex items-center justify-between text-[10px] text-muted mt-3">
+        <div className="flex items-center justify-between text-sm text-muted mt-3">
           <span>Stock: {product.stock_quantity}</span>
           <LowStockBadge product={product} />
         </div>
