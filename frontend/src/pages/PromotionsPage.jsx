@@ -300,6 +300,32 @@ const PromotionsPage = () => {
           </div>
         )}
 
+        {/* Summary Stats */}
+        <div className="mb-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-surface border border-default rounded-2xl pt-12 pr-8 pb-10 pl-5">
+            <div className="text-xs text-muted uppercase tracking-wider">Total Promotions</div>
+            <div className="text-2xl font-bold text-primary">{promotions.length}</div>
+          </div>
+          <div className="bg-surface border border-default rounded-2xl pt-12 pr-8 pb-10 pl-5">
+            <div className="text-xs text-muted uppercase tracking-wider">Active</div>
+            <div className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">
+              {promotions.filter((p) => getPromotionStatus(p) === 'active').length}
+            </div>
+          </div>
+          <div className="bg-surface border border-default rounded-2xl pt-12 pr-8 pb-10 pl-5">
+            <div className="text-xs text-muted uppercase tracking-wider">Upcoming</div>
+            <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
+              {promotions.filter((p) => getPromotionStatus(p) === 'upcoming').length}
+            </div>
+          </div>
+          <div className="bg-surface border border-default rounded-2xl pt-12 pr-8 pb-10 pl-5">
+            <div className="text-xs text-muted uppercase tracking-wider">Expired</div>
+            <div className="text-2xl font-bold text-red-500 dark:text-red-400">
+              {promotions.filter((p) => getPromotionStatus(p) === 'expired').length}
+            </div>
+          </div>
+        </div>
+
         {/* Promotions Table */}
         {filteredPromotions.length === 0 ? (
           <div className="bg-surface border border-default rounded-lg shadow-sm p-12 text-center transition-colors">
@@ -427,31 +453,6 @@ const PromotionsPage = () => {
           </div>
         )}
 
-        {/* Summary Stats */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface border border-default rounded-2xl p-4">
-            <div className="text-xs text-muted uppercase tracking-wider">Total Promotions</div>
-            <div className="text-2xl font-bold text-primary">{promotions.length}</div>
-          </div>
-          <div className="bg-surface border border-default rounded-2xl p-4">
-            <div className="text-xs text-muted uppercase tracking-wider">Active</div>
-            <div className="text-2xl font-bold text-emerald-500 dark:text-emerald-400">
-              {promotions.filter((p) => getPromotionStatus(p) === 'active').length}
-            </div>
-          </div>
-          <div className="bg-surface border border-default rounded-2xl p-4">
-            <div className="text-xs text-muted uppercase tracking-wider">Upcoming</div>
-            <div className="text-2xl font-bold text-blue-500 dark:text-blue-400">
-              {promotions.filter((p) => getPromotionStatus(p) === 'upcoming').length}
-            </div>
-          </div>
-          <div className="bg-surface border border-default rounded-2xl p-4">
-            <div className="text-xs text-muted uppercase tracking-wider">Expired</div>
-            <div className="text-2xl font-bold text-red-500 dark:text-red-400">
-              {promotions.filter((p) => getPromotionStatus(p) === 'expired').length}
-            </div>
-          </div>
-        </div>
       </main>
 
       {/* Create/Edit Promotion Modal */}
