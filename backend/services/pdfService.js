@@ -100,7 +100,7 @@ async function generatePoPdf(po, shopBranding) {
       doc.fontSize(10).font('Helvetica').text(SHOP_ADDRESS, 130, yPos + 28, { width: 300 });
     }
     if (SHOP_PHONE) {
-      doc.fontSize(10).font('Helvetica').text(`Tel: ${SHOP_PHONE}`, 130, yPos + 76);
+      doc.fontSize(10).font('Helvetica').text(`Tel: ${SHOP_PHONE}`, 130, yPos + 58);
     }
 
     yPos = 130;

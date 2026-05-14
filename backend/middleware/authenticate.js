@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
-
 /**
  * JWT Authentication Middleware
  * Verifies JWT token from Authorization header
@@ -10,7 +9,6 @@ const authenticate = (req, res, next) => {
   try {
     // Extract token from Authorization header (Bearer format)
     const authHeader = req.headers.authorization;
-
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
@@ -20,9 +18,7 @@ const authenticate = (req, res, next) => {
         }
       });
     }
-
     const token = authHeader.split(' ')[1];
-
     // Verify token
     jwt.verify(token, jwtSecret, (err, decoded) => {
       if (err) {
@@ -35,7 +31,6 @@ const authenticate = (req, res, next) => {
             }
           });
         }
-
         if (err.name === 'JsonWebTokenError') {
           return res.status(401).json({
             success: false,
@@ -45,7 +40,6 @@ const authenticate = (req, res, next) => {
             }
           });
         }
-
         return res.status(401).json({
           success: false,
           error: {
@@ -54,7 +48,6 @@ const authenticate = (req, res, next) => {
           }
         });
       }
-
       // Attach user info to request object
       req.user = {
         user_id: decoded.user_id,
@@ -64,7 +57,6 @@ const authenticate = (req, res, next) => {
 
       next();
     });
-
   } catch (error) {
     console.error('Authentication error:', error);
     res.status(500).json({
